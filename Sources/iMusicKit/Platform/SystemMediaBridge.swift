@@ -11,12 +11,20 @@ import UIKit
 
 @MainActor
 public final class SystemMediaBridge {
+    /// Main-actor playback coordinator controlled by remote commands and system audio events.
     private let playback: PlaybackCoordinator
+    /// Application-owned media layout used to resolve validated files and working directories.
     private let vault: MediaVault
+    /// Notification tokens retained for interruption, route-change, and audio-service reset handling.
     private var observers: [NSObjectProtocol] = []
+    /// Whether playback was active before an interruption and may be eligible to resume.
     private var interruptedPlayback = false
+    /// Current artwork file name used as the system cover cache key.
     private var artworkHash: String?
+    /// Decoded system Now Playing cover reused until its cache key changes.
     private var cachedArtwork: MPMediaItemArtwork?
+    /// Registers remote playback commands and audio lifecycle observers, configures the iOS playback
+    /// session, and publishes the initial Now Playing snapshot.
     public init(playback: PlaybackCoordinator, vault: MediaVault) {
         self.playback = playback; self.vault = vault
         let center = MPRemoteCommandCenter.shared()
@@ -71,6 +79,8 @@ public final class SystemMediaBridge {
         #endif
         updateRoute(); publish()
     }
+    /// Publishes current metadata, validated elapsed time, artwork, and playback rate to Now Playing, and
+    /// enables remote seeking only when supported.
     public func publish() {
         guard let track = playback.track else { MPNowPlayingInfoCenter.default().nowPlayingInfo = nil; return }
         if artworkHash != track.artworkName {
@@ -114,8 +124,12 @@ import CarPlay
 
 @MainActor
 public final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
+    /// Weak shared app model used by CarPlay scenes and silent cloud notification handling.
     public static weak var model: AppModel?
+    /// Active CarPlay template controller, held weakly for the connected vehicle scene.
     private weak var controller: CPInterfaceController?
+    /// Retains the connected vehicle controller, ensures the shared library has launched, and renders the
+    /// CarPlay library.
     public func templateApplicationScene(_ templateApplicationScene: CPTemplateApplicationScene, didConnect interfaceController: CPInterfaceController) {
         controller = interfaceController
         Task { @MainActor [weak self] in
@@ -124,6 +138,7 @@ public final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationScene
             self?.renderLibrary()
         }
     }
+    /// Releases the vehicle template controller when the CarPlay scene disconnects.
     public func templateApplicationScene(_ templateApplicationScene: CPTemplateApplicationScene, didDisconnectInterfaceController interfaceController: CPInterfaceController) {
         controller = nil
     }

@@ -2,9 +2,13 @@ import SwiftUI
 
 enum CollectionKind { case artists, albums, genres, playlists }
 struct CollectionGrid: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Collection category displayed by this grid: artists, albums, genres, or playlists.
     let kind: CollectionKind
+    /// Query owned by this collection page; never shared with song lists or another tab.
     @State private var search = ""
+    /// Localized prompt describing the collection that this page actually searches.
     private var searchPrompt: String {
         switch kind {
         case .artists: L10n.text("Search Artists")
@@ -13,10 +17,15 @@ struct CollectionGrid: View {
         case .playlists: L10n.text("Search Playlists")
         }
     }
+    /// Artist names matching this page's query, independent of any song-page search.
     private var artists: [String] { model.artists.filter { LibrarySearch.matches(search, in: [$0]) } }
+    /// Album representatives matching album title or artist information on this page.
     private var albums: [Track] { model.albums.filter { LibrarySearch.matches(search, in: [$0.displayAlbum, $0.displayArtist, $0.albumArtist]) } }
+    /// Genre names matching this page's query, including the localized uncategorized label.
     private var genres: [String] { Array(Set(model.tracks.map(\.genre))).sorted().filter { LibrarySearch.matches(search, in: [$0.isEmpty ? L10n.text("Uncategorized") : $0]) } }
+    /// Playlists whose names match this page's query; song metadata is not searched here.
     private var playlists: [Playlist] { model.playlists.filter { LibrarySearch.matches(search, in: [$0.name]) } }
+    /// Whether the currently selected collection has any visible results.
     private var isEmpty: Bool {
         switch kind {
         case .artists: artists.isEmpty
@@ -25,6 +34,7 @@ struct CollectionGrid: View {
         case .playlists: playlists.isEmpty
         }
     }
+    /// Renders the selected collection with its own search scope and appropriate empty state.
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 145, maximum: 210), spacing: 20)], alignment: .leading, spacing: 24) {

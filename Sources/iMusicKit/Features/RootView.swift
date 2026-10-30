@@ -3,13 +3,19 @@ import UniformTypeIdentifiers
 import ImageIO
 
 public struct RootView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Current sidebar destination; compact iPhone layouts use independent tab navigation instead.
     @State private var selection: LibraryDestination? = .home
+    /// SwiftUI scene lifecycle used to persist playback and stop uploads in the background.
     @Environment(\.scenePhase) private var scenePhase
     #if os(iOS)
+    /// Horizontal size class used to choose compact tabs or adaptive split navigation.
     @Environment(\.horizontalSizeClass) private var sizeClass
     #endif
+    /// Creates the adaptive app navigation shell using the shared observable application model.
     public init(model: AppModel) { self.model = model }
+    /// Renders adaptive navigation, native import and editor presentations, alerts, and shared progress.
     public var body: some View {
         content
             .preferredColorScheme(model.appearance == "light" ? .light : model.appearance == "dark" ? .dark : nil)
@@ -45,6 +51,7 @@ public struct RootView: View {
             .alert("iMusic", isPresented: Binding(get: { model.message != nil }, set: { if !$0 { model.message = nil } })) { Button(L10n.text("OK"), role: .cancel) { model.message = nil } } message: { Text(model.message ?? "") }
             .overlay { if model.isWorking { ProgressView(L10n.text("Processing library…")).padding(28).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18)) } }
     }
+    /// Platform-adaptive navigation shell containing tabs or the sidebar split view.
     @ViewBuilder private var content: some View {
         #if os(iOS)
         if sizeClass == .compact {
@@ -62,6 +69,7 @@ public struct RootView: View {
             .tabItem { Label(destination.title, systemImage: destination.symbol) }
     }
     #endif
+    /// Sidebar navigation with a detail stack and a shared playback footer.
     private var splitView: some View {
         NavigationSplitView {
             List(selection: $selection) {
@@ -88,6 +96,7 @@ public struct RootView: View {
         } detail: { NavigationStack { DestinationView(model: model, destination: selection ?? .home) } }
             .safeAreaInset(edge: .bottom, spacing: 0) { footer }
     }
+    /// Import progress, playback errors, and the current-song mini player below the main content.
     private var footer: some View {
         VStack(spacing: 0) {
             if model.importing {
@@ -103,14 +112,21 @@ public struct RootView: View {
             if model.playback.track != nil { MiniPlayer(model: model) }
         }
     }
+    /// Allowed file types for the current audio import, linked-folder, or backup picker operation.
     private var pickerTypes: [UTType] { switch model.fileImportPurpose { case .audio: [.audio, .data]; case .folder: [.folder]; case .backup: [.zip] } }
 }
 
 private final class ArtworkCache: @unchecked Sendable {
+    /// Process-wide thumbnail cache shared by artwork views.
     static let shared = ArtworkCache()
+    /// Cost-limited decoded image cache keyed by file path and requested thumbnail size.
     let cache = NSCache<NSString, ImageBox>()
     init() { cache.totalCostLimit = 32 * 1_024 * 1_024 }
-    final class ImageBox { let image: CGImage; init(_ image: CGImage) { self.image = image } }
+    final class ImageBox {
+        /// Decoded thumbnail wrapped in an object so NSCache can retain and evict it.
+        let image: CGImage
+        init(_ image: CGImage) { self.image = image }
+    }
     func image(at url: URL, size: Int) -> CGImage? {
         let key = (url.path + String(size)) as NSString
         if let image = cache.object(forKey: key) { return image.image }
@@ -121,10 +137,15 @@ private final class ArtworkCache: @unchecked Sendable {
 }
 
 struct ArtworkView: View {
+    /// Song supplying the cover file name; nil renders the standard music placeholder.
     let track: Track?
+    /// Managed artwork directory used to resolve the cover file.
     let vault: MediaVault
+    /// Artwork edge length in points, also used to choose the decoded thumbnail resolution.
     var size: CGFloat = 48
+    /// Asynchronously loaded thumbnail for the currently displayed cover.
     @State private var image: CGImage?
+    /// Renders decoded artwork or a placeholder and reloads it when the cover file name changes.
     var body: some View {
         ZStack {
             if let image { Image(decorative: image, scale: 1).resizable().scaledToFill() }
@@ -144,10 +165,15 @@ struct ArtworkView: View {
 }
 
 struct DestinationView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Library route whose content, title, and toolbar are currently displayed.
     let destination: LibraryDestination
+    /// Whether the new-playlist name alert is presented.
     @State private var newPlaylist = false
+    /// Draft name entered in the new-playlist alert.
     @State private var playlistName = ""
+    /// Renders the selected library page and shared import and playlist-creation toolbar.
     var body: some View {
         Group {
             switch destination {
@@ -183,7 +209,9 @@ struct DestinationView: View {
 }
 
 struct HomeView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Renders the unfiltered library overview and the user-configured home sections.
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {

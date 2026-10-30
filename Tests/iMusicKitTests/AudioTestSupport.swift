@@ -13,21 +13,36 @@ enum AudioTestSupport {
 /// Deterministic coordinator test double. Never constructs an AVAudioEngine or opens an audio device.
 @MainActor final class TestPlaybackEngine: PlaybackEngine {
     struct PlayCall {
+        /// Managed file URL captured from a playback request without opening an audio device.
         let url: URL
+        /// Queue occurrence identity requested by the coordinator.
         let entryID: UUID
+        /// Requested start position in seconds captured for deterministic assertions.
         let position: Double
     }
+    /// Controllable fake engine clock in seconds; nil models a decoder that has not started.
     var elapsed: Double?
+    /// Controllable fake duration in seconds; defaults to the generated four-second fixture.
     var duration: Double? = 4
+    /// Fake rendering state updated by playback commands without touching audio hardware.
     var isPlaying = false
+    /// Callback announcing the queue-entry identity whose decoder became current.
     var onTrack: ((UUID) -> Void)?
+    /// Callback publishing backend playback-state transitions.
     var onState: ((PlaybackStatus) -> Void)?
+    /// Callback fired when the current audio reaches its end.
     var onEnd: (() -> Void)?
+    /// Callback forwarding decoding or audio-engine failures to the coordinator.
     var onError: ((Error) -> Void)?
+    /// Whether play immediately emits onTrack or leaves it pending for callback-race tests.
     var announcesStartAutomatically = true
+    /// Recorded play calls used to assert queue identity, file selection, and resume position.
     private(set) var plays: [PlayCall] = []
+    /// Recorded seek targets in seconds used to verify preview commits and pause behavior.
     private(set) var seeks: [Double] = []
+    /// Number of explicit pause calls received by the fake backend.
     private(set) var pauseCount = 0
+    /// Number of explicit resume calls received by the fake backend.
     private(set) var resumeCount = 0
 
     func play(url: URL, entryID: UUID, position: Double, region: ClosedRange<Double>?, sampleRate: Double) throws {

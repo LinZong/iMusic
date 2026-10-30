@@ -8,13 +8,22 @@ import Darwin
 
 @MainActor @Observable
 public final class WiFiUploadServer {
+    /// Reachable local HTTP address while the upload listener is active; nil when stopped.
     public private(set) var address: String?
+    /// Short-lived pairing code displayed only while the transfer page is open.
     public private(set) var code = ""
+    /// Most recent listener startup failure presented by the transfer page.
     public private(set) var error: String?
+    /// Network.framework-backed event loop group owned by the current listener.
     private var group: NIOTSEventLoopGroup?
+    /// Bound server channel closed when the transfer page is dismissed or the app backgrounds.
     private var channel: Channel?
+    /// Listener generation token that invalidates a startup finishing after stop was requested.
     private var runID = UUID()
+    /// Creates a stopped local upload service; the listener is started explicitly by the transfer page.
     public init() {}
+    /// Starts an ephemeral local HTTP listener, creates fresh pairing credentials, and calls onUpload for
+    /// each completed staging file. Startup failures are published through error.
     public func start(staging: URL, onUpload: @escaping @Sendable (URL) -> Void) async {
         guard channel == nil, group == nil else { return }
         let resources: WiFiUploadResources, configuration: Data
@@ -34,6 +43,8 @@ public final class WiFiUploadServer {
             address = "http://\(Self.localAddress()):\(listener.localAddress?.port ?? 0)"
         } catch { if runID == run { self.error = error.localizedDescription; self.group = nil }; try? await group.shutdownGracefully() }
     }
+    /// Invalidates pending startup, closes the listener, shuts down its event loop group, and clears the
+    /// advertised address.
     public func stop() async {
         runID = UUID(); address = nil
         let old = channel, oldGroup = group; channel = nil; group = nil
@@ -55,10 +66,17 @@ public final class WiFiUploadServer {
 }
 
 private final class UploadSession: @unchecked Sendable {
-    let code: String, token = UUID().uuidString + UUID().uuidString
+    /// Pairing secret shared with the visible native transfer page.
+    let code: String
+    /// Random bearer credential issued after pairing and scoped to this listener session.
+    let token = UUID().uuidString + UUID().uuidString
+    /// Protects the pairing failure counter across concurrent HTTP connections.
     private let lock = NSLock()
+    /// Number of unsuccessful pairing attempts used to limit repeated guesses.
     private var failures = 0
+    /// Bundled upload page resources exposed through a fixed HTTP path allowlist.
     let resources: WiFiUploadResources
+    /// Encoded client language, supported extensions, and file-size limits for this session.
     let configuration: Data
     init(code: String, resources: WiFiUploadResources, configuration: Data) {
         self.code = code; self.resources = resources; self.configuration = configuration
@@ -74,13 +92,23 @@ private final class UploadSession: @unchecked Sendable {
 private final class UploadHandler: ChannelInboundHandler, @unchecked Sendable {
     typealias InboundIn = HTTPServerRequestPart
     typealias OutboundOut = HTTPServerResponsePart
-    private let staging: URL, session: UploadSession
+    /// Application-owned directory receiving streamed upload files before import.
+    private let staging: URL
+    /// Shared pairing credentials and static resources for this listener session.
+    private let session: UploadSession
+    /// Callback transferring a completed staging file to the native import flow.
     private let onUpload: @Sendable (URL) -> Void
+    /// HTTP headers for the request currently being processed on this connection.
     private var request: HTTPRequestHead?
+    /// Open output handle for a streamed audio upload, closed on completion or failure.
     private var file: FileHandle?
+    /// Temporary staging path deleted if the upload is rejected or interrupted.
     private var fileURL: URL?
+    /// Small buffered request body used for pairing rather than streaming audio.
     private var payload = Data()
+    /// Bytes received for the current request, checked against body size limits.
     private var byteCount = 0
+    /// Whether the current request has already failed validation and its remaining body must be ignored.
     private var rejected = false
     init(staging: URL, session: UploadSession, onUpload: @escaping @Sendable (URL) -> Void) { self.staging = staging; self.session = session; self.onUpload = onUpload }
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {

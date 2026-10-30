@@ -1,27 +1,46 @@
 import SwiftUI
 
 private struct SongRowData: Identifiable {
+    /// Row occurrence identity; playlist duplicates use distinct entry identities rather than track identities.
     var id: UUID
+    /// Song metadata and managed-file reference represented by this row.
     var track: Track
+    /// Song title used for table display and title sorting.
     var title: String { track.title }
+    /// Localized performer label used by the artist table column.
     var artist: String { track.displayArtist }
+    /// Localized album label used by the album table column.
     var album: String { track.displayAlbum }
+    /// Full-track duration in seconds used for sorting and aggregate list totals.
     var duration: Double { track.duration }
 }
 
 struct SongListView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Song collection or playlist whose entries form the unfiltered scope of this page.
     let destination: LibraryDestination
+    /// Query local to this song page; does not filter another tab or the Home feed.
     @State private var search = ""
+    /// Selected row occurrence identities used for macOS table selection and bulk actions.
     @State private var selected: Set<UUID> = []
+    /// macOS table comparators applied to the visible playback order.
     @State private var sortOrder: [KeyPathComparator<SongRowData>] = []
+    /// Whether the playlist rename alert is presented.
     @State private var rename = false
+    /// Draft playlist name entered in the rename alert.
     @State private var newName = ""
+    /// Whether the picker for adding songs to this playlist is presented.
     @State private var addingTracks = false
+    /// Whether the playlist name and cover editor is presented.
     @State private var editingPlaylist = false
+    /// Trashed songs awaiting confirmation before deleting their managed copies.
     @State private var pendingPermanentDeletion: [Track] = []
+    /// Trashed playlists matching this page's local Trash query.
     private var deletedPlaylists: [Playlist] { model.deletedPlaylists.filter { LibrarySearch.matches(search, in: [$0.name]) } }
+    /// Active playlist record for a playlist destination, or nil for a general song collection.
     private var playlist: Playlist? { if case .playlist(let id) = destination { return model.playlists.first { $0.id == id } }; return nil }
+    /// Visible song occurrences after page-local filtering; preserves duplicate playlist entries.
     private var rows: [SongRowData] {
         if let playlist {
             return playlist.entries.compactMap { entry in
@@ -31,6 +50,7 @@ struct SongListView: View {
         }
         return model.songs(for: destination).filter { LibrarySearch.matches(search, track: $0) }.map { SongRowData(id: $0.id, track: $0) }
     }
+    /// Renders the scoped song table or native list with search, playback, playlist, and Trash actions.
     var body: some View {
         VStack(spacing: 0) {
             if destination == .songs {
@@ -169,9 +189,13 @@ struct SongListView: View {
 }
 
 struct TrackRow: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Song displayed by this reusable row.
     let track: Track
+    /// Playback action supplied by the containing collection to preserve its queue order.
     let action: () -> Void
+    /// Renders a song occurrence with its playback action, favorite toggle, and contextual menu.
     var body: some View {
         HStack(spacing: 12) {
             Button(action: action) {
@@ -192,8 +216,12 @@ struct TrackRow: View {
 }
 
 struct TrackActions: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Songs targeted by the shared queue, favorite, metadata, download, and Trash menu actions.
     let tracks: [Track]
+    /// Renders actions applying to the supplied song selection, including queue, metadata, and Trash
+    /// operations.
     var body: some View {
         Button(L10n.text("Play Next"), systemImage: "text.line.first.and.arrowtriangle.forward") { for track in tracks.reversed() { model.playback.enqueue(track, next: true) } }
         Button(L10n.text("Add to Queue"), systemImage: "text.badge.plus") { for track in tracks { model.playback.enqueue(track) } }

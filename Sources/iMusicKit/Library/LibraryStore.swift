@@ -2,21 +2,32 @@ import Foundation
 import GRDB
 
 public struct FieldVersion: Codable, Comparable, Sendable, Equatable {
+    /// Monotonic logical edit clock used to resolve individual field conflicts.
     public var clock: Int64
+    /// Stable writer identity used to break ties when edit clocks are equal.
     public var device: String
+    /// Orders logical edit clocks first, then writer identities, so all devices resolve equal-time edits
+    /// consistently.
     public static func < (lhs: Self, rhs: Self) -> Bool { lhs.clock == rhs.clock ? lhs.device < rhs.device : lhs.clock < rhs.clock }
 }
 
 public struct SyncEnvelope: Codable, Sendable {
+    /// Record identity shared by SQLite, backup manifests, and CloudKit record names.
     public var id: String
+    /// Record discriminator: track, playlist, or listen.
     public var kind: String
+    /// JSON-encoded domain record whose fields are merged using their version stamps.
     public var payload: Data
+    /// Per-field edit stamps, including entry-prefixed stamps for playlist occurrence changes.
     public var versions: [String: FieldVersion]
+    /// Whether this envelope contains a track with a durable permanent-deletion tombstone.
     public var isPermanentlyDeletedTrack: Bool {
         guard kind == "track", let track = try? JSONDecoder().decode(Track.self, from: payload) else { return false }
         return track.permanentlyDeletedAt != nil
     }
 
+    /// Merges matching records field by field using version stamps, merges playlist occurrences
+    /// independently, and preserves permanent deletion. Throws for mismatched identities or malformed JSON.
     public func merged(with other: Self) throws -> Self {
         guard id == other.id, kind == other.kind else { throw MusicError.invalidBackup(L10n.text("Record identifiers do not match")) }
         var fields = try JSONSerialization.jsonObject(with: payload) as? [String: Any] ?? [:]
@@ -49,9 +60,14 @@ public struct SyncEnvelope: Codable, Sendable {
 }
 
 public final class LibraryStore: @unchecked Sendable {
+    /// Preference keys allowed in backups; excludes local paths, account state, and device authorization.
     public static let portableSettings: Set<String> = ["audio", "appearance", "vinyl", "serifFont", "homeSections", "splitArtists", "artistSeparators"]
+    /// Concurrent SQLite pool that serializes writes and keeps record changes atomic with their sync outbox.
     private let database: DatabasePool
+    /// Persistent local writer identity used when generating field version stamps.
     public let deviceID: String
+    /// Opens the SQLite pool, creates the initial schema when needed, and loads or generates the persistent
+    /// writer identity. Throws on filesystem or database failure.
     public init(url: URL) throws {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         database = try DatabasePool(path: url.path)
@@ -83,6 +99,8 @@ public final class LibraryStore: @unchecked Sendable {
         }
     }
 
+    /// Loads songs sorted by title, optionally including Trash and applying indexed or escaped substring
+    /// search; permanently deleted records are always excluded.
     public func tracks(includeDeleted: Bool = false, query: String = "") throws -> [Track] {
         try database.read { db in
             let rows: [Row]
@@ -102,50 +120,71 @@ public final class LibraryStore: @unchecked Sendable {
                 .filter { $0.permanentlyDeletedAt == nil && (includeDeleted || $0.deletedAt == nil) }.sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
         }
     }
+    /// Loads a song by its library identity, returning nil for missing or permanently deleted records;
+    /// songs in Trash remain queryable.
     public func track(id: UUID) throws -> Track? {
         let track = try record(id: id.uuidString, as: Track.self)
         return track?.permanentlyDeletedAt == nil ? track : nil
     }
+    /// Returns durable deletion records used to retry pending managed-file cleanup after interruption.
     public func permanentlyDeletedTracks() throws -> [Track] {
         try records(kind: "track", as: Track.self).filter { $0.permanentlyDeletedAt != nil }
     }
+    /// Checks permanent-deletion history for this library identity before assigning an identity to an
+    /// explicit reimport.
     public func wasPermanentlyDeleted(id: UUID) throws -> Bool {
         try record(id: id.uuidString, as: Track.self)?.permanentlyDeletedAt != nil
     }
+    /// Checks whether this audio digest was permanently deleted so linked-folder scans do not silently
+    /// reimport it.
     public func wasPermanentlyDeleted(hash: String) throws -> Bool {
         try database.read { db in
             try Data.fetchAll(db, sql: "SELECT payload FROM records WHERE kind='track' AND hash=?", arguments: [hash])
                 .contains { try JSONDecoder().decode(Track.self, from: $0).permanentlyDeletedAt != nil }
         }
     }
+    /// Finds the first non-purged record for a content digest, including a trashed copy that an import can
+    /// restore.
     public func track(hash: String) throws -> Track? {
         try database.read { db in
             try Data.fetchAll(db, sql: "SELECT payload FROM records WHERE kind='track' AND hash=?", arguments: [hash])
                 .map { try JSONDecoder().decode(Track.self, from: $0) }.first { $0.permanentlyDeletedAt == nil }
         }
     }
+    /// Loads playlists sorted by name, optionally including recoverable playlists in Trash.
     public func playlists(includeDeleted: Bool = false) throws -> [Playlist] {
         try records(kind: "playlist", as: Playlist.self).filter { includeDeleted || $0.deletedAt == nil }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
+    /// Loads persisted actual-listening segments for local statistics.
     public func listenEvents() throws -> [ListenEvent] { try records(kind: "listen", as: ListenEvent.self) }
+    /// Persists song metadata with per-field edit stamps and an atomic outbox update; rejects attempts to
+    /// revive a permanently deleted identity.
     public func save(_ track: Track) throws { try saveRecord(id: track.id.uuidString, kind: "track", value: track) }
+    /// Validates a nonempty playlist name, normalizes entry order, and persists metadata and outbox changes
+    /// atomically.
     public func save(_ playlist: Playlist) throws {
         guard !playlist.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw MusicError.invalidName }
         var normalized = playlist
         normalized.entries = playlist.entries.enumerated().map { index, entry in var entry = entry; entry.order = Double(index); return entry }
         try saveRecord(id: playlist.id.uuidString, kind: "playlist", value: normalized)
     }
+    /// Persists or updates a listening segment under its stable identity and queues its versioned record
+    /// for synchronization.
     public func save(_ event: ListenEvent) throws { try saveRecord(id: event.id.uuidString, kind: "listen", value: event) }
+    /// Decodes a saved preference using the requested Codable type; returns nil when the key does not exist.
     public func setting<T: Decodable>(_ key: String, as: T.Type) throws -> T? {
         try database.read { db in
             guard let data = try Data.fetchOne(db, sql: "SELECT value FROM settings WHERE key=?", arguments: [key]) else { return nil }
             return try JSONDecoder().decode(T.self, from: data)
         }
     }
+    /// JSON-encodes a preference and atomically inserts or replaces its stored value.
     public func setSetting<T: Encodable>(_ key: String, value: T) throws {
         let data = try JSONEncoder().encode(value)
         try database.write { db in try db.execute(sql: "INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", arguments: [key, data]) }
     }
+    /// Returns only the allowlisted portable preferences, excluding device identity, local paths, and
+    /// account authorization.
     public func exportSettings() throws -> [String: Data] {
         try database.read { db in
             var settings: [String: Data] = [:]
@@ -156,6 +195,7 @@ public final class LibraryStore: @unchecked Sendable {
             return settings
         }
     }
+    /// Runs SQLite quick_check and returns whether the database reports a consistent structure.
     public func integrityIsOK() throws -> Bool { try database.read { try String.fetchOne($0, sql: "PRAGMA quick_check") == "ok" } }
     /// Commit the durable tombstone and reference changes before unlinking files.
     public func permanentlyDeleteTracks(_ ids: Set<UUID>) throws {
@@ -217,17 +257,22 @@ public final class LibraryStore: @unchecked Sendable {
             try db.execute(sql: "UPDATE settings SET value=? WHERE key='playback'", arguments: [try JSONEncoder().encode(session)])
         }
     }
+    /// Exports every versioned library record, including deletion markers, for backups or synchronization.
     public func envelopes() throws -> [SyncEnvelope] {
         try database.read { db in try Row.fetchAll(db, sql: "SELECT * FROM records").map(Self.envelope) }
     }
+    /// Returns each queued sync envelope with its current outbox generation for conditional acknowledgement.
     public func pending() throws -> [(SyncEnvelope, Int64)] {
         try database.read { db in
             try Row.fetchAll(db, sql: "SELECT records.*, outbox.generation FROM records JOIN outbox USING(id)").map { (try Self.envelope($0), $0["generation"]) }
         }
     }
+    /// Clears an outbox item only if the acknowledged generation still matches, preserving edits made while
+    /// an upload was in flight.
     public func acknowledge(id: String, generation: Int64) throws {
         try database.write { db in try db.execute(sql: "DELETE FROM outbox WHERE id=? AND generation=?", arguments: [id, generation]) }
     }
+    /// Queues every current record for upload, increasing generations for records already pending.
     public func markAllForSync() throws {
         try database.write { db in try db.execute(sql: "INSERT INTO outbox SELECT id,1 FROM records WHERE true ON CONFLICT(id) DO UPDATE SET generation=generation+1") }
     }
@@ -243,6 +288,8 @@ public final class LibraryStore: @unchecked Sendable {
             if merged.isPermanentlyDeletedTrack || merged.kind == "playlist" { try removePermanentlyDeletedReferences(db) }
         }
     }
+    /// Atomically merges backup envelopes and portable settings, queues restored records for sync, and
+    /// removes references to permanently deleted songs.
     public func restore(_ envelopes: [SyncEnvelope], settings: [String: Data] = [:]) throws {
         try database.write { db in
             for incoming in envelopes {
@@ -257,6 +304,8 @@ public final class LibraryStore: @unchecked Sendable {
             }
         }
     }
+    /// Combines identical-content song records into a chosen keeper, redirects playlist references,
+    /// preserves favorites and artwork, and trashes duplicate records.
     public func mergeDuplicates(keeping keeperID: UUID, removing ids: Set<UUID>) throws {
         guard var keeper = try track(id: keeperID), !ids.contains(keeperID) else { return }
         let duplicates = try tracks().filter { ids.contains($0.id) }

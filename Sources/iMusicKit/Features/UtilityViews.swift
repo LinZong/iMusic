@@ -4,8 +4,11 @@ import ImageIO
 import CoreFoundation
 
 struct WiFiView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Renders the local transfer address and pairing code while managing the upload listener lifetime.
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -27,8 +30,11 @@ struct WiFiView: View {
 }
 
 struct ImportReportView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Renders completed import counts and any per-file failures.
     var body: some View {
         NavigationStack {
             List {
@@ -42,12 +48,19 @@ struct ImportReportView: View {
 }
 
 struct BackupExportView: View {
+    /// Completed backup or diagnostic file to save or share outside the app.
     let url: URL
+    /// Localized heading describing the generated file.
     var title = L10n.text("Backup Ready")
+    /// Localized instructions explaining how to retain the exported file.
     var detail = L10n.text("Save the backup outside the app, such as on an external drive or in iCloud Drive.")
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Status or error from the native Save As operation.
     @State private var message: String?
+    /// Whether the asynchronous save operation is active and dismissal should be disabled.
     @State private var saving = false
+    /// Renders save and share actions for a generated backup or anonymous diagnostics file.
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -79,17 +92,28 @@ struct BackupExportView: View {
 }
 
 struct TrackEditor: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Song metadata snapshot captured when the editor opened.
     let original: Track
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Editable metadata copy applied to the library only when Save is chosen.
     @State private var draft: Track
+    /// Whether the artwork image file importer is presented.
     @State private var chooseArtwork = false
+    /// Online release candidates returned by an explicitly requested album search.
     @State private var releases: [OnlineRelease] = []
+    /// Whether an online release or artwork request is in progress.
     @State private var onlineBusy = false
+    /// Most recent metadata, artwork, or online lookup error shown inside the editor.
     @State private var error: String?
+    /// Selected source encoding for previewing repair of incorrectly decoded tags.
     @State private var encodingName = "Shift-JIS"
+    /// Preview title, artist, and album strings awaiting explicit application to the draft.
     @State private var repaired: [String]?
     init(model: AppModel, original: Track) { self.model = model; self.original = original; _draft = State(initialValue: original) }
+    /// Renders editable tags, artwork selection, encoding repair, and optional online cover lookup.
     var body: some View {
         NavigationStack {
             Form {
@@ -145,8 +169,11 @@ struct TrackEditor: View {
 }
 
 struct SettingsView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Whether the consent dialog for manual online artwork search is presented.
     @State private var onlineConsent = false
+    /// Renders playback statistics, appearance, sources, backups, optional network features, and diagnostics.
     var body: some View {
         Form {
             Section(L10n.text("Listening Statistics")) {
@@ -196,7 +223,9 @@ struct SettingsView: View {
 }
 
 struct HomeLayoutView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Renders home-section visibility and ordering controls backed by persistent preferences.
     var body: some View {
         List {
             ForEach($model.homeSections) { $section in

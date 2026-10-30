@@ -4,7 +4,14 @@ import ZIPFoundation
 @testable import iMusicKit
 
 final class TestLibrary {
-    let root: URL, store: LibraryStore, vault: MediaVault, importer: ImportCoordinator
+    /// Isolated temporary directory containing only generated test library data.
+    let root: URL
+    /// SQLite store scoped to this disposable test library.
+    let store: LibraryStore
+    /// Managed file layout inside the disposable test root.
+    let vault: MediaVault
+    /// Import actor configured with this test library's isolated store and vault.
+    let importer: ImportCoordinator
     init() throws {
         root = FileManager.default.temporaryDirectory.appendingPathComponent("iMusicTests-" + UUID().uuidString)
         vault = try MediaVault(root: root); store = try LibraryStore(url: root.appendingPathComponent("Library.sqlite"))

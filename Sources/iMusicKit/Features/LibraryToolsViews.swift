@@ -4,17 +4,29 @@ import ImageIO
 import UniformTypeIdentifiers
 
 struct BatchTrackEditor: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     let model: AppModel
+    /// Selected songs whose metadata will be updated together when Save is chosen.
     let tracks: [Track]
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Replacement performer credit, applied only when its edit toggle is enabled.
     @State private var artist = ""
+    /// Replacement album title, applied only when its edit toggle is enabled.
     @State private var album = ""
+    /// Replacement album artist credit, applied only when its edit toggle is enabled.
     @State private var albumArtist = ""
+    /// Replacement genre tag, applied only when its edit toggle is enabled.
     @State private var genre = ""
+    /// Whether to replace the artist field on every selected song.
     @State private var editArtist = false
+    /// Whether to replace the album field on every selected song.
     @State private var editAlbum = false
+    /// Whether to replace the album-artist field on every selected song.
     @State private var editAlbumArtist = false
+    /// Whether to replace the genre field on every selected song.
     @State private var editGenre = false
+    /// Renders opt-in metadata replacements so unchecked fields retain their existing values.
     var body: some View {
         NavigationStack {
             Form {
@@ -39,11 +51,17 @@ struct BatchTrackEditor: View {
 }
 
 struct PlaylistSongPicker: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     let model: AppModel
+    /// Playlist receiving the selected song occurrences after confirmation.
     let playlist: Playlist
+    /// Selected song identities to append to the destination playlist.
     @State private var selected: Set<UUID> = []
+    /// Query local to the song picker, independent of the underlying playlist search.
     @State private var search = ""
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Renders searchable songs and selection controls for appending entries to one playlist.
     var body: some View {
         NavigationStack {
             List(model.tracks.filter { LibrarySearch.matches(search, track: $0) }) { track in
@@ -57,11 +75,17 @@ struct PlaylistSongPicker: View {
 }
 
 struct PlaylistEditor: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     let model: AppModel
+    /// Editable playlist copy whose name and cover are committed when Save is chosen.
     @State var playlist: Playlist
+    /// Whether the custom playlist-cover image importer is presented.
     @State private var chooseCover = false
+    /// Most recent custom-cover validation or file-access error shown in this editor.
     @State private var error: String?
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Renders playlist name and cover editing before applying the saved draft.
     var body: some View {
         NavigationStack {
             Form {
@@ -84,7 +108,9 @@ struct PlaylistEditor: View {
 }
 
 struct DuplicatesView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     let model: AppModel
+    /// Renders groups of identical audio content and lets the user choose which record to keep.
     var body: some View {
         let groups = Dictionary(grouping: model.tracks, by: \.assetHash).values.filter { $0.count > 1 }
         List {
@@ -102,12 +128,17 @@ struct DuplicatesView: View {
 }
 
 struct ListeningStatsView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     let model: AppModel
+    /// Number of days included in the report; zero includes the entire listening history.
     @State private var period = 30
+    /// Listening segments within the selected reporting period.
     private var events: [ListenEvent] { model.events.filter { period == 0 || $0.startedAt > Calendar.current.date(byAdding: .day, value: -period, to: Date())! } }
+    /// Listening seconds aggregated by local calendar day for the statistics chart.
     private var daily: [(date: Date, seconds: Double)] {
         Dictionary(grouping: events) { Calendar.current.startOfDay(for: $0.startedAt) }.map { (date: $0.key, seconds: $0.value.reduce(0) { $0 + $1.seconds }) }.sorted { $0.date < $1.date }
     }
+    /// Renders period-scoped listening totals, daily activity, and the most played songs.
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {

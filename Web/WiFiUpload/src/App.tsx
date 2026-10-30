@@ -8,35 +8,61 @@ import {
 } from "./api";
 import { languageFor, translations, type Language, type Message } from "./i18n";
 
+/** Lifecycle of one browser upload; received means accepted by HTTP, not yet imported by the app. */
 type Status = "waiting" | "uploading" | "received" | "failed" | "cancelled";
+/** One selected file and the client-side state of its transfer attempt. */
 interface Entry {
+  /** Page-local identity that distinguishes separate selections of the same file. */
   id: number;
+  /** Browser file object whose bytes are sent to the native app. */
   file: File;
+  /** Current transfer lifecycle state used for row labels and available actions. */
   status: Status;
+  /** Integer upload percentage; 100 is assigned only after native HTTP acceptance. */
   progress: number;
+  /** Optional translation key describing this file's validation or transfer failure. */
   error?: Message;
+  /** Whether extension or size validation failed, preventing this file from being retried unchanged. */
   invalid?: boolean;
 }
+/** Converts known transfer failures to message keys and hides unknown transport details behind a network error. */
 const errorID = (error: unknown): Message =>
   error instanceof TransferError ? error.messageID : "networkError";
+/** Renders pairing and sequential file transfer using app-supplied language and upload capabilities. */
 export default function App() {
+  /** Active UI language; browser preferences are replaced by the app language after configuration loads. */
   const [language, setLanguage] = useState<Language>(() =>
     languageFor(navigator.languages),
   );
+  /** Localized strings selected by the active UI language. */
   const t = translations[language];
+  /** Validated native capabilities; files cannot be queued until configuration is available. */
   const [config, setConfig] = useState<Configuration>();
+  /** Whether the configuration request failed and its retry state should be shown. */
   const [configFailed, setConfigFailed] = useState(false);
+  /** Retry generation that triggers a fresh cancellable configuration request. */
   const [reload, setReload] = useState(0);
+  /** Six-digit pairing code entered by the user and cleared after successful authentication. */
   const [code, setCode] = useState("");
+  /** In-memory bearer credential valid only for the currently paired native listener. */
   const [token, setToken] = useState<string>();
+  /** Whether a pairing request is pending, disabling duplicate submissions. */
   const [pairing, setPairing] = useState(false);
+  /** Page-level localized pairing or transfer failure, independent of individual file errors. */
   const [error, setError] = useState<Message>();
+  /** Ordered file queue and per-file transfer states owned by this browser page. */
   const [entries, setEntries] = useState<Entry[]>([]);
+  /** Rendered state indicating that the sequential upload loop is active. */
   const [busy, setBusy] = useState(false);
+  /** Whether a file drag is currently over the drop area. */
   const [dragging, setDragging] = useState(false);
+  /** Monotonic source of page-local file identities. */
   const counter = useRef(0),
+    /** Synchronous guard preventing overlapping upload loops before React rerenders. */
     running = useRef(false),
+    /** Cancellation controller for the active sequential upload operation. */
     controller = useRef<AbortController | null>(null);
+  /** Cancellation controller for pairing, aborted if this component unmounts. */
   const pairingController = useRef<AbortController | null>(null);
   useEffect(() => {
     const request = new AbortController();
@@ -63,6 +89,7 @@ export default function App() {
     [],
   );
 
+  /** Validates the code locally, requests a listener token, and updates localized pairing state. */
   async function submitPair(event: FormEvent) {
     event.preventDefault();
     if (!/^\d{6}$/.test(code)) {
@@ -82,6 +109,7 @@ export default function App() {
       setPairing(false);
     }
   }
+  /** Adds selected files with extension and size validation while preserving each selection's identity. */
   function addFiles(files: File[]) {
     if (!config || busy || !token) return;
     setEntries((previous) => [
@@ -108,6 +136,7 @@ export default function App() {
       }),
     ]);
   }
+  /** Applies a partial state update only to the queued file occurrence with the requested identity. */
   function update(id: number, changes: Partial<Entry>) {
     setEntries((previous) =>
       previous.map((entry) =>
@@ -115,6 +144,7 @@ export default function App() {
       ),
     );
   }
+  /** Uploads waiting entries one at a time and stops the batch on expired pairing or network failure. */
   async function startUpload() {
     if (!token || running.current) return;
     running.current = true;

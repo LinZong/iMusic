@@ -1,14 +1,24 @@
 import type { Language, Message } from "./i18n";
+/** Runtime upload capabilities advertised by the native app for this listener session. */
 export interface Configuration {
+  /** App-selected language, which takes priority over the browser language. */
   language: Language;
+  /** Lowercase audio extensions the native importer accepts. */
   extensions: string[];
+  /** Maximum allowed size of one uploaded file, in bytes. */
   maxFileSize: number;
 }
+/** Transfer failure carrying a shared translation key rather than a hardcoded UI message. */
 export class TransferError extends Error {
-  constructor(public readonly messageID: Message) {
+  /** Creates a transfer failure; messageID identifies the localized explanation shown by the UI. */
+  constructor(
+    /** Shared translation key describing this failure. */
+    public readonly messageID: Message,
+  ) {
     super(messageID);
   }
 }
+/** Loads and validates app language and upload limits; the signal cancels an obsolete page request. */
 export async function configuration(
   signal: AbortSignal,
 ): Promise<Configuration> {
@@ -25,6 +35,7 @@ export async function configuration(
     throw new TransferError("networkError");
   return value;
 }
+/** Exchanges the six-digit pairing code for a session-scoped bearer token; rejects invalid codes. */
 export async function pair(code: string, signal: AbortSignal): Promise<string> {
   const response = await fetch("/pair", {
     method: "POST",
@@ -36,6 +47,10 @@ export async function pair(code: string, signal: AbortSignal): Promise<string> {
   if (!response.ok) throw new TransferError("networkError");
   return response.text();
 }
+/**
+ * Streams one file using the paired token, reports progress from 0 through 99, and supports cancellation.
+ * Resolves only after the app accepts the complete body; acceptance does not imply native import finished.
+ */
 export function upload(
   file: File,
   token: string,

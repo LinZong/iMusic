@@ -2,23 +2,37 @@ import Foundation
 import ZIPFoundation
 
 public struct BackupManifest: Codable {
+    /// Backup format identifier checked before restoring any records or files.
     public var formatVersion = 1
+    /// Time the backup manifest was assembled.
     public var createdAt = Date()
+    /// Whether every non-purged audio record must have a matching file in this archive.
     public var includesAudio: Bool
+    /// Versioned library records to merge when restoring, including deletion markers.
     public var records: [SyncEnvelope]
+    /// Archive-relative file entries with expected sizes and SHA-256 digests.
     public var files: [BackupFile]
+    /// Optional encoded portable preferences; absent in backups that do not include settings.
     public var settings: [String: Data]?
 }
 public struct BackupFile: Codable {
+    /// Validated path relative to the archive root, under Media or Artwork.
     public var path: String
+    /// Expected lowercase SHA-256 digest used to verify the extracted bytes.
     public var hash: String
+    /// Expected uncompressed file size in bytes.
     public var size: UInt64
 }
 
 public actor BackupService {
+    /// SQLite library store used by this service to read records and persist atomic changes.
     private let store: LibraryStore
+    /// Application-owned media layout used to resolve validated files and working directories.
     private let vault: MediaVault
+    /// Binds archive operations to the specified library store and application-owned media directories.
     public init(store: LibraryStore, vault: MediaVault) { self.store = store; self.vault = vault }
+    /// Builds a temporary ZIP containing versioned metadata, portable settings, artwork, and optionally
+    /// verified audio. Returns the archive URL; the caller saves or shares it outside the app.
     public func export(includeAudio: Bool) throws -> URL {
         let directory = vault.staging.appendingPathComponent("backup-" + UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -92,6 +106,8 @@ public actor BackupService {
         try store.cleanupPermanentlyDeletedFiles(in: vault)
         return try tracks.filter { try store.track(id: $0.id) != nil && !vault.contains($0) }.count
     }
+    /// Rejects absolute paths, parent traversal, backslashes, and null bytes before archive extraction or
+    /// managed-file restoration.
     public static func safePath(_ path: String) -> Bool {
         !path.isEmpty && !path.hasPrefix("/") && !path.contains("\\") && !path.contains("\0") && !path.split(separator: "/").contains("..")
     }

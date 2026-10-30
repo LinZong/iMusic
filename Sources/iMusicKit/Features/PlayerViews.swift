@@ -2,7 +2,9 @@ import SwiftUI
 import AVKit
 
 struct MiniPlayer: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Renders current-song metadata and compact playback controls below the active page.
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
@@ -19,8 +21,11 @@ struct MiniPlayer: View {
 }
 
 public struct MiniPlayerWindow: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// Creates the standalone macOS player window content backed by the shared app model.
     public init(model: AppModel) { self.model = model }
+    /// Renders the standalone macOS compact player window and its expanded-player action.
     public var body: some View {
         VStack(spacing: 18) {
             ArtworkView(track: model.playback.track, vault: model.vault, size: 220)
@@ -37,11 +42,17 @@ public struct MiniPlayerWindow: View {
 }
 
 public struct NowPlayingView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Accessibility preference disabling decorative artwork rotation when reduced motion is requested.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Whether the equalizer settings sheet is presented.
     @State private var equalizer = false
+    /// Creates the full player presentation backed by the shared app model and playback coordinator.
     public init(model: AppModel) { self.model = model }
+    /// Renders the adaptive full player with artwork, timeline, playback options, and queue access.
     public var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -118,8 +129,11 @@ public struct NowPlayingView: View {
 }
 
 struct SeekBar: View {
+    /// Playback timeline and seek commands used to keep drag previews separate from engine time.
     @Bindable var playback: PlaybackCoordinator
+    /// Whether a slider drag preview is active and must be committed at the end of the gesture.
     @State private var isDragging = false
+    /// Renders an accessible progress slider whose preview is committed only after the interaction ends.
     var body: some View {
         VStack(spacing: 4) {
             Slider(value: Binding(get: { playback.timeline.fraction }, set: {
@@ -146,8 +160,11 @@ struct SeekBar: View {
 }
 
 struct QueueView: View {
+    /// Shared observable app model providing library snapshots and the actions used by this view.
     @Bindable var model: AppModel
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Renders playback occurrences with selection, removal, reordering, and upcoming-queue controls.
     var body: some View {
         NavigationStack {
             List {
@@ -169,9 +186,13 @@ struct QueueView: View {
 }
 
 struct EqualizerView: View {
+    /// Observable equalizer gain, bypass, and speed preferences applied by the playback coordinator.
     @Bindable var playback: PlaybackCoordinator
+    /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
+    /// Display labels for the ten equalizer bands, ordered from bass to treble.
     private let frequencies = ["31 Hz", "62 Hz", "125 Hz", "250 Hz", "500 Hz", "1 kHz", "2 kHz", "4 kHz", "8 kHz", "16 kHz"]
+    /// Renders equalizer presets, individual band gains, bypass, and playback-speed controls.
     var body: some View {
         NavigationStack {
             Form {
@@ -196,6 +217,7 @@ struct AirPlayControl: UIViewRepresentable {
 }
 #else
 struct AirPlayControl: View {
+    /// Opens the macOS system sound settings for choosing AirPlay or another output route.
     var body: some View { Button { NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Sound-Settings.extension")!) } label: { Image(systemName: "airplayaudio") }.help(L10n.text("Choose AirPlay or another output in System Sound Settings")) }
 }
 #endif

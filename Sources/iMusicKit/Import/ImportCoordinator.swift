@@ -2,33 +2,54 @@ import Foundation
 import SFBAudioEngine
 
 public struct ImportProgress: Sendable {
+    /// Number of source files processed, including duplicates and failures.
     public var completed = 0
+    /// Number of source files scheduled for the current import.
     public var total = 0
+    /// Number of newly committed songs in the current import.
     public var imported = 0
+    /// Number of existing copies skipped or restored instead of importing another copy.
     public var duplicates = 0
+    /// Localized per-file failures collected for the import report.
     public var errors: [String] = []
+    /// Name of the file currently being processed for progress display.
     public var currentFilename = ""
+    /// Creates an empty progress report with zero counters and no per-file failures.
     public init() {}
 }
 
 struct ImportJournal: Codable {
+    /// Unique identity of the recoverable import operation and its journal file.
     var id: UUID
+    /// File name of the completed staging copy associated with this operation.
     var stagedName: String
+    /// Source file name preserved when reconstructing an interrupted import.
     var originalFilename: String
+    /// Prepared song metadata, if decoding completed before the interruption.
     var track: Track?
 }
 private struct SourceStamp: Codable {
+    /// Source file size in bytes at the last successful folder import.
     var size: Int
+    /// Source modification date used with size to skip unchanged folder files.
     var modified: Date
+    /// Content digest recorded for the last imported version of the source file.
     var hash: String
 }
 
 public actor ImportCoordinator {
+    /// Supported source extensions advertised to folder scanning and the browser upload client.
     public static let extensions: Set<String> = ["mp3", "m4a", "aac", "alac", "flac", "wav", "aif", "aiff", "ogg", "oga", "opus", "caf"]
+    /// SQLite library store used by this service to read records and persist atomic changes.
     private let store: LibraryStore
+    /// Application-owned media layout used to resolve validated files and working directories.
     private let vault: MediaVault
+    /// Binds serialized import and recovery operations to one library store and its managed media layout.
     public init(store: LibraryStore, vault: MediaVault) { self.store = store; self.vault = vault }
 
+    /// Copies selected files or folder contents into the managed library, decodes tags, deduplicates
+    /// content, and reports per-file progress. Cancellation retains completed imports and failures are
+    /// returned in the summary.
     public func importFiles(_ urls: [URL], skipUnchanged: Bool = false, progress: @escaping @Sendable (ImportProgress) -> Void) async -> ImportProgress {
         var result = ImportProgress()
         var stamps = (try? store.setting("sourceStamps", as: [String: SourceStamp].self)) ?? [:]
@@ -138,8 +159,14 @@ public actor ImportCoordinator {
         if let error = coordinationError ?? copyError as NSError? { throw error }
     }
 
+    /// Commits permanent-deletion tombstones and reference cleanup for the selected trashed songs before
+    /// any files are unlinked.
     public func permanentlyDeleteTracks(_ ids: Set<UUID>) throws { try store.permanentlyDeleteTracks(ids) }
+    /// Retries deletion of unreferenced managed copies recorded by permanent-deletion tombstones, without
+    /// touching source files.
     public func cleanupPermanentlyDeletedFiles() throws { try store.cleanupPermanentlyDeletedFiles(in: vault) }
+    /// Replays durable import journals and pending deletion cleanup after an interrupted run; returns
+    /// recoverable error messages for presentation.
     public func recover() -> [String] {
         var errors: [String] = []
         for directory in (try? FileManager.default.contentsOfDirectory(at: vault.staging, includingPropertiesForKeys: nil)) ?? [] where directory.lastPathComponent.hasPrefix("upload-") {
@@ -176,6 +203,7 @@ public actor ImportCoordinator {
         return errors
     }
 
+    /// Stores a security-scoped bookmark for a selected folder without moving or modifying its source files.
     public func addFolder(_ url: URL) throws {
         let accessed = url.startAccessingSecurityScopedResource(); defer { if accessed { url.stopAccessingSecurityScopedResource() } }
         #if os(macOS)
@@ -187,6 +215,8 @@ public actor ImportCoordinator {
         folders.append(FolderSource(name: url.lastPathComponent, bookmark: bookmark))
         try store.setSetting("folders", value: folders)
     }
+    /// Resolves saved folder bookmarks and imports changed audio while reporting progress; records scan
+    /// times and access failures for settings.
     public func scanFolders(progress: @escaping @Sendable (ImportProgress) -> Void) async -> [String] {
         var folders = (try? store.setting("folders", as: [FolderSource].self)) ?? []
         var errors: [String] = []

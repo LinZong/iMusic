@@ -62,6 +62,8 @@ macOS 默认索引只分析当前平台激活的条件编译分支。App 切换�
 
 ## 验证与开发
 
+代码文档统一使用英文：Swift 的所有成员字段（包括私有、计算属性与界面状态）及 public 方法／初始化方法使用 `///`，协议 API 同样需要说明；React／TypeScript 类型字段和导出 API 使用 JSDoc。注释应解释用途、单位、状态约定和必要的副作用，新增或修改声明时同步维护。
+
 ```sh
 swift test
 npm test --prefix Web/WiFiUpload

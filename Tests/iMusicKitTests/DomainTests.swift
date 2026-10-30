@@ -35,6 +35,7 @@ final class TimelineTests: XCTestCase {
 }
 
 final class QueueTests: XCTestCase {
+    /// Stable per-test song identities used to exercise queue order and repeated occurrences.
     let tracks = [UUID(), UUID(), UUID()]
     func testSequentialStopsAtEnd() {
         var queue = PlaybackSession(); queue.replace(with: tracks, startingAt: 2)

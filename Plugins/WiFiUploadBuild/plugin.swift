@@ -3,6 +3,7 @@ import Foundation
 
 @main
 struct WiFiUploadBuild: BuildToolPlugin {
+    /// Builds the React upload client into plugin-owned resources before SwiftPM packages its bundle.
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         [.prebuildCommand(
             displayName: "Build iMusic Wi-Fi Upload (React + TypeScript)",
