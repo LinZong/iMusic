@@ -37,6 +37,8 @@ public protocol PlaybackEngine: AnyObject {
     /// Applies a playback speed multiplier; the production backend clamps it to the supported 0.5
     /// through 3 range.
     func setRate(_ value: Float)
+    /// Applies linear application gain from zero through one without changing device volume.
+    func setVolume(_ value: Float)
     /// Applies ten gain values in decibels and the equalizer enabled state; the production backend
     /// clamps gains and compensates positive boost.
     func setEqualizer(_ gains: [Float], enabled: Bool)
@@ -59,6 +61,8 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
     private var equalizer = AVAudioUnitEQ(numberOfBands: 10)
     /// Time-pitch Audio Unit used to change playback speed while retaining pitch.
     private var timePitch = AVAudioUnitTimePitch()
+    /// Application mixer gain reapplied whenever the processing graph or player is recreated.
+    private var outputVolume: Float = 1
     /// Decoder-object to queue-entry mapping used to recognize gapless decoder transitions.
     private var identifiers: [ObjectIdentifier: UUID] = [:]
     /// Last announced decoder identity used to retire the previous decoder-to-entry mapping.
@@ -111,6 +115,7 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
         let eq = equalizer
         let pitch = timePitch
         let source = player.sourceNode
+        let volume = outputVolume
         player.modifyProcessingGraph { engine in
             engine.attach(eq)
             engine.attach(pitch)
@@ -118,6 +123,7 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
             engine.connect(source, to: eq, format: nil)
             engine.connect(eq, to: pitch, format: nil)
             engine.connect(pitch, to: engine.mainMixerNode, format: nil)
+            engine.mainMixerNode.outputVolume = volume
         }
     }
     /// Starts the given file for a queue occurrence at a position in seconds, optionally repeating
@@ -203,6 +209,12 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
     /// Applies a playback speed multiplier; the production backend clamps it to the supported 0.5
     /// through 3 range.
     public func setRate(_ value: Float) { timePitch.rate = min(3, max(0.5, value)) }
+    /// Sets bounded application mixer gain without touching CoreAudio device output volume.
+    public func setVolume(_ value: Float) {
+        guard value.isFinite else { return }
+        outputVolume = min(1, max(0, value))
+        player.mainMixerNode.outputVolume = outputVolume
+    }
     /// Applies ten gain values in decibels and the equalizer enabled state; the production backend
     /// clamps gains and compensates positive boost.
     public func setEqualizer(_ gains: [Float], enabled: Bool) {

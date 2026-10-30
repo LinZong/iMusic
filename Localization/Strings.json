@@ -724,6 +724,11 @@
     "zh-Hans": "关联文件夹中的音乐会复制到托管资料库；移除关联不会删除任何原文件。iOS 不提供持续后台文件夹监控。",
     "zh-Hant": "關聯資料夾中的音樂會複製到托管資料庫；移除關聯不會刪除任何原檔案。iOS 不提供持續後台資料夾監控。"
   },
+  "Mute": {
+    "en": "Mute",
+    "zh-Hans": "静音",
+    "zh-Hant": "靜音"
+  },
   "My Playlists": {
     "en": "My Playlists",
     "zh-Hans": "我的歌单",
@@ -1454,6 +1459,11 @@
     "zh-Hans": "移除关联",
     "zh-Hant": "移除關聯"
   },
+  "Unmute": {
+    "en": "Unmute",
+    "zh-Hans": "取消静音",
+    "zh-Hant": "取消靜音"
+  },
   "Unsupported audio format.": {
     "en": "Unsupported audio format.",
     "zh-Hans": "不支持此音频格式。",
@@ -1513,6 +1523,11 @@
     "en": "Vocals",
     "zh-Hans": "人声",
     "zh-Hant": "人聲"
+  },
+  "Volume": {
+    "en": "Volume",
+    "zh-Hans": "音量",
+    "zh-Hant": "音量"
   },
   "Waiting": {
     "en": "Waiting",
@@ -1713,12 +1728,12 @@
   },
   "format.trash.delete_count": {
     "en": "%1$ld songs will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",
-    "zh-Hans": "将从 iMusic 资料库永久移除 %1$ld 首歌曲，并删除这台设备上应用内的副本。导入来源文件和已有备份不受影响。启用 iCloud 时，删除记录会随资料库同步。",
-    "zh-Hant": "將從 iMusic 資料庫永久移除 %1$ld 首歌曲，並刪除這台裝置上應用內的副本。導入來源檔案和已有備份不受影響。啓用 iCloud 時，刪除記錄會隨資料庫同步。",
     "plural": {
       "one": "%1$ld song will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",
       "other": "%1$ld songs will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled."
-    }
+    },
+    "zh-Hans": "将从 iMusic 资料库永久移除 %1$ld 首歌曲，并删除这台设备上应用内的副本。导入来源文件和已有备份不受影响。启用 iCloud 时，删除记录会随资料库同步。",
+    "zh-Hant": "將從 iMusic 資料庫永久移除 %1$ld 首歌曲，並刪除這台裝置上應用內的副本。導入來源檔案和已有備份不受影響。啓用 iCloud 時，刪除記錄會隨資料庫同步。"
   },
   "format.trash.delete_song": {
     "en": "“%1$@” will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",

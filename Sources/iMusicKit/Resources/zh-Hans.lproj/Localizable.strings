@@ -144,6 +144,7 @@
 "Music and Folders" = "音乐与文件夹";
 "Music file verification failed" = "音乐文件校验失败";
 "Music in linked folders is copied into the managed library. Unlinking never deletes original files. iOS does not continuously monitor folders in the background." = "关联文件夹中的音乐会复制到托管资料库；移除关联不会删除任何原文件。iOS 不提供持续后台文件夹监控。";
+"Mute" = "静音";
 "My Playlists" = "我的歌单";
 "Name" = "名称";
 "Needs Attention" = "需要处理";
@@ -290,6 +291,7 @@
 "Unknown Album" = "未知专辑";
 "Unknown Artist" = "未知歌手";
 "Unlink" = "移除关联";
+"Unmute" = "取消静音";
 "Unsupported audio format." = "不支持此音频格式。";
 "Unsupported record type" = "不支持的记录类型";
 "Upload Music" = "上传音乐";
@@ -302,6 +304,7 @@
 "View All Listening Statistics" = "查看完整聆听统计";
 "Vinyl Record Appearance" = "黑胶唱片外观";
 "Vocals" = "人声";
+"Volume" = "音量";
 "Waiting" = "等待上传";
 "Wi-Fi Transfer" = "Wi-Fi 传歌";
 "Wi-Fi Transfer…" = "Wi-Fi 传歌…";

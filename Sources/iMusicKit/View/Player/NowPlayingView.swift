@@ -176,6 +176,9 @@ public struct NowPlayingView: View {
             metadata
             SeekBar(playback: model.player.playback)
             transport(compact: compact)
+            #if os(macOS)
+            VolumeControl(playback: model.player.playback)
+            #endif
             utilityBar
             playbackDetails(compact: compact)
             if let error = model.player.playback.error {

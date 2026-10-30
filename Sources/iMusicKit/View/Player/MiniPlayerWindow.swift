@@ -40,6 +40,9 @@ public struct MiniPlayerWindow: View {
                 .accessibilityLabel(L10n.text("Next Track"))
             }
             .buttonStyle(.plain)
+            #if os(macOS)
+            VolumeControl(playback: model.playback)
+            #endif
         }
         .padding(24).frame(minWidth: 280, idealWidth: 340)
     }

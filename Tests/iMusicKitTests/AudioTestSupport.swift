@@ -24,6 +24,8 @@ enum AudioTestSupport {
         let entryID: UUID
         /// Requested start position in seconds captured for deterministic assertions.
         let position: Double
+        /// Application gain already applied when this playback request reaches the fake backend.
+        let volume: Float
     }
     /// Controllable fake engine clock in seconds; nil models a decoder that has not started.
     var elapsed: Double?
@@ -49,6 +51,8 @@ enum AudioTestSupport {
     private(set) var pauseCount = 0
     /// Number of explicit resume calls received by the fake backend.
     private(set) var resumeCount = 0
+    /// Last application gain applied without touching system volume or audio hardware.
+    private(set) var volume: Float = 1
 
     func play(
         url: URL,
@@ -57,7 +61,7 @@ enum AudioTestSupport {
         region: ClosedRange<Double>?,
         sampleRate: Double
     ) throws {
-        plays.append(PlayCall(url: url, entryID: entryID, position: position))
+        plays.append(PlayCall(url: url, entryID: entryID, position: position, volume: volume))
         elapsed = position
         if announcesStartAutomatically { announcePlaying(entryID: entryID) }
     }
@@ -87,6 +91,7 @@ enum AudioTestSupport {
     func enqueue(url: URL, entryID: UUID) throws {}
     func clearUpcoming() {}
     func setRate(_ value: Float) {}
+    func setVolume(_ value: Float) { volume = value }
     func setEqualizer(_ gains: [Float], enabled: Bool) {}
 }
 

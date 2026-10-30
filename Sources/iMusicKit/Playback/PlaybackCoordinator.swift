@@ -13,6 +13,12 @@ public final class PlaybackCoordinator {
     public private(set) var track: Track?
     /// Localized playback or persistence error currently presented to the user.
     public private(set) var error: String?
+    /// Device-local linear application gain; zero is muted and one preserves the source level.
+    public private(set) var volume: Float = 1
+    /// Whether application gain is zero, independent of playback and device output state.
+    public var isMuted: Bool { volume == 0 }
+    /// Last nonzero gain restored by Unmute, retained across application launches.
+    @ObservationIgnored private var lastAudibleVolume: Float = 1
     /// Playback speed multiplier; changes update the engine and persist audio preferences.
     public var rate: Float = 1 {
         didSet {
@@ -97,7 +103,15 @@ public final class PlaybackCoordinator {
             eqEnabled = saved.eqEnabled
             eqGains = saved.gains
         }
+        if let saved = try? store.setting("playbackVolume", as: VolumePreferences.self) {
+            volume = saved.volume.isFinite ? min(1, max(0, saved.volume)) : 1
+            lastAudibleVolume =
+                saved.lastAudibleVolume.isFinite && saved.lastAudibleVolume > 0
+                ? min(1, saved.lastAudibleVolume) : 1
+            if volume > 0 { lastAudibleVolume = volume }
+        }
         engine.setRate(rate)
+        engine.setVolume(volume)
         engine.setEqualizer(eqGains, enabled: eqEnabled)
         engine.onTrack = { [weak self] id in self?.didBegin(id) }
         engine.onState = { [weak self] state in
@@ -419,6 +433,21 @@ public final class PlaybackCoordinator {
     /// Publishes a localized external audio or system-integration error without changing the
     /// selected queue occurrence.
     public func report(_ error: Error) { self.error = error.localizedDescription }
+    /// Applies finite, bounded gain immediately and saves device-local volume preferences.
+    public func setVolume(_ value: Float) {
+        guard value.isFinite else { return }
+        let bounded = min(1, max(0, value))
+        guard bounded != volume else { return }
+        volume = bounded
+        if bounded > 0 { lastAudibleVolume = bounded }
+        engine.setVolume(bounded)
+        try? store.setSetting(
+            "playbackVolume",
+            value: VolumePreferences(volume: volume, lastAudibleVolume: lastAudibleVolume)
+        )
+    }
+    /// Mutes without pausing playback or restores the last nonzero application gain.
+    public func toggleMute() { setVolume(isMuted ? lastAudibleVolume : 0) }
     /// Handles a cloud load result only when its token matches the active attempt; stale results
     /// and explicit pause intent cannot restart playback.
     public func completedDownload(token: UUID, error: Error?) {
@@ -482,6 +511,7 @@ public final class PlaybackCoordinator {
             listened = 0
             lastTick = ProcessInfo.processInfo.systemUptime
             let region: ClosedRange<Double>? = loopA.flatMap { a in loopB.map { a...$0 } }
+            engine.setVolume(volume)
             try engine.play(
                 url: url,
                 entryID: entry.id,
@@ -625,4 +655,11 @@ private struct AudioPreferences: Codable {
     var eqEnabled: Bool
     /// Persisted ten-band gain values in decibels.
     var gains: [Float]
+}
+
+private struct VolumePreferences: Codable {
+    /// Device-local application gain, intentionally excluded from portable backup preferences.
+    var volume: Float
+    /// Nonzero gain restored when the user unmutes after reopening the application.
+    var lastAudibleVolume: Float
 }

@@ -144,6 +144,7 @@
 "Music and Folders" = "Music and Folders";
 "Music file verification failed" = "Music file verification failed";
 "Music in linked folders is copied into the managed library. Unlinking never deletes original files. iOS does not continuously monitor folders in the background." = "Music in linked folders is copied into the managed library. Unlinking never deletes original files. iOS does not continuously monitor folders in the background.";
+"Mute" = "Mute";
 "My Playlists" = "My Playlists";
 "Name" = "Name";
 "Needs Attention" = "Needs Attention";
@@ -290,6 +291,7 @@
 "Unknown Album" = "Unknown Album";
 "Unknown Artist" = "Unknown Artist";
 "Unlink" = "Unlink";
+"Unmute" = "Unmute";
 "Unsupported audio format." = "Unsupported audio format.";
 "Unsupported record type" = "Unsupported record type";
 "Upload Music" = "Upload Music";
@@ -302,6 +304,7 @@
 "View All Listening Statistics" = "View All Listening Statistics";
 "Vinyl Record Appearance" = "Vinyl Record Appearance";
 "Vocals" = "Vocals";
+"Volume" = "Volume";
 "Waiting" = "Waiting";
 "Wi-Fi Transfer" = "Wi-Fi Transfer";
 "Wi-Fi Transfer…" = "Wi-Fi Transfer…";
