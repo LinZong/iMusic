@@ -2,7 +2,7 @@
 
 ## 依赖与边界
 
-两个原生应用目标共享本地 SPM 产品 `iMusicKit`。包内按 Domain、Library、Playback、Import、Sync、Platform、Features 分层。第三方版本由根目录及 Xcode 工作区的 `Package.resolved` 锁定。界面通过 AppModel 和 PlaybackCoordinator 交互，不直接操作 SQL 或音频节点。
+两个原生应用目标共享本地 SPM 产品 `iMusicKit`。包内按 Application、Domain、Library、Playback、Import、Sync、Platform、View、ViewModel 分层。第三方版本由根目录及 Xcode 工作区的 `Package.resolved` 锁定。AppModel 只在启动时组装依赖、连接平台回调并执行一次性恢复；页面不再绑定 AppModel。View 绑定相应的 ViewModel，不直接操作 SQL 或音频节点。
 
 - Domain：纯值类型 Track、Playlist、QueueEntry、PlaybackSession、PlaybackTimeline、字段版本、歌手解析。
 - Library：GRDB/SQLite WAL、统一初始 Schema、FTS5 与 CJK 子串查询、托管文件、备份、标签覆盖、在线封面。
@@ -10,7 +10,55 @@
 - Import：actor 串行导入、分块复制、SHA-256、恢复日志、文件夹书签、增量扫描、局域网上传。
 - Sync：元数据与大文件分区；CKSyncEngine、版本合并、持久化 outbox、按需资产下载。
 - Platform：锁屏／控制中心、音频中断／路由变化、CoreAudio 输出名称、CarPlay 系统模板。
-- Features：SwiftUI，自适应导航、Mac 表格、播放器、标签与歌单编辑、统计、外观和设置。
+- Application：进程级依赖组装与启动，不保存搜索、选择、编辑草稿或弹窗开关。
+- View：按功能归类的 SwiftUI 页面、组件和平台呈现适配。
+- ViewModel：同样按功能归类的可观察页面状态、查询结果、编辑草稿与交互操作。
+
+## 界面与状态所有权
+
+```text
+Sources/iMusicKit/
+├── Application/AppModel.swift        # composition and startup
+├── Domain/                          # values, routes, search matching
+├── View/
+│   ├── Navigation/                  # Root, Destination, presentations, footer
+│   ├── Home/                        # Home
+│   ├── Library/                     # songs, collections, duplicates
+│   ├── Player/                      # full/mini player, queue, EQ, seek, AirPlay
+│   ├── Editors/                     # track, bulk, playlist, song picker
+│   ├── Import/                      # Wi-Fi, import report, export
+│   ├── Settings/                    # settings and Home layout
+│   ├── Statistics/                  # listening charts
+│   └── Shared/                      # artwork, song row, song actions, search modifier
+└── ViewModel/
+    ├── Navigation/                  # scene navigation and cross-feature presentation
+    ├── Home/, Library/, Player/      # page state and derived results
+    ├── Editors/                     # independent editable copies
+    ├── Import/, Settings/, Statistics/
+    └── Shared/                      # library snapshot/actions and operation status
+```
+
+| 边界 | 所有者及职责 | 生命周期 |
+| --- | --- | --- |
+| 依赖组装 | AppModel：创建存储、导入器、音频、云和 feature models；连接系统媒体及云回调 | 应用进程 |
+| 资料库 | LibraryViewModel：共享记录快照、刷新代次保护、歌曲／歌单事务、回收站和重复项操作 | 应用进程 |
+| 播放 | PlaybackCoordinator：唯一音频会话；PlayerViewModel：播放页面使用的明确依赖 | 应用进程，共享队列 |
+| 偏好 | PreferencesViewModel：持久化外观、字体、Home 布局、歌手拆分和联网许可 | 应用进程 |
+| 导入与归档 | ImportViewModel：原生文件选择用途、导入任务、进度报告、Wi-Fi、备份与诊断导出 | 跨页面任务 |
+| 跨功能呈现 | PresentationViewModel：请求打开播放器、队列或某首歌曲的编辑器；不存编辑草稿 | 跨页面请求 |
+| 页面状态 | SongList／Collection／Settings 等 ViewModel：本页查询、选择、确认、范围与结果 | 页面实例 |
+| 编辑器 | TrackEditor／BatchTrackEditor／PlaylistEditor／PlaylistSongPicker ViewModel：草稿、预览、选择及异步结果 | 每次打开独立实例 |
+| 全播放器工具 | NowPlayingViewModel：均衡器弹窗；复用 PlayerViewModel 的播放会话 | 每个全播放器实例 |
+| 导出文件 | BackupExportViewModel：复制进度、原子替换和结果信息 | 每个导出 sheet |
+| 导航 | RootViewModel：每个窗口自己的 sidebar selection；DestinationViewModel：本路由新建歌单草稿 | 每个 scene／路由 |
+
+RootView 只选择 iPhone TabView 或 iPad／Mac NavigationSplitView 并转发生命周期。AppPresentations 统一挂载跨页面 sheet／文件选择器；LibraryFooter 呈现导入进度、播放错误和 MiniPlayer。页面主体、编辑器、播放器组件分别位于单独文件。根视图的公开初始化入口接收 AppModel 仅用于创建 scene-local RootViewModel；子页面不引用、继承或持有 AppModel。
+
+有独立页面状态的 View 使用 `@State` 保持自己的 `@Observable` ViewModel 身份，使用 `@Bindable` 提供原生控件绑定。复用共享偏好或播放状态的组件只接收对应 feature model 或 PlaybackCoordinator。物理滑块拖动标记、环境尺寸和 dismiss 等呈现细节保留在 View；播放时钟仍由 PlaybackCoordinator／PlaybackTimeline 管理，不建立第二份时间副本。
+
+搜索框与查询属于具体页面及其 ViewModel。歌曲列表只筛选当前路由中的歌曲；歌单列表只搜索歌单名。不同页面／picker 的查询和选择独立。iPhone 切换 Tab 时保留各页面状态，Mac 切换 sidebar 路由时用路由 identity 创建对应页面状态。编辑器只修改本次草稿，保存时调用资料库操作；取消不会提交标签。编辑、解码修复、在线封面请求和封面文件读取由编辑器 ViewModel 执行。
+
+新增功能遵守单向依赖：`View → ViewModel → existing domain/services`。不要把页面状态放回 AppModel、给所有页面传整个 application container，或将 SwiftUI View／Binding／NSSavePanel 导入 ViewModel。跨功能共享记录和播放会话应复用现有 feature boundary；新查询、编辑草稿和展示结果应留在本页面模型。SwiftPM 自动发现这些目录下的源码，不需要给 Xcode 工程逐文件登记，也不增加依赖。
 
 ## 播放
 
@@ -52,7 +100,7 @@ Wi-Fi 使用用户显式启动的 NWListener/NIO HTTP 服务，随机六位配�
 
 ## SQLite 与同步
 
-版本一保存类型化 JSON、字段版本、查询字段、哈希、设置和 outbox；版本二增加 FTS5 及维护触发器。数据迁移失败不会删除或重建原库。CJK 和任意子串通过规范化 LIKE 补充，用户原文始终保留。
+当前统一初始结构保存类型化 JSON、字段版本、查询字段、哈希、设置、outbox、FTS5 及维护触发器；重构界面不改变数据库结构，也不清理现有资料库。CJK 和任意子串通过规范化 LIKE 补充，用户原文始终保留。
 
 字段版本使用单调递增逻辑值和设备标识，冲突按字段确定性合并。PlaylistEntry 使用独立条目版本、位置和删除标记：离线并发添加不会覆盖另一设备添加的歌曲。传输将逻辑记录压缩为 LZFSE，避免一万首歌单超过单记录预算；过大记录留在本机并报告错误。
 
@@ -72,7 +120,7 @@ Wi-Fi 使用用户显式启动的 NWListener/NIO HTTP 服务，随机六位配�
 
 ## Now Playing 界面
 
-`Features/NowPlayingView.swift` 独立负责全播放器的视觉层与自适应布局。封面、歌曲信息、时间轴、三键主控制和次级工具依次分组；不改写 PlaybackCoordinator 或 PlaybackTimeline。窄屏／竖屏及辅助功能字号使用可滚动单列；宽屏横向空间充足时采用封面与控制区双栏，低高度窗口缩小间距而保留至少 44 pt 点击区域。
+`View/Player/NowPlayingView.swift` 独立负责全播放器的视觉层与自适应布局。封面、歌曲信息、时间轴、三键主控制和次级工具依次分组；不改写 PlaybackCoordinator 或 PlaybackTimeline。窄屏／竖屏及辅助功能字号使用可滚动单列；宽屏横向空间充足时采用封面与控制区双栏，低高度窗口缩小间距而保留至少 44 pt 点击区域。
 
 主控制使用系统语义色的 SF Symbols，不使用永久实心圆盘；按压反馈尊重 Reduce Motion。随机和循环同时提供选中背景及无障碍 selected trait，非活动功能正确禁用。AirPlay 与队列可直接访问；十秒跳转、睡眠、A/B、均衡器和变速通过原生播放选项菜单提供，活动选项仍在界面显示。强调色、浅深模式和界面文案继续使用系统与本地化资源。
 

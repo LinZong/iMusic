@@ -6,7 +6,7 @@ import UIKit
 
 @main @MainActor
 struct iMusicApp: App {
-    /// Shared app model created at startup, or nil when the persistent library cannot be opened.
+    /// Application composition root created at startup, or nil when the persistent library cannot be opened.
     @State private var model: AppModel?
     /// Localized library initialization failure displayed without deleting the existing library.
     @State private var startupError: String?
@@ -22,29 +22,29 @@ struct iMusicApp: App {
             _model = State(initialValue: try AppModel(root: root, cloudIdentifier: identifier?.isEmpty == false ? identifier : nil))
         } catch { _startupError = State(initialValue: error.localizedDescription) }
     }
-    /// App scenes, shared model wiring, macOS playback commands, and the optional mini-player window.
+    /// App scenes, feature wiring, macOS playback commands, and the optional mini-player window.
     var body: some Scene {
         WindowGroup {
-            if let model { RootView(model: model).onOpenURL { url in model.importURLs([url]) } }
+            if let model { RootView(model: model).onOpenURL { url in model.imports.importURLs([url]) } }
             else { ContentUnavailableView(L10n.text("Unable to Open Library"), systemImage: "externaldrive.badge.exclamationmark", description: Text(startupError ?? L10n.text("Check disk space and file permissions. The library will not be cleared automatically."))) }
         }
         #if os(macOS)
         .defaultSize(width: 1_040, height: 740)
         .commands {
             CommandGroup(after: .newItem) {
-                Button(L10n.text("Import Music…")) { model?.showImporter = true }.keyboardShortcut("o")
+                Button(L10n.text("Import Music…")) { model?.imports.showImporter = true }.keyboardShortcut("o")
             }
             CommandMenu(L10n.text("Play")) {
                 Button(L10n.text("Play / Pause")) { model?.playback.toggle() }.keyboardShortcut(.space, modifiers: [])
                 Button(L10n.text("Next Track")) { model?.playback.next() }.keyboardShortcut(.rightArrow, modifiers: .command)
                 Button(L10n.text("Previous Track")) { model?.playback.previous() }.keyboardShortcut(.leftArrow, modifiers: .command)
-                Button(L10n.text("Now Playing")) { model?.showPlayer = true }.keyboardShortcut("p", modifiers: [.command, .shift])
-                Button(L10n.text("Play Queue")) { model?.showQueue = true }.keyboardShortcut("l", modifiers: [.command, .shift])
+                Button(L10n.text("Now Playing")) { model?.presentation.showPlayer = true }.keyboardShortcut("p", modifiers: [.command, .shift])
+                Button(L10n.text("Play Queue")) { model?.presentation.showQueue = true }.keyboardShortcut("l", modifiers: [.command, .shift])
             }
         }
         #endif
         #if os(macOS)
-        Window(L10n.text("Mini Player"), id: "mini-player") { if let model { MiniPlayerWindow(model: model) } }.defaultSize(width: 340, height: 420).windowResizability(.contentMinSize)
+        Window(L10n.text("Mini Player"), id: "mini-player") { if let model { MiniPlayerWindow(model: model.player) } }.defaultSize(width: 340, height: 420).windowResizability(.contentMinSize)
         #endif
     }
 }

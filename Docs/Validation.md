@@ -103,3 +103,11 @@ macOS 和 iOS 模拟器构建通过，默认 64 项测试、60 项通过、4 项
 实际检查 Mac 原生宽屏播放器、iPhone 15 Pro / iOS 17.4 浅色与深色横竖屏，以及 iPad Pro 11 英寸 / iPadOS 17.4 横竖屏。根据验收修正了 Mac sheet 默认窄宽度、低高度横屏底部信息溢出，以及 iPad 竖屏误用双栏的问题。检查最大辅助功能字号时切换为单列并正常换行；触摸滚动和滑块物理拖动不作为本次自动化界面验收通过项。进度协调回归测试通过，界面确认生成的静音曲目能够播放／暂停，菜单快进 10 秒后继续保持暂停，随机和循环的选中状态可被辅助功能读取。
 
 macOS arm64 与 iOS 通用模拟器最终构建成功；Swift 64 项测试中 60 项通过、4 项按默认配置跳过、零失败。本地化检查覆盖 340 个键、3 种语言，英文成员／API 注释审计和 Git 空白检查通过。测试使用独立的 iMusicPlayerDesignQA 资料库与全零 PCM，不播放用户音乐；原有资料库保留，模拟器显示选项验收后恢复。
+
+## View／ViewModel 拆分验收（2026-10-30）
+
+移除 Features 聚合目录，按功能拆分 View 和 ViewModel。AppModel 改为无页面状态、非 Observable 的依赖组装入口；RootView 不包含页面主体、全局 sheet 实现或底部播放栏实现。RootViewModel 的导航选择按 scene 创建；搜索、表格选择、重命名／删除确认、编辑草稿、统计范围、均衡器与导出结果分别由对应 ViewModel 持有。ViewModel 不导入 SwiftUI，也不持有 AppModel／View／Binding；原生文件选择器和 NSSavePanel 只在 View 层呈现。
+
+新增 7 项行为测试：页面搜索与选择隔离／共享资料库刷新、重复歌单条目的播放身份、编辑草稿保存语义、批量字段保留与 picker 选择隔离、scene 导航与播放器工具状态隔离、偏好重载、导出原子替换及结果隔离。默认 Swift 71 项测试中 67 项通过、4 项按配置跳过、零失败。测试注入不创建音频设备的 TestPlaybackEngine，实际界面使用独立 iMusicPlayerDesignQA 资料库；未播放用户歌曲、修改 Schema 或清理用户资料库。
+
+macOS arm64 和 iOS 通用模拟器构建通过。实际检查 Mac sidebar 的 Home／All Songs／Settings 路由和 Now Playing 弹窗；iPhone 15 Pro / iOS 17.4 搜索 Morning 后仅保留 Morning Light，切换 Playlists 后返回仍保留关键词与结果，编辑标题为 Draft only 后取消，歌曲名称仍为 Morning Light；iPad Pro 11 英寸 / iPadOS 17.4 竖屏侧栏及横屏 All Songs 分栏可访问。英文语法树注释审计覆盖 511 个成员字段、155 个 public／协议方法、20 个 public 初始化方法，无缺失；340 个本地化键、3 种语言检查通过。完整拆分、状态所有权与新增页面规则见 Architecture.md。

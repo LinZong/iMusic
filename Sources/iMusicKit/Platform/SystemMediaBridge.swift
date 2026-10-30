@@ -146,11 +146,11 @@ public final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationScene
         guard let interfaceController = controller else { return }
         guard let model = Self.model else { return }
         withObservationTracking {
-            _ = model.tracks; _ = model.playlists
+            _ = model.library.tracks; _ = model.library.playlists
         } onChange: { [weak self] in
             Task { @MainActor in self?.renderLibrary() }
         }
-        let tracks = model.tracks
+        let tracks = model.library.tracks
         func list(_ title: String, _ tracks: [Track]) -> CPListTemplate {
             let items = tracks.prefix(CPListTemplate.maximumItemCount).map { track in
                 let item = CPListItem(text: track.title, detailText: track.displayArtist)
@@ -166,7 +166,7 @@ public final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationScene
         }
         let recent = list(L10n.text("Recently Added"), tracks.sorted { $0.addedAt > $1.addedAt }); recent.tabImage = UIImage(systemName: "clock")
         let favorites = list(L10n.text("Favorites"), tracks.filter(\.isFavorite)); favorites.tabImage = UIImage(systemName: "heart")
-        let playlists = CPListTemplate(title: L10n.text("Playlists"), sections: [CPListSection(items: model.playlists.prefix(CPListTemplate.maximumItemCount).map { playlist in
+        let playlists = CPListTemplate(title: L10n.text("Playlists"), sections: [CPListSection(items: model.library.playlists.prefix(CPListTemplate.maximumItemCount).map { playlist in
             let item = CPListItem(text: playlist.name, detailText: L10n.text("format.song_count.short", playlist.entries.count))
             item.handler = { _, complete in
                 Task { @MainActor in

@@ -1,0 +1,149 @@
+import SwiftUI
+
+struct HomeView: View {
+  /// Feature model containing only this page's state and explicit dependencies.
+  @State var model: HomeViewModel
+  /// Renders the unfiltered library overview and the user-configured home sections.
+  var body: some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 10) {
+          Text(L10n.text("Your music, always with you.")).font(.largeTitle.bold())
+          Text(L10n.text("format.library.summary", model.library.tracks.count)).foregroundStyle(
+            .secondary)
+          HStack {
+            Button {
+              model.imports.showImporter = true
+            } label: {
+              Label(L10n.text("Import Music"), systemImage: "plus")
+            }.buttonStyle(.borderedProminent)
+            if !model.library.tracks.isEmpty {
+              Button {
+                model.player.playback.play(model.library.tracks, shuffled: true)
+              } label: {
+                Label(L10n.text("Shuffle"), systemImage: "shuffle")
+              }.buttonStyle(.bordered)
+            }
+          }.padding(.top, 8)
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(24).background(
+          Color.accentColor.opacity(0.09), in: RoundedRectangle(cornerRadius: 22))
+        ForEach(model.preferences.homeSections.filter(\.enabled)) { section in
+          sectionView(section.id)
+        }
+        if model.library.tracks.isEmpty {
+          ContentUnavailableView(
+            L10n.text("Start with your first song"), systemImage: "music.note",
+            description: Text(
+              L10n.text(
+                "Import music from Files, iCloud Drive, or your computer. Originals stay intact, and your collection stays available offline."
+              ))
+          )
+          .frame(maxWidth: .infinity, alignment: .center)
+        }
+      }.padding(24).frame(maxWidth: 1_200, alignment: .leading).frame(maxWidth: .infinity)
+    }
+  }
+  @ViewBuilder private func sectionView(_ name: String) -> some View {
+    switch name {
+    case "continue":
+      if let track = model.player.playback.track {
+        Button {
+          model.player.presentation.showPlayer = true
+        } label: {
+          HStack(spacing: 16) {
+            ArtworkView(track: track, vault: model.library.vault, size: 80)
+            VStack(alignment: .leading, spacing: 5) {
+              Text(L10n.text("Continue Listening")).font(.caption).foregroundStyle(.secondary)
+              Text(track.title).font(.headline).lineLimit(1)
+              Text(track.displayArtist).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Spacer()
+            Image(systemName: "arrow.up.right")
+          }.padding(16).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
+        }.buttonStyle(.plain)
+      }
+    case "categories":
+      HStack {
+        NavigationLink {
+          CollectionGrid(
+            model: CollectionViewModel(library: model.library, player: model.player, kind: .artists)
+          ).navigationTitle(L10n.text("Artists"))
+        } label: {
+          category(L10n.text("Artists"), "person.2", model.library.artists.count)
+        }
+        NavigationLink {
+          CollectionGrid(
+            model: CollectionViewModel(library: model.library, player: model.player, kind: .albums)
+          ).navigationTitle(L10n.text("Albums"))
+        } label: {
+          category(L10n.text("Albums"), "square.stack", model.library.albums.count)
+        }
+        NavigationLink {
+          SongListView(
+            model: SongListViewModel(
+              library: model.library, player: model.player, destination: .favorites)
+          ).navigationTitle(L10n.text("Favorites"))
+        } label: {
+          category(L10n.text("Favorites"), "heart", model.library.tracks.filter(\.isFavorite).count)
+        }
+      }.buttonStyle(.plain)
+    case "playlists":
+      if !model.library.playlists.isEmpty {
+        Text(L10n.text("My Playlists")).font(.title2.bold())
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 18) {
+            ForEach(model.library.playlists.prefix(12)) { playlist in
+              NavigationLink {
+                SongListView(
+                  model: SongListViewModel(
+                    library: model.library, player: model.player,
+                    destination: .playlist(playlist.id))
+                ).navigationTitle(playlist.name)
+              } label: {
+                VStack(alignment: .leading, spacing: 8) {
+                  ArtworkView(
+                    track: model.library.cover(for: playlist), vault: model.library.vault, size: 128
+                  )
+                  Text(playlist.name).font(.headline).lineLimit(1)
+                  Text(L10n.text("format.song_count", playlist.entries.count)).font(.caption)
+                    .foregroundStyle(.secondary)
+                }.frame(width: 128)
+              }.buttonStyle(.plain)
+            }
+          }
+        }
+      }
+    case "recent":
+      if !model.library.tracks.isEmpty {
+        Text(L10n.text("Recently Added")).font(.title2.bold())
+        LazyVStack(spacing: 2) {
+          ForEach(model.library.tracks.sorted { $0.addedAt > $1.addedAt }.prefix(12)) { track in
+            TrackRow(model: model.player, track: track) {
+              model.player.playback.play(
+                model.library.tracks.sorted { $0.addedAt > $1.addedAt }, startingAt: track.id)
+            }
+          }
+        }
+      }
+    case "statistics":
+      NavigationLink {
+        ListeningStatsView(model: ListeningStatsViewModel(library: model.library))
+      } label: {
+        HStack {
+          Label(L10n.text("Listening Statistics"), systemImage: "chart.bar")
+          Spacer()
+          Text(musicTime(model.library.events.reduce(0) { $0 + $1.seconds })).monospacedDigit()
+        }.padding(18).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
+      }.buttonStyle(.plain)
+    default: EmptyView()
+    }
+  }
+  private func category(_ label: String, _ symbol: String, _ count: Int) -> some View {
+    VStack(alignment: .leading, spacing: 10) {
+      Image(systemName: symbol).font(.title2).foregroundStyle(Color.accentColor)
+      Text(label).font(.headline)
+      Text("\(count)").font(.caption).foregroundStyle(.secondary)
+    }.frame(maxWidth: .infinity, alignment: .leading).padding(18).background(
+      .quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
+  }
+}

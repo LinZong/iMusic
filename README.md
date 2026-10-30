@@ -35,6 +35,10 @@ macOS 默认索引只分析当前平台激活的条件编译分支。App 切换�
 
 在符号上右键选择 **Go to Definition** 或 **Find All References**，也可在命令面板运行对应命令。VS Code 默认快捷键为 **F12** 和 **⇧F12**；本机启用了 IntelliJ 键位映射，当前实际快捷键为 **⌥⌘B**（定义）和 **⌥F7**（所有引用）。Mac 功能键可能需要同时按 **fn**。
 
+## 源码组织
+
+`Sources/iMusicKit/View/` 与 `ViewModel/` 按 Navigation、Home、Library、Player、Editors、Import、Settings、Statistics、Shared 归类。每个页面持有自己的查询、选择与编辑状态；`Application/AppModel.swift` 仅负责依赖组装和启动。状态生命周期与依赖规则见 [架构说明](Docs/Architecture.md#界面与状态所有权)。
+
 ## 使用
 
 - 点击“导入音乐”，多选音频；从“关联文件夹”导入目录，或在“Wi-Fi 传歌”页面查看浏览器地址和配对码。
