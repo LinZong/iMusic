@@ -25,6 +25,9 @@ public final class LibraryViewModel {
     public private(set) var events: [ListenEvent] = []
     /// Saved linked-folder configurations and their latest scan status.
     public private(set) var folders: [FolderSource] = []
+    /// Managed audio files found during the background refresh; views never probe the disk while
+    /// rendering a row or constructing a native menu.
+    public private(set) var availableTrackIDs: Set<UUID> = []
     /// Monotonic refresh token that prevents an older asynchronous snapshot from replacing newer
     /// data.
     @ObservationIgnored private var refreshGeneration = 0
@@ -57,15 +60,18 @@ public final class LibraryViewModel {
         refreshGeneration += 1
         let generation = refreshGeneration
         let store = store
+        let vault = vault
         do {
             let snapshot =
                 try await Task.detached(priority: .userInitiated) {
-                    (
-                        try store.tracks(includeDeleted: true),
+                    let tracks = try store.tracks(includeDeleted: true)
+                    return (
+                        tracks,
                         try store.playlists(includeDeleted: true),
                         try store.listenEvents(),
                         try store.setting("folders", as: [FolderSource].self) ?? [],
-                        try store.permanentlyDeletedTracks()
+                        try store.permanentlyDeletedTracks(),
+                        Set(tracks.filter { vault.contains($0) }.map(\.id))
                     )
                 }
                 .value
@@ -76,6 +82,7 @@ public final class LibraryViewModel {
             deletedPlaylists = snapshot.1.filter { $0.deletedAt != nil }
             events = snapshot.2
             folders = snapshot.3
+            availableTrackIDs = snapshot.5
             if !snapshot.4.isEmpty {
                 playback.removeTracks(Set(snapshot.4.map(\.id)))
                 if !activity.isWorking && !activity.importing {

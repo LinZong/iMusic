@@ -156,3 +156,39 @@ Now Playing 和独立 MiniPlayerWindow 新增共享 VolumeControl，使用小扬
 
 本次仅完成 macOS 真实文件导入和界面验收，没有发现需要修改的封面显示逻辑；
 没有据此宣称 iPhone／iPad 的真实文件界面已验收，也没有重复运行与本次无代码修改无关的构建和测试。
+
+## iPhone 菜单破音定位与播放验收（2026-10-30）
+
+在连接的 iPhone 17／iOS 26.5.1 上，由用户实际听测 Now Playing 右上角“…”菜单的
+反复展开／收起。相同 Debug 安装包在 Xcode／LLDB 附加时复现，脱离调试器启动时消失。
+仅关闭 Thread Performance Checker 不解决问题，原 Scheme 的诊断设置已完整恢复。
+最初的变速旁路及 I/O 缓冲参数实验亦未解决此现象，实验代码已撤回，没有保留为所谓修复。
+
+通过 Xcode 调试控制台启用临时 GDB remote packet 日志，捕获到内部 shared-library-event、
+thread-creation 断点以及单线程 resume／step 往返；符号化和 breakpoint list -i 确认涉及
+dyld 的 lldb_image_notifier、libsystem_pthread 的 start_wqthread／_pthread_wqthread／
+_pthread_start。菜单操作期间的调试器内部暂停会连带影响实时音频，不能以延长应用缓冲
+承诺进程被调试暂停时仍能连续供音。LLDB 的内部线程断点实现可对照
+[LLVM PlatformDarwin 源码](https://lldb.llvm.org/cpp_reference/PlatformDarwin_8cpp_source.html)。
+
+新增共享 iMusic Playback／iMusicMac Playback Scheme，仍采用相同 Debug 配置，Run 使用
+PosixSpawn 且不附加 LLDB；iMusic／iMusicMac 保留断点调试及原有检查器。生成工程的 Ruby
+脚本同时生成这两个方案，避免重建工程后丢失。已在 Xcode 选择 iMusic Playback，实际安装
+并启动 iPhone 17，用户再次确认相同菜单开关“已无破音”。此结论不声称附加 LLDB 后消除了
+调试器对进程的暂停，也不声称已经在 iPad／Mac 完成同场景听测。
+
+同时修正三个实际的 UI／存储问题：100 ms 采样不再改写整个队列状态，持久化副本仍包含最新
+时钟位置；五秒周期保存和收听事件编码／写入移到 GRDB 串行 writer，暂停后不空转写库；
+原生菜单和歌曲表格的文件存在性判断改为读取后台资料库刷新发布的快照。封面占位符对菜单
+快照阶段的零尺寸布局使用正数字号与最小缩略图尺寸，避免 CoreUI 报告零字号音符。
+
+新增四项无硬件回归测试覆盖：时钟推进不触发队列观察者且保存最新位置、后台检查点与显式
+保存的顺序、失败检查点对收听事件和会话的原子回滚、文件可用性快照的刷新语义。另增加一项
+显式启用的静音硬件测试：UI 主 actor 连续忙碌 600 ms 时引擎媒体时钟仍正常推进；该测试
+验证主线程独立性，不被用来冒充声音波形或 LLDB 场景验收。
+
+默认 Swift 81 项测试中 76 项通过、5 项按默认配置跳过、零失败。macOS arm64 和签名 iOS
+真机构建通过；343 个本地化键／3 种语言与英文声明注释审计通过。本次未修改数据库 Schema
+或重置资料库，未将用户原有 HomeView 的未提交修改纳入本次提交。
+本次修改的 Swift 文件严格格式检查及 100 字符行宽检查通过；全仓检查仅在上述用户原有
+HomeView 注释块的缩进处报错，未擅自格式化或覆盖该未提交修改。

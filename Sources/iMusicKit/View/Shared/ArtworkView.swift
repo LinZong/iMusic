@@ -20,7 +20,8 @@ struct ArtworkView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                Image(systemName: "music.note").font(.system(size: size * 0.32, weight: .medium))
+                Image(systemName: "music.note")
+                    .font(.system(size: max(1, size * 0.32), weight: .medium))
                     .foregroundStyle(.white.opacity(0.8))
             }
         }
@@ -32,7 +33,7 @@ struct ArtworkView: View {
         .task(id: track?.artworkName) {
             image = nil
             guard let url = vault.artworkURL(track?.artworkName) else { return }
-            let pixels = Int(min(1_000, size * 2))
+            let pixels = Int(max(1, min(1_000, size * 2)))
             image = await Task.detached { ArtworkCache.shared.image(at: url, size: pixels) }.value
         }
     }

@@ -304,6 +304,29 @@ public final class LibraryStore: @unchecked Sendable {
             )
         }
     }
+    /// Enqueues an atomic periodic playback checkpoint on GRDB's serial writer, in submission
+    /// order with explicit saves; encoding, SQL and completion all run outside the main thread.
+    func savePlaybackInBackground(
+        _ session: PlaybackSession,
+        event: ListenEvent?,
+        completion: @escaping @Sendable (Result<Void, Error>) -> Void
+    ) {
+        database.asyncWrite { db in
+            if let event {
+                try self.saveRecord(id: event.id.uuidString, kind: "listen", value: event, db: db)
+            }
+            let data = try JSONEncoder().encode(session)
+            try db.execute(
+                sql: """
+                    INSERT INTO settings(key,value) VALUES('playback',?) ON CONFLICT(key)
+                    DO UPDATE SET value=excluded.value
+                    """,
+                arguments: [data]
+            )
+        } completion: { _, result in
+            completion(result)
+        }
+    }
     /// Returns only the allowlisted portable preferences, excluding device identity, local paths,
     /// and account authorization.
     public func exportSettings() throws -> [String: Data] {

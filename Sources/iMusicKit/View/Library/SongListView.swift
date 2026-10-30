@@ -144,7 +144,7 @@ struct SongListView: View {
                                 Image(systemName: "heart.fill").foregroundStyle(.pink)
                                     .font(.caption)
                             }
-                            if !model.library.vault.contains(row.track) {
+                            if !model.library.availableTrackIDs.contains(row.track.id) {
                                 Image(systemName: "icloud.and.arrow.down")
                                     .foregroundStyle(.secondary)
                             }

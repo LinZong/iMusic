@@ -70,6 +70,15 @@ PlaybackCoordinator 依赖 PlaybackEngine 协议，App 默认注入 SFBPlaybackE
 
 UI 时长未知时为 `--:--`，进度为零并禁用 seek。实际位置来自解码器媒体时间，不用计时器累加。滑块预览与实际时钟分离；提交 seek 后有短期确认门，避免旧位置回弹。位置及比例始终有限且有界。暂停、下载、路由和媒体服务重置遵守用户播放意图。立即暂停优先于已经排队的开始回调；显式选择下一曲会建立新的播放意图，下载后继续播放，中断后可按系统许可恢复。
 
+100 ms 时钟采样仅更新 PlaybackTimeline，不改写整个 PlaybackSession，避免仅依赖队列／
+随机／循环状态的菜单随进度刷新。持久化时创建含最新 timeline.elapsed 的会话副本；普通恢复和
+下载后继续同样使用 timeline。播放期间的五秒检查点通过 GRDB asyncWrite 在串行 writer 上
+原子保存会话和稳定 ID 的收听事件，编码和 SQL 均不在主线程执行；与显式同步保存共用同一
+writer 顺序，防止旧后台位置覆盖新的暂停／seek。暂停后不执行空转周期写入。
+
+LibraryViewModel 在后台刷新中检测托管文件并发布 availableTrackIDs 快照。歌曲表格和原生
+菜单只读取此集合，渲染时不调用 fileExists。导入、云下载和清理后的刷新更新这份可用性信息。
+
 同格式音频预加载由 SFBAudioEngine 提供无缝连续渲染。混合采样率／声道会重配图，不声称采样级无缝。均衡器预留正增益余量，TimePitch 处理变速，AudioRegionDecoder 提供 A/B 区间循环。
 
 收听事件使用每次播放会话的稳定 ID，定期更新累计实际收听秒数，避免每五秒创建一条永久统计记录。暂停与 seek 跳过的媒体时长不计入实际收听。

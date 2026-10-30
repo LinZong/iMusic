@@ -3,7 +3,8 @@ import Observation
 
 @MainActor @Observable
 public final class PlaybackCoordinator {
-    /// Persistable queue selection, traversal order, and committed playback position.
+    /// Queue selection, traversal order, and explicit start/seek position; clock ticks only update
+    /// the separate timeline so transport menus do not rebuild ten times per second.
     public private(set) var session: PlaybackSession
     /// Observable playback state used by native controls and system media integration.
     public private(set) var status: PlaybackStatus = .idle
@@ -201,7 +202,7 @@ public final class PlaybackCoordinator {
         }
         guard session.current != nil else { return }
         if status == .failed || status == .ended || engine.elapsed == nil {
-            startCurrent(position: status == .ended ? 0 : session.position)
+            startCurrent(position: status == .ended ? 0 : timeline.elapsed)
         } else {
             do {
                 try engine.resume()
@@ -459,7 +460,7 @@ public final class PlaybackCoordinator {
             self.error = nil
             onSnapshot?()
         } else {
-            startCurrent(position: session.position, automatic: loadingAutomatically)
+            startCurrent(position: timeline.elapsed, automatic: loadingAutomatically)
         }
     }
     /// Dismisses the currently presented playback error without changing playback state.
@@ -468,7 +469,9 @@ public final class PlaybackCoordinator {
     /// reporting any persistence failure.
     public func persist() {
         flushListening(reset: false)
-        do { try store.setSetting("playback", value: session) } catch {
+        var snapshot = session
+        snapshot.position = timeline.elapsed
+        do { try store.setSetting("playback", value: snapshot) } catch {
             self.error = L10n.text(
                 "format.playback.save_error",
                 String(describing: error.localizedDescription)
@@ -610,24 +613,38 @@ public final class PlaybackCoordinator {
             } else {
                 timeline.update(elapsed: actual, duration: duration)
             }
-            session.position = timeline.elapsed
         }
-        if Date().timeIntervalSince(lastSaved) >= 5 {
-            persist()
+        if status == .playing, Date().timeIntervalSince(lastSaved) >= 5 {
+            var snapshot = session
+            snapshot.position = timeline.elapsed
+            lastSaved = Date()
+            store.savePlaybackInBackground(snapshot, event: listeningSnapshot) {
+                [weak self] result in
+                guard case .failure(let error) = result else { return }
+                Task { @MainActor [weak self] in
+                    self?.error = L10n.text(
+                        "format.playback.save_error",
+                        error.localizedDescription
+                    )
+                }
+            }
             onSnapshot?()
         }
     }
+    /// Immutable progress captured before dispatching periodic SQLite work away from the UI actor.
+    private var listeningSnapshot: ListenEvent? {
+        guard listened >= 1, let id = track?.id else { return nil }
+        return ListenEvent(
+            id: listeningEventID,
+            trackID: id,
+            startedAt: listeningStarted,
+            seconds: listened
+        )
+    }
     private func flushListening(reset: Bool = true) {
-        if listened >= 1, let id = track?.id {
+        if let event = listeningSnapshot {
             do {
-                try store.save(
-                    ListenEvent(
-                        id: listeningEventID,
-                        trackID: id,
-                        startedAt: listeningStarted,
-                        seconds: listened
-                    )
-                )
+                try store.save(event)
             } catch { self.error = error.localizedDescription }
         }
         if reset {

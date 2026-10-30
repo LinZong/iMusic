@@ -75,6 +75,13 @@ project.root_object.package_references << local_package
     scheme.test_action.build_configuration = configuration
     scheme.archive_action.build_configuration = configuration == 'FullDebug' ? 'FullRelease' : 'Release'
     scheme.save_as('iMusic.xcodeproj', scheme_name, true)
+    if configuration == 'Debug'
+      # LLDB's internal loader/thread breakpoints can interrupt real-time audio.
+      # Keep the original scheme for debugging and a separate one for playback acceptance.
+      scheme.launch_action.xml_element.attributes['selectedDebuggerIdentifier'] = ''
+      scheme.launch_action.xml_element.attributes['selectedLauncherIdentifier'] = 'Xcode.IDEFoundation.Launcher.PosixSpawn'
+      scheme.save_as('iMusic.xcodeproj', name + ' Playback', true)
+    end
   end
 end
 project.build_configurations.each { |config| config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '14.0'; config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0' }

@@ -10,6 +10,11 @@
 4. 本地 Debug／Release 不携带 CloudKit、推送或 CarPlay entitlement，可独立开发。
 5. 真机需要在 Signing 中选择自己的开发团队。可复制 `Config/Signing.example.xcconfig` 为被 Git 忽略的 `Config/Signing.local.xcconfig`。
 
+播放连续性／音质验收使用 **iMusic Playback**（iPhone／iPad）或 **iMusicMac Playback**。
+这两个共享 Scheme 使用相同的 Debug 构建，但 Run 不附加 LLDB；普通 **iMusic**／**iMusicMac**
+仍保留断点调试和诊断设置。LLDB 的内部动态库／线程断点也会短暂停止整个进程，可能在菜单
+展开等系统组件工作时打断实时音频；不能用附加调试器时的听感判断独立运行的播放质量。
+
 正常 Build／Run／Archive 和 `swift test` 均通过 SwiftPM 插件构建 React 静态资源并打入 `iMusicKit` 资源包；无需手工复制 `dist`，运行时不需要 Node 或联网加载前端。前端开发和构建细节见 [Web/WiFiUpload/README.md](Web/WiFiUpload/README.md)。
 
 已使用 Xcode 26.3、Swift 6.2.4 构建。最低系统为 iOS／iPadOS 17 和 macOS 14；依赖需要 Swift 6.1 或以上工具链。Xcode 工程已提交，通常无需安装工程生成工具。
@@ -59,6 +64,7 @@ macOS 默认索引只分析当前平台激活的条件编译分支。App 切换�
 | Scheme | 功能与配置 |
 | --- | --- |
 | `iMusic` / `iMusicMac` | 独立本地构建 |
+| `iMusic Playback` / `iMusicMac Playback` | 相同 Debug 构建，Run 不附加调试器，用于播放连续性验收 |
 | `iMusic Cloud` / `iMusicMac Cloud` | CloudKit 私有数据库和后台同步 |
 | `iMusic CarPlay` | CarPlay 音频界面，需 Apple 批准 entitlement |
 | `iMusic Full` / `iMusicMac Full` | 云同步；iOS 同时启用 CarPlay；Archive 使用 FullRelease |
@@ -85,7 +91,7 @@ xcodebuild -project iMusic.xcodeproj -scheme iMusicMac -destination 'platform=ma
 xcodebuild -project iMusic.xcodeproj -scheme iMusic -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-默认 `swift test` 不启动真实播放引擎；播放协调逻辑使用可控的测试引擎，暂停、seek、下载和迟到回调等回归照常执行。三个依赖硬件音频时钟的集成测试需要显式设置 `IMUSIC_AUDIO_TESTS=1`，素材仍为全零静音 PCM；`IMUSIC_SKIP_AUDIO_TESTS=1` 可强制跳过硬件测试。构建与索引任务只编译，不执行播放。完整验收和已验证范围见 [Docs/Validation.md](Docs/Validation.md)。
+默认 `swift test` 不启动真实播放引擎；播放协调逻辑使用可控的测试引擎，暂停、seek、下载和迟到回调等回归照常执行。四个依赖硬件音频时钟的集成测试需要显式设置 `IMUSIC_AUDIO_TESTS=1`，素材仍为全零静音 PCM；`IMUSIC_SKIP_AUDIO_TESTS=1` 可强制跳过硬件测试。构建与索引任务只编译，不执行播放。完整验收和已验证范围见 [Docs/Validation.md](Docs/Validation.md)。
 
 - [架构与数据流](Docs/Architecture.md)
 - [备份格式与恢复](Docs/BackupFormat.md)

@@ -35,7 +35,7 @@ struct TrackActions: View {
                 Button(L10n.text("Edit Tags and Artwork"), systemImage: "pencil") {
                     model.presentation.editingTrack = first
                 }
-                if !model.library.vault.contains(first) {
+                if !model.library.availableTrackIDs.contains(first.id) {
                     Button(L10n.text("Download from iCloud"), systemImage: "icloud.and.arrow.down")
                     {
                         Task { await model.library.cloud.download(first) }

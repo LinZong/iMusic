@@ -62,4 +62,28 @@ import XCTest
         try await Task.sleep(for: .milliseconds(600))
         XCTAssertEqual(announced, [first, next])
     }
+
+    func testRenderingContinuesWhileTheMainActorIsBusy() async throws {
+        let library = try TestLibrary()
+        let url = try library.fixture(seconds: 4)
+        let engine = SFBPlaybackEngine()
+        var failure: Error?
+        engine.onError = { failure = $0 }
+        defer { engine.stop() }
+        try engine.play(url: url, entryID: UUID(), sampleRate: 48_000)
+        try await Task.sleep(for: .milliseconds(300))
+        let before = try XCTUnwrap(engine.elapsed)
+        let started = ProcessInfo.processInfo.systemUptime
+        // Deliberately occupy the UI actor longer than the decoder ring buffer can cover.
+        // Rendering and decoder refill must not depend on the ticker or queued UI callbacks.
+        let formatter = NumberFormatter()
+        while ProcessInfo.processInfo.systemUptime - started < 0.6 {
+            _ = formatter.string(from: 1_234.567)
+        }
+        let wallTime = ProcessInfo.processInfo.systemUptime - started
+        let advanced = try XCTUnwrap(engine.elapsed) - before
+        XCTAssertNil(failure)
+        XCTAssertTrue(engine.isPlaying)
+        XCTAssertEqual(advanced, wallTime, accuracy: 0.12)
+    }
 }
