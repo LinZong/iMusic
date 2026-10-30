@@ -7,9 +7,22 @@ struct ArtworkView: View {
     let vault: MediaVault
     /// Artwork edge length in points, also used to choose the decoded thumbnail resolution.
     var size: CGFloat = 48
+    /// Resolves layout changes as well as cover changes to a distinct thumbnail request.
+    private var request: Request {
+        Request(
+            url: vault.artworkURL(track?.artworkName),
+            pixels: Int(max(1, min(1_000, size * 2)))
+        )
+    }
+    private struct Request: Equatable {
+        /// Managed cover location, including the library that owns it.
+        let url: URL?
+        /// Longest decoded edge in pixels.
+        let pixels: Int
+    }
     /// Asynchronously loaded thumbnail for the currently displayed cover.
     @State private var image: CGImage?
-    /// Renders decoded artwork or a placeholder and reloads it when the cover file name changes.
+    /// Renders decoded artwork or a placeholder and reloads when the cover or its size changes.
     var body: some View {
         ZStack {
             if let image {
@@ -30,11 +43,17 @@ struct ArtworkView: View {
             RoundedRectangle(cornerRadius: min(24, size * 0.13))
         )
         .accessibilityHidden(true)
-        .task(id: track?.artworkName) {
+        .task(id: request) {
+            let request = request
             image = nil
-            guard let url = vault.artworkURL(track?.artworkName) else { return }
-            let pixels = Int(max(1, min(1_000, size * 2)))
-            image = await Task.detached { ArtworkCache.shared.image(at: url, size: pixels) }.value
+            guard let url = request.url else { return }
+            let loaded =
+                await Task.detached {
+                    ArtworkCache.shared.image(at: url, size: request.pixels)
+                }
+                .value
+            guard !Task.isCancelled else { return }
+            image = loaded
         }
     }
 }

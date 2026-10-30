@@ -159,31 +159,35 @@ public struct NowPlayingView: View {
 
     /// Renders the optional vinyl appearance without changing the managed cover or playback state.
     private func artwork(size: CGFloat) -> some View {
-        ZStack {
-            ArtworkView(
-                track: model.player.playback.track,
-                vault: model.player.library.vault,
-                size: size
-            )
+        Group {
             if model.player.preferences.vinyl {
-                Circle().fill(.black.opacity(0.65))
-                Circle().stroke(.white.opacity(0.15), lineWidth: 2).padding(18)
-                ArtworkView(
-                    track: model.player.playback.track,
-                    vault: model.player.library.vault,
-                    size: size * 0.44
-                )
+                ZStack {
+                    cover(size: size)
+                    Circle().fill(.black.opacity(0.65))
+                    Circle().stroke(.white.opacity(0.15), lineWidth: 2).padding(18)
+                    cover(size: size * 0.44).clipShape(Circle())
+                    Circle().fill(.background).frame(width: 14, height: 14)
+                }
+                .frame(width: size, height: size)
                 .clipShape(Circle())
-                Circle().fill(.background).frame(width: 14, height: 14)
+            } else {
+                cover(size: size)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
             }
         }
-        .frame(width: size, height: size)
-        .clipShape(
-            model.player.preferences.vinyl
-                ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: 18))
-        )
+        // Composite the finished cover before applying a shadow to its outer silhouette.
+        .compositingGroup()
         .shadow(color: .black.opacity(0.14), radius: 20, x: 0, y: 10)
         .accessibilityHidden(true)
+    }
+
+    /// Uses the same managed cover loader for the full-size artwork and the vinyl label.
+    private func cover(size: CGFloat) -> some View {
+        ArtworkView(
+            track: model.player.playback.track,
+            vault: model.player.library.vault,
+            size: size
+        )
     }
 
     /// Keeps metadata and primary transport together while less frequent tools remain in a native
