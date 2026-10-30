@@ -110,6 +110,7 @@ struct SongListView: View {
                 && !LibrarySearch.isEmpty(model.search)
             {
                 ContentUnavailableView.search(text: model.search)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if model.rows.isEmpty
                 && (model.destination != .trash || model.deletedPlaylists.isEmpty)
             {
@@ -129,6 +130,7 @@ struct SongListView: View {
                             : L10n.text("Import music to start organizing your library.")
                     )
                 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 #if os(macOS)
                 Table(
@@ -293,6 +295,7 @@ struct SongListView: View {
                 #endif
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .librarySearch(
             text: $model.search,
             prompt: model.destination == .trash

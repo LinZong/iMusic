@@ -66,8 +66,20 @@ public struct RootView: View {
         .tabItem { Label(destination.title, systemImage: destination.symbol) }
     }
     #endif
-    /// Sidebar navigation with a detail stack and a shared playback footer.
+    /// Reserves footer height in macOS layout so non-scrolling pages center above the player.
     private var splitView: some View {
+        #if os(macOS)
+        VStack(spacing: 0) {
+            sidebarNavigation
+            LibraryFooter(model: model)
+        }
+        #else
+        sidebarNavigation
+            .safeAreaInset(edge: .bottom, spacing: 0) { LibraryFooter(model: model) }
+        #endif
+    }
+    /// Sidebar navigation with an independent detail stack for the selected destination.
+    private var sidebarNavigation: some View {
         NavigationSplitView {
             List(selection: $model.selection) {
                 Section("iMusic") {
@@ -124,6 +136,5 @@ public struct RootView: View {
                 .id(model.selection ?? .home)
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { LibraryFooter(model: model) }
     }
 }
