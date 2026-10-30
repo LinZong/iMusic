@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import { upload } from "./api";
+import { upload } from "./uploadApi";
 class MockXHR {
   static last: MockXHR;
   upload = {

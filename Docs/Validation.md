@@ -119,3 +119,11 @@ macOS arm64 和 iOS 通用模拟器构建通过。实际检查 Mac sidebar 的 H
 新增 `.swift-format` 和 `Scripts/swift_style.py`，全仓 lint 使用 `--strict`，另设无豁免的物理行宽检查；格式化重复执行结果一致，check 模式只读。通过临时源文件验证：formatter 本身无法拆分的长字符串会被行宽检查拒绝；多行本地化 key 缺少翻译时检查确实失败；空白、转义引号、反斜杠、Unicode 和续行均正确解码。VS Code 保存时格式化及全仓任务、GitHub Actions 检查已接入。
 
 macOS arm64 与 iOS 通用模拟器构建成功。默认 Swift 71 项测试中 67 项通过、4 项按配置跳过、零失败，明确关闭硬件音频测试。本地化检查覆盖 340 个键、3 种语言；英文注释审计仍覆盖 511 个成员字段、155 个 public／协议方法、20 个 public 初始化方法，无缺失。Git 空白检查通过。
+
+## Wi-Fi Upload React 模块拆分验收（2026-10-30）
+
+App.tsx 从 426 行缩减为 38 行，仅负责配置、语言、配对会话和页面组件的连接。界面拆为 layout、pairing、upload、shared 下的 10 个组件；四个 hooks 分别负责配置请求、页面语言、配对会话和串行上传。domain 保存配置契约、队列 occurrence 类型和纯文件校验；services 保存 fetch／XHR 协议及错误消息映射。组件和 domain 不依赖网络服务，协议地址、HTTP 202 接收语义、三语言文案、响应式样式和原生资源打包流程保持一致。Props、模型字段及导出函数保留英文 JSDoc。
+
+原有 12 项前端测试通过，并增加 9 项：配置失败后重试、网络失败后继续、授权失效重新配对后保留队列并使用新 token、StrictMode 下重复选择同一文件后独立删除、配对前拒绝拖放、忽略 StrictMode 旧配置响应、配对重复请求及卸载取消、上传串行和编辑门禁、卸载上传后不误报会话错误。共 21 项前端测试全部通过，TypeScript 类型检查、Vite 生产构建、Prettier 与本地化检查通过。翻译源检查递归覆盖子目录中的 TS／TSX，避免组件拆分后漏查。
+
+macOS arm64 与 iOS 通用模拟器构建成功，SwiftPM 插件自动构建并打包新模块资源。默认 Swift 71 项测试中 67 项通过、4 项按配置跳过、零失败，包括 React 资源清单、MIME／CSP、配置接口、配对和上传字节一致性测试；未启用硬件播放测试。Swift 全仓风格检查和 Git 空白检查通过。目录与状态所有权说明已同步到 Web/WiFiUpload/README.md 和 Architecture.md。

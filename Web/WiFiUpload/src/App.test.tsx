@@ -2,9 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
-import * as api from "./api";
+import * as api from "./services/uploadApi";
 import { languageFor, translations } from "./i18n";
-vi.mock("./api", async (importOriginal) => ({
+import { StrictMode } from "react";
+vi.mock("./services/uploadApi", async (importOriginal) => ({
   ...(await importOriginal<typeof api>()),
   configuration: vi.fn(),
   pair: vi.fn(),
@@ -16,13 +17,22 @@ const config = {
   maxFileSize: 1000,
 };
 beforeEach(() => {
+  vi.clearAllMocks();
   vi.mocked(api.configuration).mockResolvedValue(config);
   vi.mocked(api.pair).mockResolvedValue("session-token");
   vi.mocked(api.upload).mockResolvedValue();
 });
-async function paired() {
+async function paired(strict = false) {
   const user = userEvent.setup();
-  render(<App />);
+  render(
+    strict ? (
+      <StrictMode>
+        <App />
+      </StrictMode>
+    ) : (
+      <App />
+    ),
+  );
   await waitFor(() =>
     expect(screen.getByLabelText("Six-Digit Pairing Code")).toBeEnabled(),
   );
@@ -144,5 +154,108 @@ describe("Wi-Fi Upload", () => {
     expect(screen.getByLabelText("Choose Music")).toBeDisabled();
     expect(screen.getByText("two.wav")).toBeVisible();
     expect(api.upload).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("composed upload features", () => {
+  it("recovers a failed configuration request before enabling pairing", async () => {
+    vi.mocked(api.configuration).mockRejectedValueOnce(new Error("offline"));
+    const user = userEvent.setup();
+    render(<App />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      translations.en.networkError,
+    );
+    expect(screen.getByLabelText("Choose Music")).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Try Again" }));
+    expect(
+      await screen.findByLabelText("Six-Digit Pairing Code"),
+    ).toBeEnabled();
+    expect(api.configuration).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps waiting entries after a network failure and can continue without pairing again", async () => {
+    const user = await paired();
+    vi.mocked(api.upload).mockRejectedValueOnce(
+      new api.TransferError("networkError"),
+    );
+    choose([new File(["one"], "one.wav"), new File(["two"], "two.wav")]);
+    await user.click(screen.getByRole("button", { name: "Upload Music" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      translations.en.networkError,
+    );
+    expect(api.upload).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Waiting", { exact: true })).toBeVisible();
+    expect(screen.getByLabelText("Choose Music")).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "Upload Music" }));
+    expect(await screen.findByText("Received", { exact: true })).toBeVisible();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Try Again" }));
+    await user.click(screen.getByRole("button", { name: "Upload Music" }));
+    expect(
+      await screen.findAllByText("Received", { exact: true }),
+    ).toHaveLength(2);
+    expect(api.pair).toHaveBeenCalledTimes(1);
+  });
+
+  it("retains the queue through re-pairing and retries with the new credential", async () => {
+    const user = await paired();
+    vi.mocked(api.upload).mockRejectedValueOnce(
+      new api.TransferError("expired"),
+    );
+    choose([new File(["one"], "one.wav"), new File(["two"], "two.wav")]);
+    await user.click(screen.getByRole("button", { name: "Upload Music" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      translations.en.expired,
+    );
+    const code = screen.getByLabelText("Six-Digit Pairing Code");
+    expect(code).toHaveValue("");
+    vi.mocked(api.pair).mockResolvedValue("renewed-token");
+    await user.type(code, "654321");
+    await user.click(screen.getByRole("button", { name: "Pair" }));
+    await waitFor(() =>
+      expect(screen.getByLabelText("Choose Music")).toBeEnabled(),
+    );
+    expect(screen.getByText("one.wav")).toBeVisible();
+    expect(screen.getByText("two.wav")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Try Again" }));
+    await user.click(screen.getByRole("button", { name: "Upload Music" }));
+    expect(
+      await screen.findAllByText("Received", { exact: true }),
+    ).toHaveLength(2);
+    expect(api.upload).toHaveBeenCalledTimes(3);
+    expect(
+      vi
+        .mocked(api.upload)
+        .mock.calls.slice(1)
+        .map((call) => call[1]),
+    ).toEqual(["renewed-token", "renewed-token"]);
+  });
+
+  it("keeps repeated file selections distinct under StrictMode and removes only one occurrence", async () => {
+    const user = await paired(true);
+    const file = new File(["same"], "same.wav");
+    choose([file]);
+    choose([file]);
+    expect(screen.getAllByText("same.wav")).toHaveLength(2);
+    await user.click(
+      screen.getAllByRole("button", { name: "Remove: same.wav" })[0],
+    );
+    expect(screen.getAllByText("same.wav")).toHaveLength(1);
+    await user.click(screen.getByRole("button", { name: "Upload Music" }));
+    expect(await screen.findByText("Received", { exact: true })).toBeVisible();
+    expect(api.upload).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores dragged files while pairing is unavailable", async () => {
+    render(<App />);
+    const picker = screen.getByLabelText("Choose Music");
+    const dropzone = picker.closest("label")!;
+    fireEvent.dragOver(dropzone);
+    fireEvent.drop(dropzone, {
+      dataTransfer: { files: [new File(["song"], "ignored.wav")] },
+    });
+    expect(dropzone).not.toHaveClass("dragging");
+    expect(screen.queryByText("ignored.wav")).not.toBeInTheDocument();
+    expect(picker).toBeDisabled();
   });
 });

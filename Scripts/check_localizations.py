@@ -55,8 +55,10 @@ web_messages = json.loads((ROOT / 'Web/WiFiUpload/src/messages.json').read_text(
 for key in web_messages.values():
     if key not in catalog:
         errors.append(f'Wi-Fi Upload: missing key {key}')
-for path in (ROOT / 'Web/WiFiUpload/src').glob('*.tsx'):
-    if not path.name.endswith('.test.tsx') and re.search(r'[\u3400-\u9fff]', path.read_text()):
+for path in (ROOT / 'Web/WiFiUpload/src').rglob('*'):
+    if path.suffix not in {'.ts', '.tsx'}:
+        continue
+    if not path.name.endswith(('.test.ts', '.test.tsx')) and re.search(r'[\u3400-\u9fff]', path.read_text()):
         errors.append(f'{path.relative_to(ROOT)}: inline Han text')
 if result.returncode:
     errors.append(result.stdout + result.stderr)

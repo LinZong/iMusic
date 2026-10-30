@@ -2,6 +2,47 @@
 
 独立 React 19 + TypeScript + Vite 工程；运行时由 iMusic 内置 HTTP 服务提供静态资源，不使用 WebView，不依赖 CDN 或 Node 服务。npm 依赖按 `package-lock.json` 锁定。
 
+## 源码结构与职责
+
+```text
+src/
+├── App.tsx                         # page composition and feature wiring
+├── components/
+│   ├── layout/                     # PageHeader, PrivacyFooter
+│   ├── pairing/                    # PairingCard, PairingForm
+│   ├── upload/                     # UploadPanel, FileDropzone, UploadQueue,
+│   │                               # UploadQueueItem, UploadActions
+│   └── shared/                     # SectionHeading
+├── hooks/
+│   ├── useUploadConfiguration.ts   # capability loading, retry, stale-response fencing
+│   ├── usePageLocale.ts            # app/browser language and document metadata
+│   ├── usePairingSession.ts        # authentication, in-memory token, session errors
+│   └── useUploadQueue.ts           # validation, sequential transfer, retry, cancellation
+├── domain/
+│   ├── uploadConfiguration.ts      # native capability contract
+│   └── uploadQueue.ts              # occurrence types and pure file validation
+├── services/
+│   ├── uploadApi.ts                # fetch/XHR and HTTP protocol
+│   └── transferErrors.ts           # transport failure → localization key
+├── i18n.ts, messages.json          # shared localization contract
+└── main.tsx, styles.css            # React entry and responsive presentation
+```
+
+`App.tsx` 仅组装组件、连接配置／语言／会话，不包含表单 JSX、逐文件列表或上传循环。依赖方向为 `components → hooks → services/domain`；domain 是无 React／网络请求的类型与纯校验规则，services 不持有 React 状态。组件 props 和导出 API 具有英文 JSDoc。
+
+| 状态 | 所有者 | 边界 |
+| --- | --- | --- |
+| 配置、加载失败与重试 | useUploadConfiguration | 过期请求被中止，迟到响应不能覆盖新配置 |
+| 页面语言、标题和 HTML lang | usePageLocale | App 语言优先，加载前使用浏览器语言 |
+| Token、配对请求与会话错误 | usePairingSession | 令牌仅留在内存；卸载中止请求；防止重复提交 |
+| 六位配对码草稿 | PairingForm | 成功后表单卸载，草稿随之销毁 |
+| 文件队列、进度与批次取消 | UploadPanel 中的 useUploadQueue | 重新配对不重建上传组件，因此保留待传文件 |
+| 拖放高亮 | FileDropzone | 纯输入呈现状态，不负责校验或发送 |
+
+串行上传使用同步 ref 防止尚未重渲染时重复启动；传输期间禁止修改队列。每次选择均分配新的 occurrence ID，相同 File 或同名歌曲仍可分别删除、取消和重试。网络失败停止批次但保留后续 waiting 项；授权过期通知会话 hook 清除 token，重新配对后仍可继续。HTTP 接收成功和原生导入成功保持分开表达。
+
+添加 UI 时放入相应组件目录；异步请求与生命周期放入 hook，协议放入 service，纯校验放入 domain。避免重新把网络请求、所有状态或队列处理集中到 App 或一个通用 controller hook；也不要让文件行组件直接发送请求。
+
 ## 安装与开发
 
 ```sh
@@ -47,6 +88,6 @@ XHR 的发送进度最多显示 99%，服务端返回 202 后才标记已接收�
 
 ## 验证
 
-- Vitest／Testing Library：多语言、配对前门禁、错误码、格式与大小校验、Unicode 文件名、真实进度事件、取消与重试、会话失效。
+- Vitest／Testing Library：多语言、配对前门禁、错误码、格式与大小校验、Unicode 文件名、真实进度事件、取消与重试、会话失效；重新配对后保留队列、网络失败后继续、重复文件选择、StrictMode 迟到配置响应、重复请求防护与卸载取消。
 - `swift test`：构建资源入包、HTTP MIME／CSP、路径拒绝、配置接口、配对与流式字节一致性。
 - CI 在原生构建前运行 `npm ci` 和前端测试。
