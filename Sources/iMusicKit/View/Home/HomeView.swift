@@ -9,35 +9,6 @@ struct HomeView: View {
     var body: some View {
         PageScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(L10n.text("Your music, always with you.")).font(.largeTitle.bold())
-                    Text(L10n.text("format.library.summary", model.library.tracks.count))
-                        .foregroundStyle(
-                            .secondary
-                        )
-                    HStack {
-                        Button {
-                            model.imports.showImporter = true
-                        } label: {
-                            Label(L10n.text("Import Music"), systemImage: "plus")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        if !model.library.tracks.isEmpty {
-                            Button {
-                                model.player.playback.play(model.library.tracks, shuffled: true)
-                            } label: {
-                                Label(L10n.text("Shuffle"), systemImage: "shuffle")
-                            }
-                            .buttonStyle(.bordered)
-                        }
-                    }
-                    .padding(.top, 8)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading).padding(24)
-                .background(
-                    Color.accentColor.opacity(0.09),
-                    in: RoundedRectangle(cornerRadius: 22)
-                )
                 ForEach(model.preferences.homeSections.filter(\.enabled)) { section in
                     sectionView(section.id)
                 }
