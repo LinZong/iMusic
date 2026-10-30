@@ -1,0 +1,42 @@
+name: Build and test
+'on':
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  apple:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Web/WiFiUpload/package-lock.json
+      - name: Install and test Wi-Fi Upload
+        run: |
+          npm ci --prefix Web/WiFiUpload
+          npm run format:check --prefix Web/WiFiUpload
+          npm test --prefix Web/WiFiUpload
+      - name: Select newest installed Xcode
+        shell: bash
+        run: |
+          XCODE_PATH=$(ruby -e 'require "rubygems"; puts Dir["/Applications/Xcode*.app"].max_by { |p| Gem::Version.new((`/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "#{p}/Contents/Info.plist"`).strip) }')
+          sudo xcode-select --switch "$XCODE_PATH/Contents/Developer"
+          xcodebuild -version
+          swift --version
+      - name: Localization coverage
+        run: python3 Scripts/check_localizations.py
+      - name: Tests without hardware audio
+        run: swift test
+        env:
+          IMUSIC_AUDIO_TESTS: '0'
+          IMUSIC_SKIP_AUDIO_TESTS: '1'
+      - name: Native macOS
+        run: xcodebuild -quiet -project iMusic.xcodeproj -scheme iMusicMac -destination 'platform=macOS' -derivedDataPath .ci-mac CODE_SIGNING_ALLOWED=NO build
+      - name: Universal iPhone and iPad
+        run: xcodebuild -quiet -project iMusic.xcodeproj -scheme iMusic -destination 'generic/platform=iOS Simulator' -derivedDataPath .ci-ios CODE_SIGNING_ALLOWED=NO build
+      - name: Conditional cloud and CarPlay sources
+        run: xcodebuild -quiet -project iMusic.xcodeproj -scheme 'iMusic Full' -destination 'generic/platform=iOS Simulator' -derivedDataPath .ci-ios CODE_SIGNING_ALLOWED=NO build

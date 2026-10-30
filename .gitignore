@@ -1,0 +1,71 @@
+# macOS metadata
+.DS_Store
+._*
+
+# SwiftPM and Xcode build products (including platform-specific DerivedData)
+/.build/
+/.build-*/
+/.swiftpm/
+DerivedData/
+build/
+Build/
+/.ci-*/
+*.app/
+*.ipa
+*.dSYM/
+*.dSYM.zip
+*.xcarchive/
+*.xcresult/
+
+# Per-user Xcode state; keep the project, shared schemes and Package.resolved
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Machine-specific SourceKit / xcode-build-server configuration
+/Apps/buildServer.json
+/Apps/.compile
+/buildServer.json
+/.bsp/
+
+# React / TypeScript dependencies, generated bundles and test reports
+node_modules/
+/Web/WiFiUpload/dist/
+/Web/WiFiUpload/.vite/
+/Web/WiFiUpload/.vite-temp/
+/Web/WiFiUpload/coverage/
+/Web/WiFiUpload/.npm/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local signing overrides, provisioning profiles and private keys
+/Config/*.local.xcconfig
+*.p12
+*.pfx
+*.p8
+*.pem
+*.key
+*.mobileprovision
+*.provisionprofile
+
+# Local environment overrides; retain shareable examples
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Generated local library databases and SQLite sidecars
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+
+# Python tooling caches
+__pycache__/
+*.py[cod]

@@ -1,0 +1,1723 @@
+{
+  " has a checksum mismatch": {
+    "en": " has a checksum mismatch",
+    "zh-Hans": " 校验不一致",
+    "zh-Hant": " 校驗不一致"
+  },
+  "1.0.0 · Local first. No ads, app accounts, or unsolicited notifications.": {
+    "en": "1.0.0 · Local first. No ads, app accounts, or unsolicited notifications.",
+    "zh-Hans": "1.0.0 · 本地优先，无广告，无账号，无主动推送。",
+    "zh-Hant": "1.0.0 · 本地優先，無廣告，無賬號，無主動推送。"
+  },
+  "10-Band Equalizer": {
+    "en": "10-Band Equalizer",
+    "zh-Hans": "十段均衡器",
+    "zh-Hant": "十段均衡器"
+  },
+  "About iMusic": {
+    "en": "About iMusic",
+    "zh-Hans": "关于 iMusic",
+    "zh-Hant": "關於 iMusic"
+  },
+  "Actual listening time · Pauses and seeks are excluded": {
+    "en": "Actual listening time · Pauses and seeks are excluded",
+    "zh-Hans": "实际聆听时长 · 暂停和跳转不计入",
+    "zh-Hant": "實際聆聽時長 · 暫停和跳轉不計入"
+  },
+  "Add Music or Playlist": {
+    "en": "Add Music or Playlist",
+    "zh-Hans": "添加音乐或歌单",
+    "zh-Hant": "添加音樂或歌單"
+  },
+  "Add Songs": {
+    "en": "Add Songs",
+    "zh-Hans": "添加歌曲",
+    "zh-Hant": "添加歌曲"
+  },
+  "Add to Playlist": {
+    "en": "Add to Playlist",
+    "zh-Hans": "添加到歌单",
+    "zh-Hant": "添加到歌單"
+  },
+  "Add to Queue": {
+    "en": "Add to Queue",
+    "zh-Hans": "加入播放队列",
+    "zh-Hant": "加入播放隊列"
+  },
+  "Album": {
+    "en": "Album",
+    "zh-Hans": "专辑",
+    "zh-Hant": "專輯"
+  },
+  "Album Artist": {
+    "en": "Album Artist",
+    "zh-Hans": "专辑歌手",
+    "zh-Hant": "專輯歌手"
+  },
+  "Albums": {
+    "en": "Albums",
+    "zh-Hans": "专辑",
+    "zh-Hant": "專輯"
+  },
+  "All Songs": {
+    "en": "All Songs",
+    "zh-Hans": "全部歌曲",
+    "zh-Hant": "全部歌曲"
+  },
+  "All Time": {
+    "en": "All Time",
+    "zh-Hans": "全部",
+    "zh-Hant": "全部"
+  },
+  "Allow Artist and Album Names to Be Sent for Search": {
+    "en": "Allow Artist and Album Names to Be Sent for Search",
+    "zh-Hans": "允许发送歌手和专辑名称进行查询",
+    "zh-Hant": "允許發送歌手和專輯名稱進行查詢"
+  },
+  "Allow Online Artwork Search": {
+    "en": "Allow Online Artwork Search",
+    "zh-Hans": "允许在线查询封面",
+    "zh-Hant": "允許在線查詢封面"
+  },
+  "Already Present / Restored": {
+    "en": "Already Present / Restored",
+    "zh-Hans": "已存在／恢复",
+    "zh-Hant": "已存在／恢復"
+  },
+  "Also Upload Music and Artwork": {
+    "en": "Also Upload Music and Artwork",
+    "zh-Hans": "同时上传音乐与封面",
+    "zh-Hant": "同時上傳音樂與封面"
+  },
+  "An existing library file failed verification. Keep the file and check your disk.": {
+    "en": "An existing library file failed verification. Keep the file and check your disk.",
+    "zh-Hans": "资料库中已存在校验不一致的文件，请保留文件并检查磁盘。",
+    "zh-Hant": "資料庫中已存在校驗不一致的檔案，請保留檔案並檢查磁盤。"
+  },
+  "An import is already running. Please wait for it to finish.": {
+    "en": "An import is already running. Please wait for it to finish.",
+    "zh-Hans": "已有导入任务正在进行，请等待完成。",
+    "zh-Hant": "已有導入任務正在進行，請等待完成。"
+  },
+  "Appearance": {
+    "en": "Appearance",
+    "zh-Hans": "外观",
+    "zh-Hant": "外觀"
+  },
+  "Apply Preview": {
+    "en": "Apply Preview",
+    "zh-Hans": "应用预览",
+    "zh-Hant": "應用預覽"
+  },
+  "Artist": {
+    "en": "Artist",
+    "zh-Hans": "歌手",
+    "zh-Hant": "歌手"
+  },
+  "Artists": {
+    "en": "Artists",
+    "zh-Hans": "歌手",
+    "zh-Hant": "歌手"
+  },
+  "At the End of This Song": {
+    "en": "At the End of This Song",
+    "zh-Hans": "本曲结束后",
+    "zh-Hant": "本曲結束後"
+  },
+  "Back 10 Seconds": {
+    "en": "Back 10 Seconds",
+    "zh-Hans": "后退十秒",
+    "zh-Hant": "後退十秒"
+  },
+  "Backup Ready": {
+    "en": "Backup Ready",
+    "zh-Hans": "备份已准备好",
+    "zh-Hant": "備份已準備好"
+  },
+  "Backup and Restore": {
+    "en": "Backup and Restore",
+    "zh-Hans": "备份与恢复",
+    "zh-Hant": "備份與恢復"
+  },
+  "Backup restored.": {
+    "en": "Backup restored.",
+    "zh-Hans": "备份已恢复。",
+    "zh-Hant": "備份已恢復。"
+  },
+  "Bass Boost": {
+    "en": "Bass Boost",
+    "zh-Hans": "低音增强",
+    "zh-Hant": "低音增強"
+  },
+  "Bright": {
+    "en": "Bright",
+    "zh-Hans": "明亮",
+    "zh-Hant": "明亮"
+  },
+  "Bring Your Music In": {
+    "en": "Bring Your Music In",
+    "zh-Hans": "把音乐带进来",
+    "zh-Hant": "把音樂帶進來"
+  },
+  "Bulk Edit": {
+    "en": "Bulk Edit",
+    "zh-Hans": "批量编辑",
+    "zh-Hant": "批量編輯"
+  },
+  "Cancel": {
+    "en": "Cancel",
+    "zh-Hans": "取消",
+    "zh-Hant": "取消"
+  },
+  "Cancelled": {
+    "en": "Cancelled",
+    "zh-Hans": "已取消",
+    "zh-Hant": "已取消"
+  },
+  "Categories": {
+    "en": "Categories",
+    "zh-Hans": "分类",
+    "zh-Hant": "分類"
+  },
+  "Change Album": {
+    "en": "Change Album",
+    "zh-Hans": "修改专辑",
+    "zh-Hant": "修改專輯"
+  },
+  "Change Album Artist": {
+    "en": "Change Album Artist",
+    "zh-Hans": "修改专辑歌手",
+    "zh-Hant": "修改專輯歌手"
+  },
+  "Change Artist": {
+    "en": "Change Artist",
+    "zh-Hans": "修改歌手",
+    "zh-Hant": "修改歌手"
+  },
+  "Change Genre": {
+    "en": "Change Genre",
+    "zh-Hans": "修改流派",
+    "zh-Hant": "修改流派"
+  },
+  "Changes apply only to iMusic library information. Original music files stay intact.": {
+    "en": "Changes apply only to iMusic library information. Original music files stay intact.",
+    "zh-Hans": "仅修改 iMusic 中的整理信息，原始音乐文件保持完整。",
+    "zh-Hant": "僅修改 iMusic 中的整理資訊，原始音樂檔案保持完整。"
+  },
+  "Check disk space and file permissions. The library will not be cleared automatically.": {
+    "en": "Check disk space and file permissions. The library will not be cleared automatically.",
+    "zh-Hans": "请检查磁盘空间与文件权限。资料库不会被自动清空。",
+    "zh-Hant": "請檢查磁盤空間與檔案權限。資料庫不會被自動清空。"
+  },
+  "Choose AirPlay or another output in System Sound Settings": {
+    "en": "Choose AirPlay or another output in System Sound Settings",
+    "zh-Hans": "在系统声音设置中选择 AirPlay 或其他输出设备",
+    "zh-Hant": "在系統聲音設置中選擇 AirPlay 或其他輸出設備"
+  },
+  "Choose Artwork…": {
+    "en": "Choose Artwork…",
+    "zh-Hans": "选择封面…",
+    "zh-Hant": "選擇封面…"
+  },
+  "Choose Music": {
+    "en": "Choose Music",
+    "zh-Hans": "选择音乐",
+    "zh-Hant": "選擇音樂"
+  },
+  "Choose a song you love": {
+    "en": "Choose a song you love",
+    "zh-Hans": "选择一首喜欢的音乐",
+    "zh-Hant": "選擇一首喜歡的音樂"
+  },
+  "Choose an image smaller than 20 MB.": {
+    "en": "Choose an image smaller than 20 MB.",
+    "zh-Hans": "请选择 20MB 以内的图片。",
+    "zh-Hant": "請選擇 20MB 以內的圖片。"
+  },
+  "Choose music to start playing": {
+    "en": "Choose music to start playing",
+    "zh-Hans": "选择音乐开始播放",
+    "zh-Hant": "選擇音樂開始播放"
+  },
+  "Clear Upcoming": {
+    "en": "Clear Upcoming",
+    "zh-Hans": "清空待播",
+    "zh-Hant": "清空待播"
+  },
+  "Cloud Changes Received": {
+    "en": "Cloud Changes Received",
+    "zh-Hans": "已接收云端变更",
+    "zh-Hant": "已接收雲端變更"
+  },
+  "Collapse Player": {
+    "en": "Collapse Player",
+    "zh-Hans": "收起播放器",
+    "zh-Hant": "收起播放器"
+  },
+  "Connect your computer and this device to the same trusted local network, then open the address below in a browser.": {
+    "en": "Connect your computer and this device to the same trusted local network, then open the address below in a browser.",
+    "zh-Hans": "电脑和此设备连接同一个可信局域网，在电脑浏览器打开下面的地址。",
+    "zh-Hant": "電腦和此設備連接同一個可信區域網路，在電腦瀏覽器打開下面的地址。"
+  },
+  "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again.": {
+    "en": "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again.",
+    "zh-Hans": "连接中断，请保持 iMusic 的 Wi-Fi 传歌页面开启，然后重试。",
+    "zh-Hant": "連線中斷，請保持 iMusic 的 Wi-Fi 傳歌頁面開啟，然後重試。"
+  },
+  "Continue Listening": {
+    "en": "Continue Listening",
+    "zh-Hans": "继续聆听",
+    "zh-Hant": "繼續聆聽"
+  },
+  "Create": {
+    "en": "Create",
+    "zh-Hans": "创建",
+    "zh-Hant": "創建"
+  },
+  "Create a playlist first": {
+    "en": "Create a playlist first",
+    "zh-Hans": "请先创建歌单",
+    "zh-Hant": "請先創建歌單"
+  },
+  "Customize Home": {
+    "en": "Customize Home",
+    "zh-Hans": "编排首页",
+    "zh-Hant": "編排首頁"
+  },
+  "Dark": {
+    "en": "Dark",
+    "zh-Hans": "深色",
+    "zh-Hant": "深色"
+  },
+  "Date": {
+    "en": "Date",
+    "zh-Hans": "日期",
+    "zh-Hant": "日期"
+  },
+  "Delete": {
+    "en": "Delete",
+    "zh-Hans": "删除",
+    "zh-Hant": "刪除"
+  },
+  "Delete Permanently": {
+    "en": "Delete Permanently",
+    "zh-Hans": "永久删除",
+    "zh-Hant": "永久刪除"
+  },
+  "Delete Playlist": {
+    "en": "Delete Playlist",
+    "zh-Hans": "删除歌单",
+    "zh-Hant": "刪除歌單"
+  },
+  "Deleted Playlists": {
+    "en": "Deleted Playlists",
+    "zh-Hans": "已删除的歌单",
+    "zh-Hant": "已刪除的歌單"
+  },
+  "Diagnostics Ready": {
+    "en": "Diagnostics Ready",
+    "zh-Hans": "诊断信息已准备好",
+    "zh-Hant": "診斷資訊已準備好"
+  },
+  "Display Mode": {
+    "en": "Display Mode",
+    "zh-Hans": "显示模式",
+    "zh-Hant": "顯示模式"
+  },
+  "Done": {
+    "en": "Done",
+    "zh-Hans": "完成",
+    "zh-Hant": "完成"
+  },
+  "Download Complete": {
+    "en": "Download Complete",
+    "zh-Hans": "下载完成",
+    "zh-Hant": "下載完成"
+  },
+  "Download from iCloud": {
+    "en": "Download from iCloud",
+    "zh-Hans": "从 iCloud 下载",
+    "zh-Hant": "從 iCloud 下載"
+  },
+  "Downloaded music failed verification": {
+    "en": "Downloaded music failed verification",
+    "zh-Hans": "下载的音乐校验失败",
+    "zh-Hant": "下載的音樂校驗失敗"
+  },
+  "Downloading from iCloud…": {
+    "en": "Downloading from iCloud…",
+    "zh-Hans": "正在从 iCloud 下载…",
+    "zh-Hant": "正在從 iCloud 下載…"
+  },
+  "Drop audio files here, or choose files to upload.": {
+    "en": "Drop audio files here, or choose files to upload.",
+    "zh-Hans": "将音频文件拖到这里，或选择要上传的文件。",
+    "zh-Hant": "將音訊檔案拖到這裡，或選擇要上傳的檔案。"
+  },
+  "Duplicate Files": {
+    "en": "Duplicate Files",
+    "zh-Hans": "重复文件",
+    "zh-Hant": "重復檔案"
+  },
+  "Duration": {
+    "en": "Duration",
+    "zh-Hans": "时长",
+    "zh-Hant": "時長"
+  },
+  "Edit Playlist": {
+    "en": "Edit Playlist",
+    "zh-Hans": "编辑歌单",
+    "zh-Hant": "編輯歌單"
+  },
+  "Edit Playlist and Artwork": {
+    "en": "Edit Playlist and Artwork",
+    "zh-Hans": "编辑歌单与封面",
+    "zh-Hant": "編輯歌單與封面"
+  },
+  "Edit Song": {
+    "en": "Edit Song",
+    "zh-Hans": "编辑歌曲",
+    "zh-Hant": "編輯歌曲"
+  },
+  "Edit Tags and Artwork": {
+    "en": "Edit Tags and Artwork",
+    "zh-Hans": "编辑标签与封面",
+    "zh-Hant": "編輯標籤與封面"
+  },
+  "Edit Tags in Bulk": {
+    "en": "Edit Tags in Bulk",
+    "zh-Hans": "批量编辑标签",
+    "zh-Hant": "批量編輯標籤"
+  },
+  "Enable Equalizer": {
+    "en": "Enable Equalizer",
+    "zh-Hans": "启用均衡器",
+    "zh-Hant": "啓用均衡器"
+  },
+  "Enable Online Metadata Search?": {
+    "en": "Enable Online Metadata Search?",
+    "zh-Hans": "启用在线资料查询？",
+    "zh-Hant": "啓用在線資料查詢？"
+  },
+  "Enable iCloud sync first.": {
+    "en": "Enable iCloud sync first.",
+    "zh-Hans": "请先启用 iCloud 同步。",
+    "zh-Hant": "請先啓用 iCloud 同步。"
+  },
+  "Enter the pairing code shown in iMusic. Keep the Wi-Fi Transfer page open, and use a trusted local network.": {
+    "en": "Enter the pairing code shown in iMusic. Keep the Wi-Fi Transfer page open, and use a trusted local network.",
+    "zh-Hans": "输入应用内显示的配对码。请保持 iMusic 的 Wi-Fi 传歌页面打开，仅在可信局域网使用。",
+    "zh-Hant": "輸入應用內顯示的配對碼。請保持 iMusic 的 Wi-Fi 傳歌頁面打開，僅在可信區域網路使用。"
+  },
+  "Enter the six-digit pairing code.": {
+    "en": "Enter the six-digit pairing code.",
+    "zh-Hans": "请输入六位配对码。",
+    "zh-Hant": "請輸入六位配對碼。"
+  },
+  "Equalizer": {
+    "en": "Equalizer",
+    "zh-Hans": "均衡器",
+    "zh-Hant": "均衡器"
+  },
+  "Existing file conflict: ": {
+    "en": "Existing file conflict: ",
+    "zh-Hans": "现有文件冲突：",
+    "zh-Hant": "現有檔案衝突："
+  },
+  "Expand Now Playing": {
+    "en": "Expand Now Playing",
+    "zh-Hans": "展开当前播放",
+    "zh-Hant": "展開當前播放"
+  },
+  "Export Anonymous Diagnostics": {
+    "en": "Export Anonymous Diagnostics",
+    "zh-Hans": "导出匿名诊断信息",
+    "zh-Hant": "導出匿名診斷資訊"
+  },
+  "Export File": {
+    "en": "Export File",
+    "zh-Hans": "导出文件",
+    "zh-Hant": "導出檔案"
+  },
+  "Export Full Backup (Including Music)": {
+    "en": "Export Full Backup (Including Music)",
+    "zh-Hans": "导出完整备份（包含音乐）",
+    "zh-Hant": "導出完整備份（包含音樂）"
+  },
+  "Export Library Information": {
+    "en": "Export Library Information",
+    "zh-Hans": "导出整理信息备份",
+    "zh-Hant": "導出整理資訊備份"
+  },
+  "Favorites": {
+    "en": "Favorites",
+    "zh-Hans": "收藏",
+    "zh-Hant": "收藏"
+  },
+  "File Information": {
+    "en": "File Information",
+    "zh-Hans": "文件信息",
+    "zh-Hant": "檔案資訊"
+  },
+  "File saved.": {
+    "en": "File saved.",
+    "zh-Hans": "备份已保存。",
+    "zh-Hant": "備份已保存。"
+  },
+  "Files received by iMusic are imported on your device. Check import results in the app.": {
+    "en": "Files received by iMusic are imported on your device. Check import results in the app.",
+    "zh-Hans": "iMusic 会在设备上导入已接收的文件，请在应用内查看导入结果。",
+    "zh-Hant": "iMusic 會在裝置上匯入已接收的檔案，請在應用程式內查看匯入結果。"
+  },
+  "Find Duplicate Songs": {
+    "en": "Find Duplicate Songs",
+    "zh-Hans": "查找重复歌曲",
+    "zh-Hant": "查找重復歌曲"
+  },
+  "Flat": {
+    "en": "Flat",
+    "zh-Hans": "平直",
+    "zh-Hant": "平直"
+  },
+  "Folder access has expired. Select the folder again.": {
+    "en": "Folder access has expired. Select the folder again.",
+    "zh-Hans": "文件夹访问权限已失效，请重新选择文件夹。",
+    "zh-Hant": "資料夾訪問權限已失效，請重新選擇資料夾。"
+  },
+  "Format": {
+    "en": "Format",
+    "zh-Hans": "格式",
+    "zh-Hant": "格式"
+  },
+  "Forward 10 Seconds": {
+    "en": "Forward 10 Seconds",
+    "zh-Hans": "前进十秒",
+    "zh-Hant": "前進十秒"
+  },
+  "Genre": {
+    "en": "Genre",
+    "zh-Hans": "流派",
+    "zh-Hant": "流派"
+  },
+  "Genres": {
+    "en": "Genres",
+    "zh-Hans": "流派",
+    "zh-Hant": "流派"
+  },
+  "Headroom reduces clipping when enabled. Disabling bypasses the equalizer.": {
+    "en": "Headroom reduces clipping when enabled. Disabling bypasses the equalizer.",
+    "zh-Hans": "启用时自动预留增益余量，减少削波。关闭时旁路均衡器。",
+    "zh-Hant": "啓用時自動預留增益餘量，減少削波。關閉時旁路均衡器。"
+  },
+  "Home": {
+    "en": "Home",
+    "zh-Hans": "首页",
+    "zh-Hant": "首頁"
+  },
+  "Import Complete": {
+    "en": "Import Complete",
+    "zh-Hans": "导入完成",
+    "zh-Hant": "導入完成"
+  },
+  "Import Music": {
+    "en": "Import Music",
+    "zh-Hans": "导入音乐",
+    "zh-Hant": "導入音樂"
+  },
+  "Import Music Files…": {
+    "en": "Import Music Files…",
+    "zh-Hans": "导入音乐文件…",
+    "zh-Hant": "導入音樂檔案…"
+  },
+  "Import Music…": {
+    "en": "Import Music…",
+    "zh-Hans": "导入音乐…",
+    "zh-Hant": "導入音樂…"
+  },
+  "Import Results": {
+    "en": "Import Results",
+    "zh-Hans": "导入结果",
+    "zh-Hant": "導入結果"
+  },
+  "Import cancelled. Completed songs have been saved safely.": {
+    "en": "Import cancelled. Completed songs have been saved safely.",
+    "zh-Hans": "导入已取消，已完成的歌曲已安全保存。",
+    "zh-Hant": "導入已取消，已完成的歌曲已安全保存。"
+  },
+  "Import music from Files, iCloud Drive, or your computer. Originals stay intact, and your collection stays available offline.": {
+    "en": "Import music from Files, iCloud Drive, or your computer. Originals stay intact, and your collection stays available offline.",
+    "zh-Hans": "从文件、iCloud Drive 或电脑导入音乐。原始文件保持完整，收藏随时离线可用。",
+    "zh-Hant": "從檔案、iCloud Drive 或電腦導入音樂。原始檔案保持完整，收藏隨時離線可用。"
+  },
+  "Import music or create a playlist with the plus button.": {
+    "en": "Import music or create a playlist with the plus button.",
+    "zh-Hans": "导入音乐，或通过右上角的加号创建歌单。",
+    "zh-Hant": "導入音樂，或通過右上角的加號創建歌單。"
+  },
+  "Import music to start organizing your library.": {
+    "en": "Import music to start organizing your library.",
+    "zh-Hans": "导入音乐，开始整理你的资料库。",
+    "zh-Hant": "導入音樂，開始整理你的資料庫。"
+  },
+  "Imported": {
+    "en": "Imported",
+    "zh-Hans": "成功导入",
+    "zh-Hant": "成功導入"
+  },
+  "Imported music stays available offline on this device. Download songs from other devices using the song menu.": {
+    "en": "Imported music stays available offline on this device. Download songs from other devices using the song menu.",
+    "zh-Hans": "本机已导入的音乐始终离线保留。其他设备的歌曲可在歌曲菜单中按需下载。",
+    "zh-Hant": "本機已導入的音樂始終離線保留。其他設備的歌曲可在歌曲菜單中按需下載。"
+  },
+  "Imports already remove duplicates by file contents. These copies remain after merging a backup or cloud library. Merging preserves playlist references and favorites, and moves other copies to Trash.": {
+    "en": "Imports already remove duplicates by file contents. These copies remain after merging a backup or cloud library. Merging preserves playlist references and favorites, and moves other copies to Trash.",
+    "zh-Hans": "导入时已按文件内容自动去重。这里列出从备份或云端合并后仍重复的内容；合并会保留歌单引用和收藏，其他副本进入回收站。",
+    "zh-Hant": "導入時已按檔案內容自動去重。這裡列出從備份或雲端合併後仍重復的內容；合併會保留歌單引用和收藏，其他副本進入回收站。"
+  },
+  "Includes only the system version, counts, and integrity results. Music names, paths, and account details are excluded.": {
+    "en": "Includes only the system version, counts, and integrity results. Music names, paths, and account details are excluded.",
+    "zh-Hans": "仅包含系统版本、数量及完整性检查结果，不含音乐名称、路径或账号信息。",
+    "zh-Hant": "僅包含系統版本、數量及完整性檢查結果，不含音樂名稱、路徑或賬號資訊。"
+  },
+  "Invalid audio record": {
+    "en": "Invalid audio record",
+    "zh-Hans": "无效的音频记录",
+    "zh-Hant": "無效的音頻記錄"
+  },
+  "Invalid file entry": {
+    "en": "Invalid file entry",
+    "zh-Hans": "无效文件条目",
+    "zh-Hant": "無效檔案條目"
+  },
+  "Invalid file path": {
+    "en": "Invalid file path",
+    "zh-Hans": "无效的文件路径",
+    "zh-Hant": "無效的檔案路徑"
+  },
+  "Invalid import journal": {
+    "en": "Invalid import journal",
+    "zh-Hans": "无效导入日志",
+    "zh-Hant": "無效導入日誌"
+  },
+  "Invalid listening record": {
+    "en": "Invalid listening record",
+    "zh-Hans": "无效的统计记录",
+    "zh-Hant": "無效的統計記錄"
+  },
+  "Invalid managed file location. The source file was not changed.": {
+    "en": "Invalid managed file location. The source file was not changed.",
+    "zh-Hans": "应用内文件位置异常，未改动来源文件。",
+    "zh-Hant": "應用內檔案位置異常，未改動來源檔案。"
+  },
+  "Invalid playlist record": {
+    "en": "Invalid playlist record",
+    "zh-Hans": "无效的歌单记录",
+    "zh-Hant": "無效的歌單記錄"
+  },
+  "Keep This Copy and Merge": {
+    "en": "Keep This Copy and Merge",
+    "zh-Hans": "保留此项并合并",
+    "zh-Hant": "保留此項並合併"
+  },
+  "Keep this page open. Uploads stop when the app moves to the background.": {
+    "en": "Keep this page open. Uploads stop when the app moves to the background.",
+    "zh-Hans": "请保持本页面打开。离开应用进入后台时，上传服务将停止。",
+    "zh-Hant": "請保持本頁面打開。離開應用進入後台時，上傳服務將停止。"
+  },
+  "Last 30 Days": {
+    "en": "Last 30 Days",
+    "zh-Hans": "近三十天",
+    "zh-Hant": "近三十天"
+  },
+  "Last 7 Days": {
+    "en": "Last 7 Days",
+    "zh-Hans": "近七天",
+    "zh-Hant": "近七天"
+  },
+  "Library": {
+    "en": "Library",
+    "zh-Hans": "资料库",
+    "zh-Hant": "資料庫"
+  },
+  "Light": {
+    "en": "Light",
+    "zh-Hans": "浅色",
+    "zh-Hant": "淺色"
+  },
+  "Link Folder": {
+    "en": "Link Folder",
+    "zh-Hans": "关联文件夹",
+    "zh-Hant": "關聯資料夾"
+  },
+  "Link Folder…": {
+    "en": "Link Folder…",
+    "zh-Hans": "关联文件夹…",
+    "zh-Hant": "關聯資料夾…"
+  },
+  "Listen to a song you love": {
+    "en": "Listen to a song you love",
+    "zh-Hans": "听一首喜欢的歌",
+    "zh-Hant": "聽一首喜歡的歌"
+  },
+  "Listening Statistics": {
+    "en": "Listening Statistics",
+    "zh-Hans": "聆听统计",
+    "zh-Hant": "聆聽統計"
+  },
+  "Mini Player": {
+    "en": "Mini Player",
+    "zh-Hans": "迷你播放器",
+    "zh-Hant": "迷你播放器"
+  },
+  "Minutes": {
+    "en": "Minutes",
+    "zh-Hans": "分钟",
+    "zh-Hant": "分鐘"
+  },
+  "Missing music file": {
+    "en": "Missing music file",
+    "zh-Hans": "缺少音乐文件",
+    "zh-Hant": "缺少音樂檔案"
+  },
+  "Most Played": {
+    "en": "Most Played",
+    "zh-Hans": "最常聆听",
+    "zh-Hant": "最常聆聽"
+  },
+  "Most Played Artists": {
+    "en": "Most Played Artists",
+    "zh-Hans": "最常聆听的歌手",
+    "zh-Hant": "最常聆聽的歌手"
+  },
+  "Most Played Songs": {
+    "en": "Most Played Songs",
+    "zh-Hans": "最常聆听的歌曲",
+    "zh-Hant": "最常聆聽的歌曲"
+  },
+  "Move Empty Playlists to Trash": {
+    "en": "Move Empty Playlists to Trash",
+    "zh-Hans": "清理空歌单",
+    "zh-Hant": "清理空歌單"
+  },
+  "Move to Trash": {
+    "en": "Move to Trash",
+    "zh-Hans": "移到回收站",
+    "zh-Hant": "移到回收站"
+  },
+  "Music and Folders": {
+    "en": "Music and Folders",
+    "zh-Hans": "音乐与文件夹",
+    "zh-Hant": "音樂與資料夾"
+  },
+  "Music file verification failed": {
+    "en": "Music file verification failed",
+    "zh-Hans": "音乐文件校验失败",
+    "zh-Hant": "音樂檔案校驗失敗"
+  },
+  "Music in linked folders is copied into the managed library. Unlinking never deletes original files. iOS does not continuously monitor folders in the background.": {
+    "en": "Music in linked folders is copied into the managed library. Unlinking never deletes original files. iOS does not continuously monitor folders in the background.",
+    "zh-Hans": "关联文件夹中的音乐会复制到托管资料库；移除关联不会删除任何原文件。iOS 不提供持续后台文件夹监控。",
+    "zh-Hant": "關聯資料夾中的音樂會複製到托管資料庫；移除關聯不會刪除任何原檔案。iOS 不提供持續後台資料夾監控。"
+  },
+  "My Playlists": {
+    "en": "My Playlists",
+    "zh-Hans": "我的歌单",
+    "zh-Hant": "我的歌單"
+  },
+  "Name": {
+    "en": "Name",
+    "zh-Hans": "名称",
+    "zh-Hant": "名稱"
+  },
+  "Needs Attention": {
+    "en": "Needs Attention",
+    "zh-Hans": "需要处理",
+    "zh-Hant": "需要處理"
+  },
+  "New Playlist": {
+    "en": "New Playlist",
+    "zh-Hans": "新建歌单",
+    "zh-Hant": "新建歌單"
+  },
+  "Next Track": {
+    "en": "Next Track",
+    "zh-Hans": "下一首",
+    "zh-Hant": "下一首"
+  },
+  "No Identical Duplicate Songs": {
+    "en": "No Identical Duplicate Songs",
+    "zh-Hans": "没有内容完全相同的重复歌曲",
+    "zh-Hant": "沒有內容完全相同的重復歌曲"
+  },
+  "No Music Here Yet": {
+    "en": "No Music Here Yet",
+    "zh-Hans": "这里还没有音乐",
+    "zh-Hant": "這裡還沒有音樂"
+  },
+  "No artwork available.": {
+    "en": "No artwork available.",
+    "zh-Hans": "没有可用封面。",
+    "zh-Hant": "沒有可用封面。"
+  },
+  "No matching album found. Please choose artwork manually.": {
+    "en": "No matching album found. Please choose artwork manually.",
+    "zh-Hans": "没有找到匹配专辑，请手动选择封面。",
+    "zh-Hant": "沒有找到匹配專輯，請手動選擇封面。"
+  },
+  "No usable artwork found.": {
+    "en": "No usable artwork found.",
+    "zh-Hans": "未找到可用封面。",
+    "zh-Hant": "未找到可用封面。"
+  },
+  "Not Enabled": {
+    "en": "Not Enabled",
+    "zh-Hans": "未启用",
+    "zh-Hant": "未啓用"
+  },
+  "Nothing Here Yet": {
+    "en": "Nothing Here Yet",
+    "zh-Hans": "还没有内容",
+    "zh-Hant": "還沒有內容"
+  },
+  "Nothing Playing": {
+    "en": "Nothing Playing",
+    "zh-Hans": "尚未播放",
+    "zh-Hant": "尚未播放"
+  },
+  "Now Playing": {
+    "en": "Now Playing",
+    "zh-Hans": "当前播放",
+    "zh-Hant": "當前播放"
+  },
+  "OK": {
+    "en": "OK",
+    "zh-Hans": "好",
+    "zh-Hant": "好"
+  },
+  "Off by default. Search manually from the song editor. Artist and album names are sent to MusicBrainz, and artwork comes from Cover Art Archive. Music files are never uploaded.": {
+    "en": "Off by default. Search manually from the song editor. Artist and album names are sent to MusicBrainz, and artwork comes from Cover Art Archive. Music files are never uploaded.",
+    "zh-Hans": "默认关闭。启用后可在歌曲编辑页手动查询；歌手和专辑名称会发送到 MusicBrainz，封面从 Cover Art Archive 获取。不会上传音乐文件。",
+    "zh-Hant": "默認關閉。啓用後可在歌曲編輯頁手動查詢；歌手和專輯名稱會發送到 MusicBrainz，封面從 Cover Art Archive 獲取。不會上傳音樂檔案。"
+  },
+  "Online Artwork Matches": {
+    "en": "Online Artwork Matches",
+    "zh-Hans": "在线封面候选",
+    "zh-Hant": "在線封面候選"
+  },
+  "Online Metadata (Optional)": {
+    "en": "Online Metadata (Optional)",
+    "zh-Hans": "在线资料（可选）",
+    "zh-Hant": "在線資料（可選）"
+  },
+  "Only files with identical contents can be merged.": {
+    "en": "Only files with identical contents can be merged.",
+    "zh-Hans": "仅允许合并内容完全相同的文件。",
+    "zh-Hant": "僅允許合併內容完全相同的檔案。"
+  },
+  "Only songs in Trash can be permanently deleted.": {
+    "en": "Only songs in Trash can be permanently deleted.",
+    "zh-Hans": "只能永久删除回收站中的歌曲。",
+    "zh-Hant": "只能永久刪除回收站中的歌曲。"
+  },
+  "Original Filename": {
+    "en": "Original Filename",
+    "zh-Hans": "原始文件名",
+    "zh-Hant": "原始檔案名"
+  },
+  "Pair": {
+    "en": "Pair",
+    "zh-Hans": "配对",
+    "zh-Hant": "配對"
+  },
+  "Paired": {
+    "en": "Paired",
+    "zh-Hans": "已配对",
+    "zh-Hant": "已配對"
+  },
+  "Pairing Code": {
+    "en": "Pairing Code",
+    "zh-Hans": "配对码",
+    "zh-Hant": "配對碼"
+  },
+  "Pairing expired. Pair again to continue.": {
+    "en": "Pairing expired. Pair again to continue.",
+    "zh-Hans": "配对已失效，请重新配对后继续。",
+    "zh-Hant": "配對已失效，請重新配對後繼續。"
+  },
+  "Pairing…": {
+    "en": "Pairing…",
+    "zh-Hans": "正在配对…",
+    "zh-Hant": "正在配對…"
+  },
+  "Pause": {
+    "en": "Pause",
+    "zh-Hans": "暂停",
+    "zh-Hant": "暫停"
+  },
+  "Pause at the end of this song": {
+    "en": "Pause at the end of this song",
+    "zh-Hans": "本曲结束后暂停",
+    "zh-Hant": "本曲結束後暫停"
+  },
+  "Permanently Delete Music?": {
+    "en": "Permanently Delete Music?",
+    "zh-Hans": "永久删除音乐？",
+    "zh-Hant": "永久刪除音樂？"
+  },
+  "Play": {
+    "en": "Play",
+    "zh-Hans": "播放",
+    "zh-Hant": "播放"
+  },
+  "Play / Pause": {
+    "en": "Play / Pause",
+    "zh-Hans": "播放／暂停",
+    "zh-Hant": "播放／暫停"
+  },
+  "Play Next": {
+    "en": "Play Next",
+    "zh-Hans": "下一首播放",
+    "zh-Hant": "下一首播放"
+  },
+  "Play Queue": {
+    "en": "Play Queue",
+    "zh-Hans": "播放队列",
+    "zh-Hant": "播放隊列"
+  },
+  "Play Selected Songs": {
+    "en": "Play Selected Songs",
+    "zh-Hans": "播放所选歌曲",
+    "zh-Hant": "播放所選歌曲"
+  },
+  "Play in Order": {
+    "en": "Play in Order",
+    "zh-Hans": "顺序播放",
+    "zh-Hant": "順序播放"
+  },
+  "Playback Position": {
+    "en": "Playback Position",
+    "zh-Hans": "播放进度",
+    "zh-Hant": "播放進度"
+  },
+  "Playback Speed": {
+    "en": "Playback Speed",
+    "zh-Hans": "播放速度",
+    "zh-Hant": "播放速度"
+  },
+  "Playlist Name": {
+    "en": "Playlist Name",
+    "zh-Hans": "歌单名称",
+    "zh-Hant": "歌單名稱"
+  },
+  "Playlists": {
+    "en": "Playlists",
+    "zh-Hans": "歌单",
+    "zh-Hant": "歌單"
+  },
+  "Please wait for the current task to finish.": {
+    "en": "Please wait for the current task to finish.",
+    "zh-Hans": "请等待当前任务完成。",
+    "zh-Hant": "請等待當前任務完成。"
+  },
+  "Presets": {
+    "en": "Presets",
+    "zh-Hans": "预设",
+    "zh-Hant": "預設"
+  },
+  "Preview Decoding": {
+    "en": "Preview Decoding",
+    "zh-Hans": "预览重新解码",
+    "zh-Hant": "預覽重新解碼"
+  },
+  "Previous Track": {
+    "en": "Previous Track",
+    "zh-Hans": "上一首",
+    "zh-Hant": "上一首"
+  },
+  "Processed": {
+    "en": "Processed",
+    "zh-Hans": "已处理",
+    "zh-Hant": "已處理"
+  },
+  "Processing library…": {
+    "en": "Processing library…",
+    "zh-Hans": "正在处理资料库…",
+    "zh-Hant": "正在處理資料庫…"
+  },
+  "Received": {
+    "en": "Received",
+    "zh-Hans": "已接收",
+    "zh-Hant": "已接收"
+  },
+  "Received. Importing now.": {
+    "en": "Received. Importing now.",
+    "zh-Hans": "已接收，正在导入。",
+    "zh-Hant": "已接收，正在導入。"
+  },
+  "Recently Added": {
+    "en": "Recently Added",
+    "zh-Hans": "最近添加",
+    "zh-Hant": "最近添加"
+  },
+  "Record identifiers do not match": {
+    "en": "Record identifiers do not match",
+    "zh-Hans": "记录标识不匹配",
+    "zh-Hant": "記錄標識不匹配"
+  },
+  "Remove": {
+    "en": "Remove",
+    "zh-Hans": "移除",
+    "zh-Hant": "移除"
+  },
+  "Remove from Favorites": {
+    "en": "Remove from Favorites",
+    "zh-Hans": "取消收藏",
+    "zh-Hant": "取消收藏"
+  },
+  "Remove from Playlist": {
+    "en": "Remove from Playlist",
+    "zh-Hans": "从歌单移除",
+    "zh-Hant": "從歌單移除"
+  },
+  "Remove from Queue": {
+    "en": "Remove from Queue",
+    "zh-Hans": "移出队列",
+    "zh-Hant": "移出隊列"
+  },
+  "Rename": {
+    "en": "Rename",
+    "zh-Hans": "重命名",
+    "zh-Hant": "重命名"
+  },
+  "Rename Playlist": {
+    "en": "Rename Playlist",
+    "zh-Hans": "重命名歌单",
+    "zh-Hant": "重命名歌單"
+  },
+  "Repeat All": {
+    "en": "Repeat All",
+    "zh-Hans": "列表循环",
+    "zh-Hant": "列表循環"
+  },
+  "Repeat One": {
+    "en": "Repeat One",
+    "zh-Hans": "单曲循环",
+    "zh-Hant": "單曲循環"
+  },
+  "Restore": {
+    "en": "Restore",
+    "zh-Hans": "恢复",
+    "zh-Hant": "恢復"
+  },
+  "Restore Default Layout": {
+    "en": "Restore Default Layout",
+    "zh-Hans": "恢复默认布局",
+    "zh-Hant": "恢復默認佈局"
+  },
+  "Restore Original File Tags": {
+    "en": "Restore Original File Tags",
+    "zh-Hans": "还原文件中的原始标签",
+    "zh-Hant": "還原檔案中的原始標籤"
+  },
+  "Restore Playlist": {
+    "en": "Restore Playlist",
+    "zh-Hans": "恢复歌单",
+    "zh-Hant": "恢復歌單"
+  },
+  "Restore from Backup…": {
+    "en": "Restore from Backup…",
+    "zh-Hans": "从备份恢复…",
+    "zh-Hant": "從備份恢復…"
+  },
+  "Restores merge information and preserve newer edits. Deleted music stays in Trash and is never automatically erased.": {
+    "en": "Restores merge information and preserve newer edits. Deleted music stays in Trash and is never automatically erased.",
+    "zh-Hans": "恢复采用合并方式，优先保留较新的修改。删除的音乐保留在回收站，不自动永久删除。",
+    "zh-Hant": "恢復採用合併方式，優先保留較新的修改。刪除的音樂保留在回收站，不自動永久刪除。"
+  },
+  "Reverse Order": {
+    "en": "Reverse Order",
+    "zh-Hans": "反转顺序",
+    "zh-Hant": "反轉順序"
+  },
+  "Save": {
+    "en": "Save",
+    "zh-Hans": "保存",
+    "zh-Hant": "保存"
+  },
+  "Save As…": {
+    "en": "Save As…",
+    "zh-Hans": "另存为…",
+    "zh-Hant": "另存為…"
+  },
+  "Save or Share File": {
+    "en": "Save or Share File",
+    "zh-Hans": "保存或分享文件",
+    "zh-Hant": "保存或分享檔案"
+  },
+  "Save the backup outside the app, such as on an external drive or in iCloud Drive.": {
+    "en": "Save the backup outside the app, such as on an external drive or in iCloud Drive.",
+    "zh-Hans": "请将备份保存到应用之外的位置，例如外置磁盘或 iCloud Drive。",
+    "zh-Hant": "請將備份保存到應用之外的位置，例如外置磁盤或 iCloud Drive。"
+  },
+  "Saving…": {
+    "en": "Saving…",
+    "zh-Hans": "正在保存…",
+    "zh-Hant": "正在保存…"
+  },
+  "Scan Linked Folders": {
+    "en": "Scan Linked Folders",
+    "zh-Hans": "扫描关联文件夹",
+    "zh-Hant": "掃描關聯資料夾"
+  },
+  "Search Albums": {
+    "en": "Search Albums",
+    "zh-Hans": "搜索专辑",
+    "zh-Hant": "搜尋專輯"
+  },
+  "Search Artists": {
+    "en": "Search Artists",
+    "zh-Hans": "搜索歌手",
+    "zh-Hant": "搜尋歌手"
+  },
+  "Search Genres": {
+    "en": "Search Genres",
+    "zh-Hans": "搜索流派",
+    "zh-Hant": "搜尋曲風"
+  },
+  "Search Playlists": {
+    "en": "Search Playlists",
+    "zh-Hans": "搜索歌单",
+    "zh-Hant": "搜尋播放清單"
+  },
+  "Search Songs": {
+    "en": "Search Songs",
+    "zh-Hans": "搜索歌曲",
+    "zh-Hant": "搜索歌曲"
+  },
+  "Search Trash": {
+    "en": "Search Trash",
+    "zh-Hans": "搜索回收站",
+    "zh-Hant": "搜尋垃圾桶"
+  },
+  "Search for Album Artwork": {
+    "en": "Search for Album Artwork",
+    "zh-Hans": "查询专辑封面",
+    "zh-Hant": "查詢專輯封面"
+  },
+  "Seeking is unavailable. Wait for the music to load and try again.": {
+    "en": "Seeking is unavailable. Wait for the music to load and try again.",
+    "zh-Hans": "此时无法跳转，请等待音乐加载完成后重试。",
+    "zh-Hant": "此時無法跳轉，請等待音樂加載完成後重試。"
+  },
+  "Separators (separate with |)": {
+    "en": "Separators (separate with |)",
+    "zh-Hans": "分隔符（用 | 分开）",
+    "zh-Hant": "分隔符（用 | 分開）"
+  },
+  "Serif Font": {
+    "en": "Serif Font",
+    "zh-Hans": "衬线字体",
+    "zh-Hant": "襯線字體"
+  },
+  "Set or Clear A/B Loop": {
+    "en": "Set or Clear A/B Loop",
+    "zh-Hans": "设置或取消 A B 循环",
+    "zh-Hant": "設置或取消 A B 循環"
+  },
+  "Settings": {
+    "en": "Settings",
+    "zh-Hans": "设置",
+    "zh-Hant": "設置"
+  },
+  "Settings data is too large": {
+    "en": "Settings data is too large",
+    "zh-Hans": "设置内容过大",
+    "zh-Hant": "設置內容過大"
+  },
+  "Shuffle": {
+    "en": "Shuffle",
+    "zh-Hans": "随机播放",
+    "zh-Hant": "隨機播放"
+  },
+  "Sign in to iCloud in System Settings.": {
+    "en": "Sign in to iCloud in System Settings.",
+    "zh-Hans": "请在系统设置中登录 iCloud。",
+    "zh-Hant": "請在系統設置中登錄 iCloud。"
+  },
+  "Similar titles are never automatically treated as duplicate files.": {
+    "en": "Similar titles are never automatically treated as duplicate files.",
+    "zh-Hans": "相似曲名不会被自动当作重复文件删除。",
+    "zh-Hant": "相似曲名不會被自動當作重復檔案刪除。"
+  },
+  "Six-Digit Pairing Code": {
+    "en": "Six-Digit Pairing Code",
+    "zh-Hans": "六位配对码",
+    "zh-Hant": "六位配對碼"
+  },
+  "Sleep Timer": {
+    "en": "Sleep Timer",
+    "zh-Hans": "睡眠定时",
+    "zh-Hant": "睡眠定時"
+  },
+  "Songs Played": {
+    "en": "Songs Played",
+    "zh-Hans": "已聆听歌曲",
+    "zh-Hant": "已聆聽歌曲"
+  },
+  "Songs moved to Trash appear here until you restore or permanently delete them.": {
+    "en": "Songs moved to Trash appear here until you restore or permanently delete them.",
+    "zh-Hans": "移到回收站的歌曲会保留在这里，直到您恢复或永久删除。",
+    "zh-Hant": "移到回收站的歌曲會保留在這裡，直到您恢復或永久刪除。"
+  },
+  "Sort by Song Title": {
+    "en": "Sort by Song Title",
+    "zh-Hans": "按歌曲名排序",
+    "zh-Hant": "按歌曲名排序"
+  },
+  "Split Collaborating Artists": {
+    "en": "Split Collaborating Artists",
+    "zh-Hans": "拆分合作歌手",
+    "zh-Hant": "拆分合作歌手"
+  },
+  "Staged file verification failed": {
+    "en": "Staged file verification failed",
+    "zh-Hans": "暂存文件校验失败",
+    "zh-Hant": "暫存檔案校驗失敗"
+  },
+  "Start with your first song": {
+    "en": "Start with your first song",
+    "zh-Hans": "从第一首歌开始",
+    "zh-Hant": "從第一首歌開始"
+  },
+  "Starting upload service…": {
+    "en": "Starting upload service…",
+    "zh-Hans": "正在开启上传服务…",
+    "zh-Hant": "正在開啓上傳服務…"
+  },
+  "Statistics stay on this device. No weekly reports, milestones, or other unsolicited notifications are sent.": {
+    "en": "Statistics stay on this device. No weekly reports, milestones, or other unsolicited notifications are sent.",
+    "zh-Hans": "统计保存在本机，不发送周报、里程碑或其他主动通知。",
+    "zh-Hant": "統計保存在本機，不發送周報、里程碑或其他主動通知。"
+  },
+  "Sync Complete": {
+    "en": "Sync Complete",
+    "zh-Hans": "同步完成",
+    "zh-Hant": "同步完成"
+  },
+  "Sync Library": {
+    "en": "Sync Library",
+    "zh-Hans": "同步资料库",
+    "zh-Hant": "同步資料庫"
+  },
+  "Sync Now": {
+    "en": "Sync Now",
+    "zh-Hans": "立即同步",
+    "zh-Hant": "立即同步"
+  },
+  "Syncing…": {
+    "en": "Syncing…",
+    "zh-Hans": "正在同步…",
+    "zh-Hant": "正在同步…"
+  },
+  "System": {
+    "en": "System",
+    "zh-Hans": "跟随系统",
+    "zh-Hant": "跟隨系統"
+  },
+  "System Output": {
+    "en": "System Output",
+    "zh-Hans": "系统输出",
+    "zh-Hant": "系統輸出"
+  },
+  "Text Encoding Repair Preview": {
+    "en": "Text Encoding Repair Preview",
+    "zh-Hans": "乱码修复预览",
+    "zh-Hant": "亂碼修復預覽"
+  },
+  "The account changed. Turn sync off and explicitly enable it again.": {
+    "en": "The account changed. Turn sync off and explicitly enable it again.",
+    "zh-Hans": "账号已变化，请关闭同步并明确重新启用。",
+    "zh-Hant": "賬號已變化，請關閉同步並明確重新啓用。"
+  },
+  "The account changed. Your local library has been preserved. Explicitly enable sync again to link the new account.": {
+    "en": "The account changed. Your local library has been preserved. Explicitly enable sync again to link the new account.",
+    "zh-Hans": "账号已变化，本地资料库已保留。请明确重新启用同步以关联新账号。",
+    "zh-Hant": "賬號已變化，本地資料庫已保留。請明確重新啓用同步以關聯新賬號。"
+  },
+  "The account changed. Your local library has been preserved. Explicitly enable sync again.": {
+    "en": "The account changed. Your local library has been preserved. Explicitly enable sync again.",
+    "zh-Hans": "账号已变化，本地资料库已保留。请明确重新启用同步。",
+    "zh-Hant": "賬號已變化，本地資料庫已保留。請明確重新啓用同步。"
+  },
+  "The app connects only when you search manually. MusicBrainz and Cover Art Archive receive the names needed for the query.": {
+    "en": "The app connects only when you search manually. MusicBrainz and Cover Art Archive receive the names needed for the query.",
+    "zh-Hans": "仅在您手动查询时联网。MusicBrainz 和 Cover Art Archive 将收到查询所需的名称。",
+    "zh-Hant": "僅在您手動查詢時聯網。MusicBrainz 和 Cover Art Archive 將收到查詢所需的名稱。"
+  },
+  "The archive contains an unsafe path": {
+    "en": "The archive contains an unsafe path",
+    "zh-Hans": "压缩包包含不安全路径",
+    "zh-Hant": "壓縮包包含不安全路徑"
+  },
+  "The cloud record identifier does not match": {
+    "en": "The cloud record identifier does not match",
+    "zh-Hans": "云端记录标识不一致",
+    "zh-Hant": "雲端記錄標識不一致"
+  },
+  "The cloud record is too large": {
+    "en": "The cloud record is too large",
+    "zh-Hans": "云端记录过大",
+    "zh-Hant": "雲端記錄過大"
+  },
+  "The expanded archive exceeds the size limit": {
+    "en": "The expanded archive exceeds the size limit",
+    "zh-Hans": "压缩包展开大小超过限制",
+    "zh-Hant": "壓縮包展開大小超過限制"
+  },
+  "The manifest is too large": {
+    "en": "The manifest is too large",
+    "zh-Hans": "清单过大",
+    "zh-Hant": "清單過大"
+  },
+  "The music file is unavailable. Import it again or download it from the cloud.": {
+    "en": "The music file is unavailable. Import it again or download it from the cloud.",
+    "zh-Hans": "音乐文件不可用，请重新导入或从云端下载。",
+    "zh-Hant": "音樂檔案不可用，請重新導入或從雲端下載。"
+  },
+  "The name cannot be empty.": {
+    "en": "The name cannot be empty.",
+    "zh-Hans": "名称不能为空。",
+    "zh-Hant": "名稱不能為空。"
+  },
+  "The online metadata service is temporarily unavailable. Please try again later.": {
+    "en": "The online metadata service is temporarily unavailable. Please try again later.",
+    "zh-Hans": "在线资料服务暂时不可用，请稍后重试。",
+    "zh-Hant": "在線資料服務暫時不可用，請稍後重試。"
+  },
+  "The pairing code is incorrect or too many attempts were made. Restart uploads in iMusic.": {
+    "en": "The pairing code is incorrect or too many attempts were made. Restart uploads in iMusic.",
+    "zh-Hans": "配对码错误或尝试次数过多，请在 iMusic 中重新开启上传。",
+    "zh-Hant": "配對碼錯誤或嘗試次數過多，請在 iMusic 中重新開啓上傳。"
+  },
+  "This file cannot be decoded. It may be damaged or in an unsupported format.": {
+    "en": "This file cannot be decoded. It may be damaged or in an unsupported format.",
+    "zh-Hans": "无法解码此文件，文件可能损坏或格式不受支持。",
+    "zh-Hant": "無法解碼此檔案，檔案可能損壞或格式不受支持。"
+  },
+  "This file exceeds the upload size limit.": {
+    "en": "This file exceeds the upload size limit.",
+    "zh-Hans": "此文件超过上传大小限制。",
+    "zh-Hant": "此檔案超過上傳大小限制。"
+  },
+  "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration.": {
+    "en": "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration.",
+    "zh-Hans": "当前为本地构建。iCloud 需要配置开发者团队、CloudKit 容器并使用 Cloud 构建配置。",
+    "zh-Hant": "當前為本地構建。iCloud 需要配置開發者團隊、CloudKit 容器並使用 Cloud 構建配置。"
+  },
+  "This record is too large to sync with iCloud. Your local information has been preserved.": {
+    "en": "This record is too large to sync with iCloud. Your local information has been preserved.",
+    "zh-Hans": "此记录过大，无法同步到 iCloud；本地内容已保留。",
+    "zh-Hant": "此記錄過大，無法同步到 iCloud；本地內容已保留。"
+  },
+  "This song was permanently deleted. Import it again to add a new copy.": {
+    "en": "This song was permanently deleted. Import it again to add a new copy.",
+    "zh-Hans": "这首歌已永久删除。重新导入后才能添加新的副本。",
+    "zh-Hant": "這首歌已永久刪除。重新導入後才能添加新的副本。"
+  },
+  "This version is not supported": {
+    "en": "This version is not supported",
+    "zh-Hans": "不支持此版本",
+    "zh-Hant": "不支持此版本"
+  },
+  "Time Range": {
+    "en": "Time Range",
+    "zh-Hans": "时间范围",
+    "zh-Hant": "時間範圍"
+  },
+  "Title": {
+    "en": "Title",
+    "zh-Hans": "标题",
+    "zh-Hant": "標題"
+  },
+  "Total Listening Time": {
+    "en": "Total Listening Time",
+    "zh-Hans": "累计聆听",
+    "zh-Hant": "累計聆聽"
+  },
+  "Transfer Music": {
+    "en": "Transfer Music",
+    "zh-Hans": "传入音乐",
+    "zh-Hant": "傳入音樂"
+  },
+  "Transfer Music from Your Computer": {
+    "en": "Transfer Music from Your Computer",
+    "zh-Hans": "从电脑传入音乐",
+    "zh-Hant": "從電腦傳入音樂"
+  },
+  "Trash": {
+    "en": "Trash",
+    "zh-Hans": "回收站",
+    "zh-Hant": "回收站"
+  },
+  "Trash Is Empty": {
+    "en": "Trash Is Empty",
+    "zh-Hans": "回收站是空的",
+    "zh-Hant": "回收站是空的"
+  },
+  "Try Again": {
+    "en": "Try Again",
+    "zh-Hans": "重试",
+    "zh-Hant": "重試"
+  },
+  "Try Encoding": {
+    "en": "Try Encoding",
+    "zh-Hans": "尝试编码",
+    "zh-Hant": "嘗試編碼"
+  },
+  "Try another song title, artist, or filename.": {
+    "en": "Try another song title, artist, or filename.",
+    "zh-Hans": "试试其他歌曲名、歌手或文件名。",
+    "zh-Hant": "試試其他歌曲名、歌手或檔案名。"
+  },
+  "Turn Shuffle Off": {
+    "en": "Turn Shuffle Off",
+    "zh-Hans": "关闭随机播放",
+    "zh-Hant": "關閉隨機播放"
+  },
+  "Turn Shuffle On": {
+    "en": "Turn Shuffle On",
+    "zh-Hans": "开启随机播放",
+    "zh-Hant": "開啓隨機播放"
+  },
+  "Turn Timer Off": {
+    "en": "Turn Timer Off",
+    "zh-Hans": "关闭定时",
+    "zh-Hant": "關閉定時"
+  },
+  "Unable to Open Library": {
+    "en": "Unable to Open Library",
+    "zh-Hans": "无法打开资料库",
+    "zh-Hant": "無法打開資料庫"
+  },
+  "Unable to create the staging file.": {
+    "en": "Unable to create the staging file.",
+    "zh-Hans": "无法创建暂存文件。",
+    "zh-Hant": "無法創建暫存檔案。"
+  },
+  "Unable to finish cleaning up permanently deleted files. Cleanup will be retried when iMusic opens again.": {
+    "en": "Unable to finish cleaning up permanently deleted files. Cleanup will be retried when iMusic opens again.",
+    "zh-Hans": "歌曲已从资料库永久移除，但部分应用内文件未能清理。再次打开 iMusic 时会重试。",
+    "zh-Hant": "歌曲已從資料庫永久移除，但部分應用內檔案未能清理。再次打開 iMusic 時會重試。"
+  },
+  "Unable to read this image.": {
+    "en": "Unable to read this image.",
+    "zh-Hans": "无法读取此图片。",
+    "zh-Hant": "無法讀取此圖片。"
+  },
+  "Unable to stage the file": {
+    "en": "Unable to stage the file",
+    "zh-Hans": "无法暂存文件",
+    "zh-Hant": "無法暫存檔案"
+  },
+  "Uncategorized": {
+    "en": "Uncategorized",
+    "zh-Hans": "未分类",
+    "zh-Hant": "未分類"
+  },
+  "Unknown Album": {
+    "en": "Unknown Album",
+    "zh-Hans": "未知专辑",
+    "zh-Hant": "未知專輯"
+  },
+  "Unknown Artist": {
+    "en": "Unknown Artist",
+    "zh-Hans": "未知歌手",
+    "zh-Hant": "未知歌手"
+  },
+  "Unlink": {
+    "en": "Unlink",
+    "zh-Hans": "移除关联",
+    "zh-Hant": "移除關聯"
+  },
+  "Unsupported audio format.": {
+    "en": "Unsupported audio format.",
+    "zh-Hans": "不支持此音频格式。",
+    "zh-Hant": "不支援此音訊格式。"
+  },
+  "Unsupported record type": {
+    "en": "Unsupported record type",
+    "zh-Hans": "不支持的记录类型",
+    "zh-Hant": "不支持的記錄類型"
+  },
+  "Upload Music": {
+    "en": "Upload Music",
+    "zh-Hans": "上传音乐",
+    "zh-Hant": "上傳音樂"
+  },
+  "Upload complete. Check the import results in iMusic.": {
+    "en": "Upload complete. Check the import results in iMusic.",
+    "zh-Hans": "上传完成，请在 iMusic 中查看导入结果。",
+    "zh-Hant": "上傳完成，請在 iMusic 中查看導入結果。"
+  },
+  "Upload failed. Try again.": {
+    "en": "Upload failed. Try again.",
+    "zh-Hans": "上传失败，请重试。",
+    "zh-Hant": "上傳失敗，請重試。"
+  },
+  "Upload progress": {
+    "en": "Upload progress",
+    "zh-Hans": "上传进度",
+    "zh-Hant": "上傳進度"
+  },
+  "Uploading:": {
+    "en": "Uploading:",
+    "zh-Hans": "正在上传：",
+    "zh-Hant": "正在上傳："
+  },
+  "Use Automatic Artwork": {
+    "en": "Use Automatic Artwork",
+    "zh-Hans": "使用自动封面",
+    "zh-Hant": "使用自動封面"
+  },
+  "Verification failed before upload": {
+    "en": "Verification failed before upload",
+    "zh-Hans": "上传前校验失败",
+    "zh-Hant": "上傳前校驗失敗"
+  },
+  "View All Listening Statistics": {
+    "en": "View All Listening Statistics",
+    "zh-Hans": "查看完整聆听统计",
+    "zh-Hant": "查看完整聆聽統計"
+  },
+  "Vinyl Record Appearance": {
+    "en": "Vinyl Record Appearance",
+    "zh-Hans": "黑胶唱片外观",
+    "zh-Hant": "黑膠唱片外觀"
+  },
+  "Vocals": {
+    "en": "Vocals",
+    "zh-Hans": "人声",
+    "zh-Hant": "人聲"
+  },
+  "Waiting": {
+    "en": "Waiting",
+    "zh-Hans": "等待上传",
+    "zh-Hant": "等待上傳"
+  },
+  "Wi-Fi Transfer": {
+    "en": "Wi-Fi Transfer",
+    "zh-Hans": "Wi-Fi 传歌",
+    "zh-Hant": "Wi-Fi 傳歌"
+  },
+  "Wi-Fi Transfer…": {
+    "en": "Wi-Fi Transfer…",
+    "zh-Hans": "Wi-Fi 传歌…",
+    "zh-Hant": "Wi-Fi 傳歌…"
+  },
+  "Wi-Fi Upload resources are missing. Rebuild iMusic.": {
+    "en": "Wi-Fi Upload resources are missing. Rebuild iMusic.",
+    "zh-Hans": "Wi-Fi 传歌资源缺失，请重新构建 iMusic。",
+    "zh-Hant": "Wi-Fi 傳歌資源缺失，請重新建置 iMusic。"
+  },
+  "Your files stay on your local network.": {
+    "en": "Your files stay on your local network.",
+    "zh-Hans": "文件仅通过本地网络传输。",
+    "zh-Hant": "檔案僅透過區域網路傳輸。"
+  },
+  "Your listening history appears here, without an internet connection.": {
+    "en": "Your listening history appears here, without an internet connection.",
+    "zh-Hans": "收听记录会在这里呈现，无需联网。",
+    "zh-Hant": "收聽記錄會在這裡呈現，無需聯網。"
+  },
+  "Your music, always with you.": {
+    "en": "Your music, always with you.",
+    "zh-Hans": "你的音乐，随时在身边。",
+    "zh-Hant": "你的音樂，隨時在身邊。"
+  },
+  "format.backup.audio_checksum": {
+    "en": "Audio checksum failed for %1$@",
+    "zh-Hans": "%1$@ 的音频校验失败",
+    "zh-Hant": "%1$@ 的音頻校驗失敗"
+  },
+  "format.backup.download_required": {
+    "en": "%1$@ is not downloaded. Download all music before creating a full backup.",
+    "zh-Hans": "%1$@ 尚未下载，完整备份前请先下载所有音乐。",
+    "zh-Hant": "%1$@ 尚未下載，完整備份前請先下載所有音樂。"
+  },
+  "format.backup.verification_error": {
+    "en": "Backup verification failed: %1$@",
+    "zh-Hans": "备份校验失败：%1$@",
+    "zh-Hant": "備份校驗失敗：%1$@"
+  },
+  "format.batch.instructions": {
+    "en": "Editing %1$ld songs. Only selected fields are applied; empty values clear those fields. Other tags and original files stay intact.",
+    "plural": {
+      "one": "Editing %1$ld song. Only selected fields are applied; empty values clear those fields. Other tags and original files stay intact.",
+      "other": "Editing %1$ld songs. Only selected fields are applied; empty values clear those fields. Other tags and original files stay intact."
+    },
+    "zh-Hans": "编辑 %1$ld 首歌曲。仅应用勾选字段；空内容将清除此字段。其他标签和原始文件保持完整。",
+    "zh-Hant": "編輯 %1$ld 首歌曲。僅應用勾選字段；空內容將清除此字段。其他標籤和原始檔案保持完整。"
+  },
+  "format.disc_number": {
+    "en": "Disc Number: %1$ld",
+    "zh-Hans": "碟号：%1$ld",
+    "zh-Hant": "碟號：%1$ld"
+  },
+  "format.duration.total": {
+    "en": "Total Duration %1$@",
+    "zh-Hans": "总时长 %1$@",
+    "zh-Hant": "總時長 %1$@"
+  },
+  "format.folder.last_scan": {
+    "en": "Last scan: %1$@",
+    "zh-Hans": "上次扫描 %1$@",
+    "zh-Hant": "上次掃描 %1$@"
+  },
+  "format.import.copy_incomplete": {
+    "en": "%1$@: the previous copy was incomplete. Please import it again.",
+    "zh-Hans": "%1$@：上次复制未完成，请重新导入。",
+    "zh-Hant": "%1$@：上次複製未完成，請重新導入。"
+  },
+  "format.import.index_error": {
+    "en": "Unable to save the scan index: %1$@",
+    "zh-Hans": "扫描索引保存失败：%1$@",
+    "zh-Hant": "掃描索引保存失敗：%1$@"
+  },
+  "format.import.progress": {
+    "en": "Importing · %1$ld/%2$ld",
+    "zh-Hans": "正在导入 · %1$ld/%2$ld",
+    "zh-Hant": "正在導入 · %1$ld/%2$ld"
+  },
+  "format.import.recovery": {
+    "en": "Import recovery: %1$@",
+    "zh-Hans": "导入恢复：%1$@",
+    "zh-Hant": "導入恢復：%1$@"
+  },
+  "format.import.summary": {
+    "en": "Last import: %1$ld imported, %2$ld already present",
+    "zh-Hans": "最近导入：%1$ld 首，重复 %2$ld 首",
+    "zh-Hant": "最近導入：%1$ld 首，重復 %2$ld 首"
+  },
+  "format.import.wifi_recovery": {
+    "en": "Wi-Fi upload recovery: %1$@",
+    "zh-Hans": "Wi-Fi 上传恢复：%1$@",
+    "zh-Hant": "Wi-Fi 上傳恢復：%1$@"
+  },
+  "format.library.summary": {
+    "en": "%1$ld songs · Offline and ready to play",
+    "plural": {
+      "one": "%1$ld song · Offline and ready to play",
+      "other": "%1$ld songs · Offline and ready to play"
+    },
+    "zh-Hans": "%1$ld 首歌曲 · 离线收藏，自由聆听",
+    "zh-Hant": "%1$ld 首歌曲 · 離線收藏，自由聆聽"
+  },
+  "format.minutes": {
+    "en": "%1$ld minutes",
+    "plural": {
+      "one": "%1$ld minute",
+      "other": "%1$ld minutes"
+    },
+    "zh-Hans": "%1$ld 分钟",
+    "zh-Hant": "%1$ld 分鐘"
+  },
+  "format.playback.position": {
+    "en": "%1$@ of %2$@",
+    "zh-Hans": "%1$@，共 %2$@",
+    "zh-Hant": "%1$@，共 %2$@"
+  },
+  "format.playback.preload_error": {
+    "en": "Unable to preload the next song: %1$@",
+    "zh-Hans": "下一首预加载失败：%1$@",
+    "zh-Hant": "下一首預加載失敗：%1$@"
+  },
+  "format.playback.save_error": {
+    "en": "Unable to save playback state: %1$@",
+    "zh-Hans": "播放状态保存失败：%1$@",
+    "zh-Hant": "播放狀態保存失敗：%1$@"
+  },
+  "format.playlist.add_count": {
+    "en": "Add %1$ld Songs",
+    "plural": {
+      "one": "Add %1$ld Song",
+      "other": "Add %1$ld Songs"
+    },
+    "zh-Hans": "添加 %1$ld 首",
+    "zh-Hant": "添加 %1$ld 首"
+  },
+  "format.playlist.add_to": {
+    "en": "Add to “%1$@”",
+    "zh-Hans": "添加到“%1$@”",
+    "zh-Hant": "添加到“%1$@”"
+  },
+  "format.queue.count": {
+    "en": "Play Queue · %1$ld",
+    "zh-Hans": "播放队列 · %1$ld",
+    "zh-Hant": "播放隊列 · %1$ld"
+  },
+  "format.restore.missing": {
+    "en": "Library information restored. %1$ld songs still need to be imported or downloaded.",
+    "plural": {
+      "one": "Library information restored. %1$ld song still needs to be imported or downloaded.",
+      "other": "Library information restored. %1$ld songs still need to be imported or downloaded."
+    },
+    "zh-Hans": "整理信息已恢复；有 %1$ld 首歌曲尚未导入或下载。",
+    "zh-Hant": "整理資訊已恢復；有 %1$ld 首歌曲尚未導入或下載。"
+  },
+  "format.song_count": {
+    "en": "%1$ld songs",
+    "plural": {
+      "one": "%1$ld song",
+      "other": "%1$ld songs"
+    },
+    "zh-Hans": "%1$ld 首歌曲",
+    "zh-Hant": "%1$ld 首歌曲"
+  },
+  "format.song_count.duration": {
+    "en": "%1$ld songs · %2$@",
+    "plural": {
+      "one": "%1$ld song · %2$@",
+      "other": "%1$ld songs · %2$@"
+    },
+    "zh-Hans": "%1$ld 首 · %2$@",
+    "zh-Hant": "%1$ld 首 · %2$@"
+  },
+  "format.song_count.short": {
+    "en": "%1$ld songs",
+    "plural": {
+      "one": "%1$ld song",
+      "other": "%1$ld songs"
+    },
+    "zh-Hans": "%1$ld 首",
+    "zh-Hant": "%1$ld 首"
+  },
+  "format.track_number": {
+    "en": "Track Number: %1$ld",
+    "zh-Hans": "曲序：%1$ld",
+    "zh-Hant": "曲序：%1$ld"
+  },
+  "format.trash.delete_count": {
+    "en": "%1$ld songs will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",
+    "zh-Hans": "将从 iMusic 资料库永久移除 %1$ld 首歌曲，并删除这台设备上应用内的副本。导入来源文件和已有备份不受影响。启用 iCloud 时，删除记录会随资料库同步。",
+    "zh-Hant": "將從 iMusic 資料庫永久移除 %1$ld 首歌曲，並刪除這台裝置上應用內的副本。導入來源檔案和已有備份不受影響。啓用 iCloud 時，刪除記錄會隨資料庫同步。",
+    "plural": {
+      "one": "%1$ld song will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",
+      "other": "%1$ld songs will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled."
+    }
+  },
+  "format.trash.delete_song": {
+    "en": "“%1$@” will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",
+    "zh-Hans": "将从 iMusic 资料库永久移除“%1$@”，并删除这台设备上应用内的副本。导入来源文件和已有备份不受影响。启用 iCloud 时，删除记录会随资料库同步。",
+    "zh-Hant": "將從 iMusic 資料庫永久移除「%1$@」，並刪除這台裝置上應用內的副本。導入來源檔案和已有備份不受影響。啓用 iCloud 時，刪除記錄會隨資料庫同步。"
+  },
+  "iCloud (Optional)": {
+    "en": "iCloud (Optional)",
+    "zh-Hans": "iCloud（可选）",
+    "zh-Hant": "iCloud（可選）"
+  },
+  "iCloud is not configured in this build. Use a developer team with iCloud access and a Cloud build configuration.": {
+    "en": "iCloud is not configured in this build. Use a developer team with iCloud access and a Cloud build configuration.",
+    "zh-Hans": "此构建未配置 iCloud。请使用付费开发者团队和 Cloud 配置构建。",
+    "zh-Hant": "此構建未配置 iCloud。請使用付費開發者團隊和 Cloud 配置構建。"
+  }
+}

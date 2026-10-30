@@ -1,0 +1,366 @@
+:root {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #201b30;
+  background: #f6f5fa;
+  font-synthesis: none;
+  font-weight: 400;
+  line-height: 1.6;
+  color-scheme: light dark;
+  --card: #fff;
+  --muted: #716b80;
+  --border: #e7e3ee;
+  --accent: #6744d7;
+  --soft: #f3f0fb;
+  --error: #b42335;
+  --success: #267455;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 23px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 650;
+  cursor: pointer;
+  min-height: 46px;
+}
+button:hover {
+  filter: brightness(1.08);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button:focus-visible,
+input:focus-visible,
+.dropzone:focus-within {
+  outline: 3px solid #a08ae7;
+  outline-offset: 4px;
+}
+.shell {
+  max-width: 790px;
+  padding: 48px 28px 32px;
+  margin: auto;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 23px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 28px;
+}
+.local-badge {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  padding: 2px 12px;
+  border-radius: 20px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.intro {
+  padding: 45px 0 24px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 750;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+h1 {
+  font-size: clamp(30px, 6vw, 44px);
+  letter-spacing: -1.6px;
+  line-height: 1.15;
+  margin: 0 0 20px;
+}
+.intro > p:last-child {
+  max-width: 600px;
+  color: var(--muted);
+  margin: 0;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 26px 30px;
+  margin-top: 20px;
+  box-shadow: 0 8px 35px #2f184005;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+h2 {
+  font-size: 18px;
+  letter-spacing: -0.4px;
+  margin: 0;
+}
+.step {
+  color: var(--accent);
+  background: var(--soft);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+.connection {
+  width: 8px;
+  height: 8px;
+  background: var(--border);
+  margin-left: auto;
+  border-radius: 50%;
+}
+.connected {
+  background: var(--success);
+}
+label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.pair-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.pair-controls input {
+  background: var(--card);
+  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-width: 0;
+  flex: 1;
+  font-size: 22px;
+  letter-spacing: 8px;
+  padding: 10px 16px;
+}
+.pair-controls input::placeholder {
+  color: var(--muted);
+  opacity: 0.45;
+}
+.paired-message {
+  color: var(--success);
+  margin: 0;
+}
+.dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+  border: 1.5px dashed #c4b8e6;
+  border-radius: 14px;
+  background: var(--soft);
+  padding: 25px 18px;
+  cursor: pointer;
+}
+.dropzone input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.dropzone strong {
+  font-size: 16px;
+}
+.dropzone > span:last-of-type {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 12px;
+}
+.upload-symbol {
+  font-size: 30px;
+  color: var(--accent);
+  line-height: 1.2;
+  margin-bottom: 5px;
+}
+.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.disabled input {
+  cursor: default;
+}
+.dragging {
+  border-style: solid;
+  border-color: var(--accent);
+}
+.formats {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-align: center;
+  margin: 12px 0 22px;
+  overflow-wrap: anywhere;
+}
+.transfer-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 18px 0 0;
+}
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.file-list li {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border);
+}
+.file-topline,
+.file-bottomline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.filename {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.file-size {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.file-bottomline {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.row-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.text-button {
+  background: none;
+  color: var(--accent);
+  font-size: 12px;
+  padding: 3px 0;
+  min-height: 32px;
+}
+.secondary {
+  background: var(--soft);
+  color: var(--accent);
+}
+progress {
+  width: 100%;
+  height: 5px;
+  accent-color: var(--accent);
+  display: block;
+  margin-top: 9px;
+}
+.error {
+  color: var(--error);
+}
+.success {
+  color: var(--success);
+}
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding-top: 30px;
+}
+footer span {
+  color: var(--accent);
+  font-size: 20px;
+  vertical-align: middle;
+}
+@media (max-width: 520px) {
+  .shell {
+    padding: 26px 18px;
+  }
+  .intro {
+    padding-top: 32px;
+  }
+  .card {
+    padding: 22px 20px;
+    border-radius: 18px;
+  }
+  .pair-controls {
+    flex-direction: column;
+  }
+  .pair-controls input {
+    text-align: center;
+  }
+  .transfer-actions button {
+    width: 100%;
+  }
+  .file-bottomline {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    background: #14121c;
+    color: #eeebf7;
+    --card: #201d2a;
+    --muted: #aaa3b9;
+    --border: #373142;
+    --accent: #ad93ff;
+    --soft: #2b243e;
+    --error: #ff9cab;
+    --success: #8dd7b2;
+  }
+  button {
+    color: #171020;
+  }
+  .card {
+    box-shadow: none;
+  }
+  .dropzone {
+    border-color: #605176;
+  }
+  .brand-mark {
+    color: #171020;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  button,
+  .dropzone {
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+  }
+}

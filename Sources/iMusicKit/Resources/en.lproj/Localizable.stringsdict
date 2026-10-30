@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>format.batch.instructions</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Editing %1$ld song. Only selected fields are applied; empty values clear those fields. Other tags and original files stay intact.</string>
+			<key>other</key>
+			<string>Editing %1$ld songs. Only selected fields are applied; empty values clear those fields. Other tags and original files stay intact.</string>
+		</dict>
+	</dict>
+	<key>format.library.summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld song · Offline and ready to play</string>
+			<key>other</key>
+			<string>%1$ld songs · Offline and ready to play</string>
+		</dict>
+	</dict>
+	<key>format.minutes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld minute</string>
+			<key>other</key>
+			<string>%1$ld minutes</string>
+		</dict>
+	</dict>
+	<key>format.playlist.add_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Add %1$ld Song</string>
+			<key>other</key>
+			<string>Add %1$ld Songs</string>
+		</dict>
+	</dict>
+	<key>format.restore.missing</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Library information restored. %1$ld song still needs to be imported or downloaded.</string>
+			<key>other</key>
+			<string>Library information restored. %1$ld songs still need to be imported or downloaded.</string>
+		</dict>
+	</dict>
+	<key>format.song_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld song</string>
+			<key>other</key>
+			<string>%1$ld songs</string>
+		</dict>
+	</dict>
+	<key>format.song_count.duration</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld song · %2$@</string>
+			<key>other</key>
+			<string>%1$ld songs · %2$@</string>
+		</dict>
+	</dict>
+	<key>format.song_count.short</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld song</string>
+			<key>other</key>
+			<string>%1$ld songs</string>
+		</dict>
+	</dict>
+	<key>format.trash.delete_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld song will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.</string>
+			<key>other</key>
+			<string>%1$ld songs will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

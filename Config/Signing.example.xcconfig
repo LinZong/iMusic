@@ -1,0 +1,5 @@
+// Copy to Signing.local.xcconfig. Never commit certificates or private keys.
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+IMUSIC_BUNDLE_PREFIX = com.yourname.imusic
+// Set only for Cloud configurations with a provisioned CloudKit container.
+IMUSIC_CLOUD_CONTAINER = iCloud.com.yourname.imusic

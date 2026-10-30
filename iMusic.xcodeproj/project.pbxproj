@@ -1,0 +1,1035 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1DC8A2428204C5CF2D6995FE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BF264FA694D5DAED34074DC2 /* InfoPlist.strings */; };
+		1F1B10EE1CEA00735CA8B408 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 214A70B1A66BA12AE590A1ED /* InfoPlist.strings */; };
+		30CB663FEE768BACC56B8A24 /* iMusicKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2ACE3B5AE4F07844A3961F22 /* iMusicKit */; };
+		3BACBEA51F55095BA24A3B7A /* iMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8191A9470D2A324946FABA4C /* iMusicApp.swift */; };
+		57C13568289FA15F501C8C09 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993AF1CB765DE46AEAC337E6 /* Cocoa.framework */; };
+		72FB11151FF885C0066469B0 /* iMusicKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B742A7CAEE5085B183F26E4 /* iMusicKit */; };
+		7F821728DAEA62D23E963518 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */; };
+		8DF4C128ED59A20ACD2EAF5B /* iMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8191A9470D2A324946FABA4C /* iMusicApp.swift */; };
+		9273495BF64B1B1BE80A96CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CB8871546D804E9DADB6023 /* Assets.xcassets */; };
+		ABB6E4AF9B8527E1EDCFDF05 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FCFB09D28E5EB9FF7506BA81 /* PrivacyInfo.xcprivacy */; };
+		B7ECA3AFC1C2F392002298C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E76E64ADD48D9399806A785 /* Assets.xcassets */; };
+		EC7AB0F9DB5E1C996E6FDF2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85875B3354B505178C6ED5D8 /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		098F5BE7FA6A416D683BAA5A /* macOS-Cloud.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = "macOS-Cloud.entitlements"; sourceTree = "<group>"; };
+		0E76E64ADD48D9399806A785 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		1F96BC37E2C457370D1C1F5B /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		281C55A70377A18BF6C86F4D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2CDB4DF2FC22910396BE9415 /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		3CB8871546D804E9DADB6023 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		3D3E184E9990F9E2E91D455A /* iOS-Cloud-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-Cloud-Info.plist"; sourceTree = "<group>"; };
+		3EF640897B7F9FB45036C13A /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		40449B1810F9CFA359CA2BC2 /* iMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		499731E26A48EDBBCDF29319 /* iOS.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
+		49ED52AF15A2C3797F309A37 /* iMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CB1DB4DAE364861550B3E42 /* iOS-CarPlay.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = "iOS-CarPlay.entitlements"; sourceTree = "<group>"; };
+		53F165C08E0BBCA639F0F66C /* iOS-CarPlay-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-CarPlay-Info.plist"; sourceTree = "<group>"; };
+		6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6BDEE2A1EDF73136A8638960 /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		8191A9470D2A324946FABA4C /* iMusicApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = iMusicApp.swift; sourceTree = "<group>"; };
+		85875B3354B505178C6ED5D8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../Sources/iMusicKit/Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		85C8F2D52C841507303A0656 /* iOS-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-Info.plist"; sourceTree = "<group>"; };
+		993AF1CB765DE46AEAC337E6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		A09C206FFAA837A2A3F72130 /* iOS-Cloud.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = "iOS-Cloud.entitlements"; sourceTree = "<group>"; };
+		B15548FF4F5349A556FFFA8C /* macOS-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "macOS-Info.plist"; sourceTree = "<group>"; };
+		D76485ACF054FBD55DDE2F8F /* macOS.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		E423C0E5E83D47EFA20BDACA /* Signing.example.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Signing.example.xcconfig; sourceTree = "<group>"; };
+		E66EBD0EF41102DF2E10FD17 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E902FA15BEFC2AE8F10D9ED0 /* iOS-Full-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-Full-Info.plist"; sourceTree = "<group>"; };
+		E90361A84FB4FB4405074A19 /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		EF308AA2A8EC1375D9488433 /* iOS-Full.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = "iOS-Full.entitlements"; sourceTree = "<group>"; };
+		FCFB09D28E5EB9FF7506BA81 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../Sources/iMusicKit/Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		271C45BEBE4020E4CC3D3A6E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57C13568289FA15F501C8C09 /* Cocoa.framework in Frameworks */,
+				72FB11151FF885C0066469B0 /* iMusicKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8D7C6518C017E95937383F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F821728DAEA62D23E963518 /* Foundation.framework in Frameworks */,
+				30CB663FEE768BACC56B8A24 /* iMusicKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1675143D1F31EA103B33A13A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				23006B8C715A7ED57D06C83A /* iOS */,
+				5165E2E502F5893C0ADBAD86 /* OS X */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		23006B8C715A7ED57D06C83A /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		5165E2E502F5893C0ADBAD86 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				993AF1CB765DE46AEAC337E6 /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		60B07F263371A9B4F0675689 = {
+			isa = PBXGroup;
+			children = (
+				6A46910AADE1926BCE8110FE /* Products */,
+				1675143D1F31EA103B33A13A /* Frameworks */,
+				87C6767B967F11F455B23828 /* Config */,
+				8071EAA22083ADC5F3207884 /* Apps */,
+			);
+			sourceTree = "<group>";
+		};
+		6A46910AADE1926BCE8110FE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				49ED52AF15A2C3797F309A37 /* iMusic.app */,
+				40449B1810F9CFA359CA2BC2 /* iMusic.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8071EAA22083ADC5F3207884 /* Apps */ = {
+			isa = PBXGroup;
+			children = (
+				D2D70A92F29A53ECAE5FD048 /* Shared */,
+				3CB8871546D804E9DADB6023 /* Assets.xcassets */,
+				214A70B1A66BA12AE590A1ED /* InfoPlist.strings */,
+				FCFB09D28E5EB9FF7506BA81 /* PrivacyInfo.xcprivacy */,
+				0E76E64ADD48D9399806A785 /* Assets.xcassets */,
+				BF264FA694D5DAED34074DC2 /* InfoPlist.strings */,
+				85875B3354B505178C6ED5D8 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Apps;
+			sourceTree = "<group>";
+		};
+		87C6767B967F11F455B23828 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E90361A84FB4FB4405074A19 /* Base.xcconfig */,
+				53F165C08E0BBCA639F0F66C /* iOS-CarPlay-Info.plist */,
+				A09C206FFAA837A2A3F72130 /* iOS-Cloud.entitlements */,
+				098F5BE7FA6A416D683BAA5A /* macOS-Cloud.entitlements */,
+				E423C0E5E83D47EFA20BDACA /* Signing.example.xcconfig */,
+				E902FA15BEFC2AE8F10D9ED0 /* iOS-Full-Info.plist */,
+				EF308AA2A8EC1375D9488433 /* iOS-Full.entitlements */,
+				499731E26A48EDBBCDF29319 /* iOS.entitlements */,
+				3D3E184E9990F9E2E91D455A /* iOS-Cloud-Info.plist */,
+				D76485ACF054FBD55DDE2F8F /* macOS.entitlements */,
+				B15548FF4F5349A556FFFA8C /* macOS-Info.plist */,
+				4CB1DB4DAE364861550B3E42 /* iOS-CarPlay.entitlements */,
+				85C8F2D52C841507303A0656 /* iOS-Info.plist */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		D2D70A92F29A53ECAE5FD048 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8191A9470D2A324946FABA4C /* iMusicApp.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		11ECD42AFFAA54F68BB34D4A /* iMusic */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C4F41AC91D98208D6076DD4 /* Build configuration list for PBXNativeTarget "iMusic" */;
+			buildPhases = (
+				6CE966714DF45E27D92EB255 /* Sources */,
+				F8D7C6518C017E95937383F7 /* Frameworks */,
+				4F888C38A752F205CD784FA6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iMusic;
+			packageProductDependencies = (
+				2ACE3B5AE4F07844A3961F22 /* iMusicKit */,
+			);
+			productName = iMusic;
+			productReference = 49ED52AF15A2C3797F309A37 /* iMusic.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F26946EC7448C2A60E50DE2C /* iMusicMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17FAD3D296AD655DBFCCFFD1 /* Build configuration list for PBXNativeTarget "iMusicMac" */;
+			buildPhases = (
+				30C44171483E4F37A926B920 /* Sources */,
+				271C45BEBE4020E4CC3D3A6E /* Frameworks */,
+				35BDD7B02CB5AF51C3D61216 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iMusicMac;
+			packageProductDependencies = (
+				8B742A7CAEE5085B183F26E4 /* iMusicKit */,
+			);
+			productName = iMusicMac;
+			productReference = 40449B1810F9CFA359CA2BC2 /* iMusic.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9458AB0C9EC3A7D4A62C1046 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2630;
+			};
+			buildConfigurationList = 5889889898D5699493A8B034 /* Build configuration list for PBXProject "iMusic" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				"zh-Hans",
+				"zh-Hant",
+			);
+			mainGroup = 60B07F263371A9B4F0675689;
+			packageReferences = (
+				6FA9B50CBEDE3DEB0D5EE79A /* XCLocalSwiftPackageReference "." */,
+			);
+			productRefGroup = 6A46910AADE1926BCE8110FE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				11ECD42AFFAA54F68BB34D4A /* iMusic */,
+				F26946EC7448C2A60E50DE2C /* iMusicMac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		35BDD7B02CB5AF51C3D61216 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7ECA3AFC1C2F392002298C3 /* Assets.xcassets in Resources */,
+				1DC8A2428204C5CF2D6995FE /* InfoPlist.strings in Resources */,
+				EC7AB0F9DB5E1C996E6FDF2B /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F888C38A752F205CD784FA6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9273495BF64B1B1BE80A96CC /* Assets.xcassets in Resources */,
+				1F1B10EE1CEA00735CA8B408 /* InfoPlist.strings in Resources */,
+				ABB6E4AF9B8527E1EDCFDF05 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		30C44171483E4F37A926B920 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DF4C128ED59A20ACD2EAF5B /* iMusicApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6CE966714DF45E27D92EB255 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3BACBEA51F55095BA24A3B7A /* iMusicApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		214A70B1A66BA12AE590A1ED /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E66EBD0EF41102DF2E10FD17 /* en */,
+				1F96BC37E2C457370D1C1F5B /* zh-Hans */,
+				2CDB4DF2FC22910396BE9415 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		BF264FA694D5DAED34074DC2 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				281C55A70377A18BF6C86F4D /* en */,
+				3EF640897B7F9FB45036C13A /* zh-Hans */,
+				6BDEE2A1EDF73136A8638960 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		100A0C127ADA7656A6727FCD /* CloudDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "Config/iOS-Cloud.entitlements";
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/iOS-Cloud-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).ios";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = CloudDebug;
+		};
+		1690C22F3A13B57BD3DA5829 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		16E19080C5CFA080E5C0631F /* CarPlayDebug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = CarPlayDebug;
+		};
+		231AC487F4EE0F7D82AD0A66 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Config/iOS.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = production;
+				IMUSIC_CLOUD_CONTAINER = "";
+				IMUSIC_CLOUD_ENVIRONMENT = Production;
+				INFOPLIST_FILE = "Config/iOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).ios";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3325ADD9162CA86FCF1FB229 /* FullDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "Config/iOS-Full.entitlements";
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/iOS-Full-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).ios";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_CARPLAY";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = FullDebug;
+		};
+		4E3CC3B5BBC73816A3CD9B35 /* FullRelease */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = FullRelease;
+		};
+		7923B11ADACE50FEFE9B13D6 /* FullRelease */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Config/macOS-Cloud.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = production;
+				IMUSIC_CLOUD_ENVIRONMENT = Production;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).mac";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = FullRelease;
+		};
+		902F16B2CC1662F02E79D494 /* FullDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Config/macOS-Cloud.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).mac";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = FullDebug;
+		};
+		99EFC0F6251ACAA7F4E99107 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_CONTAINER = "";
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).mac";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		A34C4F3E2EBB06E820BA4308 /* FullDebug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = FullDebug;
+		};
+		AF4633D208E2EBD295048462 /* CarPlayDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "Config/iOS-CarPlay.entitlements";
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_CONTAINER = "";
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/iOS-CarPlay-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).ios";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG IMUSIC_CARPLAY";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = CarPlayDebug;
+		};
+		B23FBD4F4FB9F5B74CE0E6B8 /* FullRelease */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "Config/iOS-Full.entitlements";
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = production;
+				IMUSIC_CLOUD_ENVIRONMENT = Production;
+				INFOPLIST_FILE = "Config/iOS-Full-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).ios";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_CARPLAY";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = FullRelease;
+		};
+		B52A81087F0487D90D10DCCC /* CarPlayDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_CONTAINER = "";
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).mac";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = CarPlayDebug;
+		};
+		BC8DF59577D8D7936C9D0C97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E7FA14BDE0D41E836090B500 /* CloudDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Config/macOS-Cloud.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).mac";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = CloudDebug;
+		};
+		E834A977E75231EA5FBAF9B5 /* CloudDebug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = CloudDebug;
+		};
+		EFAF3C0C271122C615AFD713 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Config/iOS.entitlements;
+				DEVELOPMENT_TEAM = X63KRZ63Y2;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = development;
+				IMUSIC_CLOUD_CONTAINER = "";
+				IMUSIC_CLOUD_ENVIRONMENT = Development;
+				INFOPLIST_FILE = "Config/iOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).ios";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EFFCEE2402FB65C0A5D0F53B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IMUSIC_APS_ENVIRONMENT = production;
+				IMUSIC_CLOUD_CONTAINER = "";
+				IMUSIC_CLOUD_ENVIRONMENT = Production;
+				INFOPLIST_FILE = "Config/macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).mac";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17FAD3D296AD655DBFCCFFD1 /* Build configuration list for PBXNativeTarget "iMusicMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EFFCEE2402FB65C0A5D0F53B /* Release */,
+				99EFC0F6251ACAA7F4E99107 /* Debug */,
+				E7FA14BDE0D41E836090B500 /* CloudDebug */,
+				B52A81087F0487D90D10DCCC /* CarPlayDebug */,
+				902F16B2CC1662F02E79D494 /* FullDebug */,
+				7923B11ADACE50FEFE9B13D6 /* FullRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3C4F41AC91D98208D6076DD4 /* Build configuration list for PBXNativeTarget "iMusic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				231AC487F4EE0F7D82AD0A66 /* Release */,
+				EFAF3C0C271122C615AFD713 /* Debug */,
+				100A0C127ADA7656A6727FCD /* CloudDebug */,
+				AF4633D208E2EBD295048462 /* CarPlayDebug */,
+				3325ADD9162CA86FCF1FB229 /* FullDebug */,
+				B23FBD4F4FB9F5B74CE0E6B8 /* FullRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5889889898D5699493A8B034 /* Build configuration list for PBXProject "iMusic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC8DF59577D8D7936C9D0C97 /* Debug */,
+				1690C22F3A13B57BD3DA5829 /* Release */,
+				E834A977E75231EA5FBAF9B5 /* CloudDebug */,
+				16E19080C5CFA080E5C0631F /* CarPlayDebug */,
+				A34C4F3E2EBB06E820BA4308 /* FullDebug */,
+				4E3CC3B5BBC73816A3CD9B35 /* FullRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		6FA9B50CBEDE3DEB0D5EE79A /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2ACE3B5AE4F07844A3961F22 /* iMusicKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FA9B50CBEDE3DEB0D5EE79A /* XCLocalSwiftPackageReference "." */;
+			productName = iMusicKit;
+		};
+		8B742A7CAEE5085B183F26E4 /* iMusicKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FA9B50CBEDE3DEB0D5EE79A /* XCLocalSwiftPackageReference "." */;
+			productName = iMusicKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 9458AB0C9EC3A7D4A62C1046 /* Project object */;
+}

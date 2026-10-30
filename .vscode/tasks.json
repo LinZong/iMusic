@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Swift: Build package and tests",
+            "type": "process",
+            "command": "/usr/bin/xcrun",
+            "args": ["swift", "build", "--build-tests"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$swiftc"],
+            "group": { "kind": "build", "isDefault": true }
+        },
+        {
+            "label": "Swift: Refresh App index (macOS)",
+            "type": "process",
+            "command": "/bin/bash",
+            "args": ["${workspaceFolder}/Scripts/configure_vscode_swift.sh", "macos"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$swiftc"],
+            "group": "build"
+        },
+        {
+            "label": "Swift: Refresh App index (iOS Simulator)",
+            "type": "process",
+            "command": "/bin/bash",
+            "args": ["${workspaceFolder}/Scripts/configure_vscode_swift.sh", "ios"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$swiftc"],
+            "group": "build"
+        }
+    ]
+}

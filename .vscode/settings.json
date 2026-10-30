@@ -1,0 +1,15 @@
+{
+    "swift.path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "swift.sourcekit-lsp.disable": false,
+    "swift.sourcekit-lsp.backgroundIndexing": "on",
+    "files.watcherExclude": {
+        "**/.build/**": true,
+        "**/.build-*/**": true,
+        "**/DerivedData/**": true
+    },
+    "search.exclude": {
+        "**/.build": true,
+        "**/.build-*": true,
+        "**/DerivedData": true
+    }
+}
