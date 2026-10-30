@@ -259,10 +259,10 @@
     "zh-Hans": "收起播放器",
     "zh-Hant": "收起播放器"
   },
-  "Connect your computer and this device to the same trusted local network, then open the address below in a browser.": {
-    "en": "Connect your computer and this device to the same trusted local network, then open the address below in a browser.",
-    "zh-Hans": "电脑和此设备连接同一个可信局域网，在电脑浏览器打开下面的地址。",
-    "zh-Hant": "電腦和此設備連接同一個可信區域網路，在電腦瀏覽器打開下面的地址。"
+  "Connect your computer and this device to the same trusted local network, then open one of the addresses below in a browser.": {
+    "en": "Connect your computer and this device to the same trusted local network, then open one of the addresses below in a browser.",
+    "zh-Hans": "电脑和此设备连接同一个可信局域网，在电脑浏览器打开下面的任一地址。",
+    "zh-Hant": "電腦和此設備連接同一個可信區域網路，在電腦瀏覽器打開下面的任一地址。"
   },
   "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again.": {
     "en": "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again.",

@@ -184,7 +184,7 @@ import XCTest
             )
             received.fulfill()
         }
-        guard let address = server.address, var base = URLComponents(string: address) else {
+        guard let address = server.addresses.first, var base = URLComponents(string: address) else {
             await server.stop()
             XCTFail(server.error ?? "No address")
             return
@@ -207,16 +207,23 @@ import XCTest
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 202)
         await fulfillment(of: [received], timeout: 3)
         await server.stop()
-        XCTAssertNil(server.address)
+        XCTAssertTrue(server.addresses.isEmpty)
     }
     func testReactBundleAndConfigurationAreServedWithoutInlineScriptsOrPathAccess() async throws {
         let library = try TestLibrary()
         let server = WiFiUploadServer()
         await server.start(staging: library.vault.staging) { _ in XCTFail("Unexpected upload") }
-        guard let address = server.address, var base = URLComponents(string: address) else {
+        guard let address = server.addresses.first, var base = URLComponents(string: address) else {
             await server.stop()
             XCTFail(server.error ?? "No address")
             return
+        }
+        XCTAssertEqual(Set(server.addresses).count, server.addresses.count)
+        for endpoint in server.addresses {
+            let url = try XCTUnwrap(URL(string: endpoint))
+            let (page, response) = try await URLSession.shared.data(from: url)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200, endpoint)
+            XCTAssertTrue(String(decoding: page, as: UTF8.self).contains("type=\"module\""))
         }
         base.host = "127.0.0.1"
         base.path = "/"
@@ -276,7 +283,7 @@ import XCTest
         await server.start(staging: library.vault.staging) { _ in
             XCTFail("Unauthorized upload accepted")
         }
-        guard let address = server.address, var base = URLComponents(string: address) else {
+        guard let address = server.addresses.first, var base = URLComponents(string: address) else {
             await server.stop()
             XCTFail(server.error ?? "No address")
             return

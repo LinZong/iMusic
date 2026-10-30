@@ -8,8 +8,8 @@ import Observation
 
 @MainActor @Observable
 public final class WiFiUploadServer {
-    /// Reachable local HTTP address while the upload listener is active; nil when stopped.
-    public private(set) var address: String?
+    /// Unique local IPv4 HTTP endpoints while listening; empty when stopped.
+    public private(set) var addresses: [String] = []
     /// Short-lived pairing code displayed only while the transfer page is open.
     public private(set) var code = ""
     /// Most recent listener startup failure presented by the transfer page.
@@ -63,7 +63,8 @@ public final class WiFiUploadServer {
                 return
             }
             channel = listener
-            address = "http://\(Self.localAddress()):\(listener.localAddress?.port ?? 0)"
+            let port = listener.localAddress?.port ?? 0
+            addresses = Self.localAddresses().map { "http://\($0):\(port)" }
         } catch {
             if runID == run {
                 self.error = error.localizedDescription
@@ -73,10 +74,10 @@ public final class WiFiUploadServer {
         }
     }
     /// Invalidates pending startup, closes the listener, shuts down its event loop group, and
-    /// clears the advertised address.
+    /// clears all advertised addresses.
     public func stop() async {
         runID = UUID()
-        address = nil
+        addresses = []
         let old = channel
         let oldGroup = group
         channel = nil
@@ -84,15 +85,20 @@ public final class WiFiUploadServer {
         try? await old?.close().get()
         try? await oldGroup?.shutdownGracefully()
     }
-    private static func localAddress() -> String {
-        var addresses: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&addresses) == 0 else { return "localhost" }
-        defer { freeifaddrs(addresses) }
-        var pointer = addresses
+    /// Collects active IPv4 interface addresses matching the listener's address family.
+    /// Includes Ethernet, Wi-Fi, bridges, and tunnels; loopback is only a last-resort fallback.
+    private static func localAddresses() -> [String] {
+        var interfaces: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&interfaces) == 0 else { return ["localhost"] }
+        defer { freeifaddrs(interfaces) }
+        var hosts = Set<String>()
+        var pointer = interfaces
         while let value = pointer {
             defer { pointer = value.pointee.ifa_next }
-            guard let addr = value.pointee.ifa_addr, addr.pointee.sa_family == UInt8(AF_INET),
-                String(cString: value.pointee.ifa_name).hasPrefix("en")
+            let flags = value.pointee.ifa_flags
+            guard flags & UInt32(IFF_UP) != 0, flags & UInt32(IFF_RUNNING) != 0,
+                flags & UInt32(IFF_LOOPBACK) == 0,
+                let addr = value.pointee.ifa_addr, addr.pointee.sa_family == UInt8(AF_INET)
             else { continue }
             var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
             if getnameinfo(
@@ -104,10 +110,16 @@ public final class WiFiUploadServer {
                 0,
                 NI_NUMERICHOST
             ) == 0 {
-                return String(cString: host)
+                let address = String(cString: host)
+                guard address != "0.0.0.0" else { continue }
+                hosts.insert(address)
             }
         }
-        return "localhost"
+        return hosts.isEmpty
+            ? ["localhost"]
+            : hosts.sorted {
+                $0.localizedStandardCompare($1) == .orderedAscending
+            }
     }
 }
 

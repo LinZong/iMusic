@@ -51,7 +51,7 @@
 "Clear Upcoming" = "清空待播";
 "Cloud Changes Received" = "已接收云端变更";
 "Collapse Player" = "收起播放器";
-"Connect your computer and this device to the same trusted local network, then open the address below in a browser." = "电脑和此设备连接同一个可信局域网，在电脑浏览器打开下面的地址。";
+"Connect your computer and this device to the same trusted local network, then open one of the addresses below in a browser." = "电脑和此设备连接同一个可信局域网，在电脑浏览器打开下面的任一地址。";
 "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again." = "连接中断，请保持 iMusic 的 Wi-Fi 传歌页面开启，然后重试。";
 "Continue Listening" = "继续聆听";
 "Create" = "创建";
