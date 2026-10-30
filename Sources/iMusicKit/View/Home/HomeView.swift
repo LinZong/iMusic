@@ -3,6 +3,8 @@ import SwiftUI
 struct HomeView: View {
     /// Feature model containing only this page's state and explicit dependencies.
     @State var model: HomeViewModel
+    /// Shared symbol slot scales with Dynamic Type while keeping tile text vertically aligned.
+    @ScaledMetric(relativeTo: .title2) private var categoryIconHeight: CGFloat = 28
     /// Renders the unfiltered library overview and the user-configured home sections.
     var body: some View {
         ScrollView {
@@ -82,7 +84,7 @@ struct HomeView: View {
                 .buttonStyle(.plain)
             }
         case "categories":
-            HStack {
+            EqualTileRow {
                 NavigationLink {
                     CollectionGrid(
                         model: CollectionViewModel(
@@ -194,10 +196,11 @@ struct HomeView: View {
     private func category(_ label: String, _ symbol: String, _ count: Int) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Image(systemName: symbol).font(.title2).foregroundStyle(Color.accentColor)
+                .frame(height: categoryIconHeight)
             Text(label).font(.headline)
             Text("\(count)").font(.caption).foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading).padding(18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).padding(18)
         .background(
             .quaternary.opacity(0.5),
             in: RoundedRectangle(cornerRadius: 18)
