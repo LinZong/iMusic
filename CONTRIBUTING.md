@@ -55,6 +55,12 @@ shared or platform code. For conditional capabilities, also build the `iMusic Fu
 scheme for an iOS simulator. CI runs these checks without requiring signing secrets.
 Add regression tests when they can meaningfully demonstrate a behavior fix.
 
+SwiftNIO is pinned to 2.103.0 for iOS 17 compatibility; see
+[the documented runtime regression](Docs/Architecture.md#文件与事务). Before changing
+that pin, verify the upstream fix on an iOS 17 simulator or device. Exercise the
+first browser connection, bundled assets, pairing, upload, and the resulting library
+entry. Passing network tests on a newer host OS alone does not cover this crash.
+
 Ordinary tests must stay silent and use the controlled playback engine. The following
 tests are deliberately opt-in; hardware audio fixtures contain zero-valued PCM:
 

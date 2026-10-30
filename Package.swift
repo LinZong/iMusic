@@ -10,7 +10,10 @@ let package = Package(
         .package(url: "https://github.com/groue/GRDB.swift.git", from: "7.0.0"),
         .package(url: "https://github.com/sbooth/SFBAudioEngine.git", exact: "0.14.0"),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
+        // NIO 2.104.0 traps during HTTP pipeline setup on the iOS 17 runtime.
+        // Keep this pin until an upstream fix is released and verified on iOS 17.
+        // https://github.com/apple/swift-nio/issues/3764
+        .package(url: "https://github.com/apple/swift-nio.git", exact: "2.103.0"),
         .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.20.0"),
     ],
     targets: [
