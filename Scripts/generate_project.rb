@@ -8,7 +8,7 @@ project.root_object.known_regions = ['en', 'zh-Hans', 'zh-Hant']
 project.root_object.attributes['BuildIndependentTargetsInParallel'] = 'YES'
 config_group = project.main_group.new_group('Config', 'Config')
 base = config_group.new_file('Base.xcconfig')
-Dir.glob('Config/*').reject { |p| p.end_with?('Base.xcconfig') }.each { |p| config_group.new_file(File.basename(p)) }
+Dir.glob('Config/*').reject { |p| p.end_with?('Base.xcconfig', '.local.xcconfig') }.each { |p| config_group.new_file(File.basename(p)) }
 app_group = project.main_group.new_group('Apps', 'Apps')
 shared = app_group.new_group('Shared', 'Shared').new_file('iMusicApp.swift')
 local_package = project.new(Xcodeproj::Project::Object::XCLocalSwiftPackageReference)
@@ -78,6 +78,7 @@ project.root_object.package_references << local_package
     if configuration == 'Debug'
       # LLDB's internal loader/thread breakpoints can interrupt real-time audio.
       # Keep the original scheme for debugging and a separate one for playback acceptance.
+      scheme.launch_action.build_configuration = platform == :ios ? 'Release' : 'Debug'
       scheme.launch_action.xml_element.attributes['selectedDebuggerIdentifier'] = ''
       scheme.launch_action.xml_element.attributes['selectedLauncherIdentifier'] = 'Xcode.IDEFoundation.Launcher.PosixSpawn'
       scheme.save_as('iMusic.xcodeproj', name + ' Playback', true)

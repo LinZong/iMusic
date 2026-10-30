@@ -6,6 +6,20 @@
 
 复制 `Config/Signing.example.xcconfig` 到 `Config/Signing.local.xcconfig`，设置 DEVELOPMENT_TEAM 和独立 bundle 前缀。该文件被 Git 忽略。本地 Debug/Release 在 target 层清空云容器标识，避免误请求未授权能力。
 
+请在本地 xcconfig 中维护团队信息，不要将自己的 DEVELOPMENT_TEAM 写入并提交到共享工程。
+工程生成脚本也会排除所有 `.local.xcconfig` 文件引用。
+
+## 真机 Release 运行
+
+1. 连接并解锁 iPhone／iPad，在 Xcode 顶部选择真实设备。
+2. 选择共享 **iMusic Playback** scheme；它的 Run 已设为 Release，且不附加 LLDB。
+3. 在 `Config/Signing.local.xcconfig` 设置有效的开发团队与独立 bundle 前缀，确认自动签名可用。
+4. 使用 Product → Run（⌘R）构建、安装并启动。手机需信任开发者，并在系统要求时启用开发者模式。
+
+也可复制普通 **iMusic** scheme，在 Product → Scheme → Edit Scheme → Run → Info 中
+将 Build Configuration 设为 Release，并取消 Debug executable。普通共享 scheme 保留 Debug 配置供断点调试。
+Release 编译配置与分发签名是两件事：以上方式安装的是开发签名应用，不会上传 App Store 或 TestFlight。
+
 ## Cloud
 
 1. 具备可使用 CloudKit 的开发者团队，注册 iOS 和 macOS App ID。

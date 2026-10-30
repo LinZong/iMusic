@@ -4,6 +4,9 @@ name: Build and test
   pull_request:
 permissions:
   contents: read
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   apple:
     runs-on: macos-latest

@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest a focused improvement to iMusic.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: Explain the task you want to accomplish and the affected platforms.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the user experience and any alternatives you considered.
+    validations:
+      required: true
