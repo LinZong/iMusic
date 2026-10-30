@@ -45,6 +45,8 @@ enum AudioTestSupport {
     var announcesStartAutomatically = true
     /// Recorded play calls used to assert queue identity, file selection, and resume position.
     private(set) var plays: [PlayCall] = []
+    /// Queue occurrence identities requested for preloading without opening audio hardware.
+    private(set) var enqueued: [UUID] = []
     /// Recorded seek targets in seconds used to verify preview commits and pause behavior.
     private(set) var seeks: [Double] = []
     /// Number of explicit pause calls received by the fake backend.
@@ -88,7 +90,7 @@ enum AudioTestSupport {
         isPlaying = false
         elapsed = nil
     }
-    func enqueue(url: URL, entryID: UUID) throws {}
+    func enqueue(url: URL, entryID: UUID) throws { enqueued.append(entryID) }
     func clearUpcoming() {}
     func setRate(_ value: Float) {}
     func setVolume(_ value: Float) { volume = value }

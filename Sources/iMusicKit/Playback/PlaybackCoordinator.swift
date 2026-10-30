@@ -552,7 +552,10 @@ public final class PlaybackCoordinator {
     }
     private func rebuildUpcoming() {
         engine.clearUpcoming()
-        guard loopB == nil, !sleepAtEnd, let id = session.nextID(automatic: true),
+        // A restored paused session has no decoder. Enqueuing into an empty backend can start
+        // that upcoming song instead of merely changing a playback mode.
+        guard engine.elapsed != nil, loopB == nil, !sleepAtEnd,
+            let id = session.nextID(automatic: true),
             let entry = session.entries.first(where: { $0.id == id }),
             let selected = try? store.track(id: entry.trackID), selected.deletedAt == nil,
             let url = try? vault.url(for: selected),

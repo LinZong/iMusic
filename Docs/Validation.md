@@ -237,3 +237,28 @@ startup failure check used an invalid test path; the desktop empty-library and f
 used separate fixture libraries. No audio was played and the user's desktop music library
 was retained. macOS and iOS simulator builds, the full Swift style check (including the
 100-character limit), and localization validation passed.
+
+## macOS playback bar — 2026-10-30
+
+The desktop footer now has three balanced regions: artwork and metadata with a favorite heart;
+centered repeat, previous, play/pause, next, and shuffle controls; and application volume plus
+queue access. Favorite selection uses a red heart. The existing localized actions, persisted
+volume, shared queue, and playback coordinator remain authoritative. A separate progress view
+contains timeline observations so clock ticks do not invalidate the desktop button hierarchy.
+The phone and tablet compact controls retain their existing presentation.
+
+Native-window verification covered 1040-point and 680-point widths. Every desktop control stayed
+visible; long titles truncated with a full-title tooltip. An isolated library containing two
+120-second zero-PCM WAVs verified favorite updates, all three repeat modes, shuffle, previous/next,
+pause, volume, mute, and volume restoration after unmuting, without audible music or changes to
+the user's music library. The original library and window size were restored afterward.
+
+The runtime check also reproduced an existing paused-session issue: changing a mode after app
+launch could preload into an empty backend and unexpectedly start the next song. Upcoming
+preloads now require a loaded engine clock. A regression test checks that mode changes retain
+the paused selection and schedule no audio, while explicit resume still loads the selected song
+and preloads its successor. Manual verification confirmed the fix with the production engine.
+
+The full Swift test suite completed 82 tests: 77 passed, 5 opt-in hardware tests skipped, zero
+failures. macOS and iOS simulator builds, the full Swift style/100-character checks, and all
+343 localization keys across three languages passed.

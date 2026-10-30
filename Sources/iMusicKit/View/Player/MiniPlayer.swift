@@ -5,6 +5,9 @@ struct MiniPlayer: View {
     @Bindable var model: PlayerViewModel
     /// Renders current-song metadata and compact playback controls below the active page.
     var body: some View {
+        #if os(macOS)
+        DesktopMiniPlayer(model: model)
+        #else
         VStack(spacing: 0) {
             HStack(spacing: 12) {
                 Button {
@@ -56,14 +59,9 @@ struct MiniPlayer: View {
                 .buttonStyle(.plain).accessibilityLabel(L10n.text("Play Queue"))
             }
             .padding(.horizontal, 16).padding(.vertical, 10)
-            GeometryReader { geometry in
-                Rectangle().fill(Color.accentColor)
-                    .frame(
-                        width: geometry.size.width * model.playback.timeline.fraction
-                    )
-            }
-            .frame(height: 2).background(.quaternary).clipped().accessibilityHidden(true)
+            PlaybackProgressLine(playback: model.playback)
         }
         .background(.bar)
+        #endif
     }
 }

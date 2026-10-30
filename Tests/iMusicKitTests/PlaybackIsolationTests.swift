@@ -5,6 +5,44 @@ import XCTest
 
 @MainActor
 final class PlaybackIsolationTests: XCTestCase {
+    /// Changing modes in a restored paused session must not schedule another song into the backend.
+    func testRestoredPausedModesDoNotPreloadUntilExplicitResume() async throws {
+        let fixture = try TestLibrary()
+        let url = try fixture.fixture(seconds: 4)
+        _ = await fixture.importer.importFiles([url]) { _ in }
+        let first = try XCTUnwrap(fixture.store.tracks().first)
+        var second = first
+        second.id = UUID()
+        second.title = "Second"
+        try fixture.store.save(second)
+        var session = PlaybackSession()
+        session.replace(with: [first.id, second.id], startingAt: 0)
+        let currentID = session.currentID
+        try fixture.store.setSetting("playback", value: session)
+        let engine = TestPlaybackEngine()
+        let playback = PlaybackCoordinator(
+            store: fixture.store,
+            vault: fixture.vault,
+            engine: engine
+        )
+
+        playback.setRepeat(.all)
+        playback.setRepeat(.one)
+        playback.setRepeat(.off)
+        playback.toggleShuffle()
+
+        XCTAssertEqual(playback.status, .paused)
+        XCTAssertEqual(playback.session.currentID, currentID)
+        XCTAssertTrue(engine.plays.isEmpty)
+        XCTAssertTrue(engine.enqueued.isEmpty)
+
+        playback.setRepeat(.all)
+        playback.resume()
+        XCTAssertEqual(engine.plays.count, 1)
+        XCTAssertEqual(engine.plays.first?.entryID, currentID)
+        XCTAssertFalse(engine.enqueued.isEmpty)
+    }
+
     func testClockAdvancesWithoutInvalidatingQueueObserversAndSavesLatestPosition() async throws {
         let fixture = try TestLibrary()
         let url = try fixture.fixture(seconds: 4)
