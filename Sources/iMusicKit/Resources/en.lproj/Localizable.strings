@@ -24,6 +24,7 @@
 "Artist" = "Artist";
 "Artists" = "Artists";
 "At the End of This Song" = "At the End of This Song";
+"Audio Output" = "Audio Output";
 "Back 10 Seconds" = "Back 10 Seconds";
 "Backup Ready" = "Backup Ready";
 "Backup and Restore" = "Backup and Restore";
@@ -178,6 +179,7 @@
 "Play Queue" = "Play Queue";
 "Play Selected Songs" = "Play Selected Songs";
 "Play in Order" = "Play in Order";
+"Playback Options" = "Playback Options";
 "Playback Position" = "Playback Position";
 "Playback Speed" = "Playback Speed";
 "Playlist Name" = "Playlist Name";
@@ -231,6 +233,7 @@
 "Similar titles are never automatically treated as duplicate files." = "Similar titles are never automatically treated as duplicate files.";
 "Six-Digit Pairing Code" = "Six-Digit Pairing Code";
 "Sleep Timer" = "Sleep Timer";
+"Song Options" = "Song Options";
 "Songs Played" = "Songs Played";
 "Songs moved to Trash appear here until you restore or permanently delete them." = "Songs moved to Trash appear here until you restore or permanently delete them.";
 "Sort by Song Title" = "Sort by Song Title";

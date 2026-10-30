@@ -12,7 +12,7 @@ python3 Scripts/check_localizations.py
 swift test --filter LocalizationTests
 ```
 
-权威翻译表包含 337 个键，输出为标准 `Localizable.strings`／`Localizable.stringsdict`；生成文件随项目分发，无需用户安装 Python 才能构建应用。新增语言时需要补齐翻译、`L10n.supportedLanguages`、生成脚本的语言列表和应用 `CFBundleLocalizations`／工程地区列表。重新生成 Xcode 工程后执行检查。
+权威翻译表包含 340 个键，输出为标准 `Localizable.strings`／`Localizable.stringsdict`；生成文件随项目分发，无需用户安装 Python 才能构建应用。新增语言时需要补齐翻译、`L10n.supportedLanguages`、生成脚本的语言列表和应用 `CFBundleLocalizations`／工程地区列表。重新生成 Xcode 工程后执行检查。
 
 业务代码使用 `L10n.text(key, arguments...)`，从 **SPM 的 Bundle.module** 读取资源，不依赖调用者的主 bundle。格式参数采用有位置编号的 `%1$ld`／`%1$@`，允许译者调整顺序。英文数量通过 stringsdict 区分单复数；不得通过拼接数量和已翻译名词构造句子。
 

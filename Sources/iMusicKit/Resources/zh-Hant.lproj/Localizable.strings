@@ -24,6 +24,7 @@
 "Artist" = "歌手";
 "Artists" = "歌手";
 "At the End of This Song" = "本曲結束後";
+"Audio Output" = "音訊輸出";
 "Back 10 Seconds" = "後退十秒";
 "Backup Ready" = "備份已準備好";
 "Backup and Restore" = "備份與恢復";
@@ -178,6 +179,7 @@
 "Play Queue" = "播放隊列";
 "Play Selected Songs" = "播放所選歌曲";
 "Play in Order" = "順序播放";
+"Playback Options" = "播放選項";
 "Playback Position" = "播放進度";
 "Playback Speed" = "播放速度";
 "Playlist Name" = "歌單名稱";
@@ -231,6 +233,7 @@
 "Similar titles are never automatically treated as duplicate files." = "相似曲名不會被自動當作重復檔案刪除。";
 "Six-Digit Pairing Code" = "六位配對碼";
 "Sleep Timer" = "睡眠定時";
+"Song Options" = "歌曲選項";
 "Songs Played" = "已聆聽歌曲";
 "Songs moved to Trash appear here until you restore or permanently delete them." = "移到回收站的歌曲會保留在這裡，直到您恢復或永久刪除。";
 "Sort by Song Title" = "按歌曲名排序";

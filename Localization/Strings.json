@@ -124,6 +124,11 @@
     "zh-Hans": "本曲结束后",
     "zh-Hant": "本曲結束後"
   },
+  "Audio Output": {
+    "en": "Audio Output",
+    "zh-Hans": "音频输出",
+    "zh-Hant": "音訊輸出"
+  },
   "Back 10 Seconds": {
     "en": "Back 10 Seconds",
     "zh-Hans": "后退十秒",
@@ -894,6 +899,11 @@
     "zh-Hans": "顺序播放",
     "zh-Hant": "順序播放"
   },
+  "Playback Options": {
+    "en": "Playback Options",
+    "zh-Hans": "播放选项",
+    "zh-Hant": "播放選項"
+  },
   "Playback Position": {
     "en": "Playback Position",
     "zh-Hans": "播放进度",
@@ -1158,6 +1168,11 @@
     "en": "Sleep Timer",
     "zh-Hans": "睡眠定时",
     "zh-Hant": "睡眠定時"
+  },
+  "Song Options": {
+    "en": "Song Options",
+    "zh-Hans": "歌曲选项",
+    "zh-Hant": "歌曲選項"
   },
   "Songs Played": {
     "en": "Songs Played",

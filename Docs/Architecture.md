@@ -69,3 +69,11 @@ Wi-Fi 使用用户显式启动的 NWListener/NIO HTTP 服务，随机六位配�
 可将包内各层拆为独立 SPM target；PlaybackEngine 已隔离第三方接口。歌词时间轴、App Intents、WidgetKit 和 watchOS 应消费领域状态／命令，不能创建第二个独立播放器。
 
 强调色遵循各平台系统默认行为；使用原生导航和选择控件，不提供应用内强调色选择器，不覆盖原生选中背景，也不声明固定的 AccentColor 资源。
+
+## Now Playing 界面
+
+`Features/NowPlayingView.swift` 独立负责全播放器的视觉层与自适应布局。封面、歌曲信息、时间轴、三键主控制和次级工具依次分组；不改写 PlaybackCoordinator 或 PlaybackTimeline。窄屏／竖屏及辅助功能字号使用可滚动单列；宽屏横向空间充足时采用封面与控制区双栏，低高度窗口缩小间距而保留至少 44 pt 点击区域。
+
+主控制使用系统语义色的 SF Symbols，不使用永久实心圆盘；按压反馈尊重 Reduce Motion。随机和循环同时提供选中背景及无障碍 selected trait，非活动功能正确禁用。AirPlay 与队列可直接访问；十秒跳转、睡眠、A/B、均衡器和变速通过原生播放选项菜单提供，活动选项仍在界面显示。强调色、浅深模式和界面文案继续使用系统与本地化资源。
+
+设计参考：[Apple Music 播放控制](https://support.apple.com/en-gb/guide/iphone/iph676daac9b/ios)、[Spotify Now Playing](https://support.spotify.com/kr-en/article/now-playing/)、[Apple HIG 按钮](https://developer.apple.com/design/human-interface-guidelines/buttons)及[无障碍](https://developer.apple.com/design/human-interface-guidelines/accessibility)。这些资料指导分组与交互，页面按 iMusic 的本地播放功能实现。
