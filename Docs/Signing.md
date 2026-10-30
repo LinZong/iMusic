@@ -20,6 +20,13 @@
 将 Build Configuration 设为 Release，并取消 Debug executable。普通共享 scheme 保留 Debug 配置供断点调试。
 Release 编译配置与分发签名是两件事：以上方式安装的是开发签名应用，不会上传 App Store 或 TestFlight。
 
+### 命令行构建和安装
+
+完成签名配置后，执行 `./Scripts/install_ios_release.py` 即可不打开 Xcode，构建并安装 Release。
+脚本会自动选择唯一连接的 iOS 真机；多个设备时使用 `--device` 指定名称或 UDID。
+通过 `--skip-build` 复用已有签名产物，缺少新机型支持镜像时可使用 `ideviceinstaller` 备用安装通道。
+前置条件、参数与错误排查见 [命令行安装指南](InstallRelease.md)。
+
 ## Cloud
 
 1. 具备可使用 CloudKit 的开发者团队，注册 iOS 和 macOS App ID。

@@ -50,6 +50,22 @@ Native dependencies use **Swift Package Manager**, and the upload client uses
 client and bundles its static assets during Build, Run, Archive, and `swift test`.
 Node and external web hosting are not required at runtime.
 
+### Install a Release build without opening Xcode
+
+Connect and unlock an iPhone/iPad, configure your local signing team, then run:
+
+```sh
+./Scripts/install_ios_release.py --list-devices
+./Scripts/install_ios_release.py
+# Reinstall the existing signed Release app:
+./Scripts/install_ios_release.py --skip-build
+```
+
+With multiple devices, pass `--device "My iPhone"` or a UDID. The script verifies
+signing and device eligibility before installing. It uses `devicectl`, with an
+optional `ideviceinstaller` fallback for missing developer images. The full Xcode
+toolchain is still required to compile. See [the terminal installation guide](Docs/InstallRelease.md).
+
 ### Schemes
 
 | Scheme | Purpose |
@@ -71,6 +87,7 @@ builds do not require CloudKit, push, or CarPlay entitlements.
 ```sh
 python3 Scripts/swift_style.py check
 python3 Scripts/check_localizations.py
+python3 -m unittest discover -s Scripts/tests -p 'test_*.py'
 npm run format:check --prefix Web/WiFiUpload
 npm test --prefix Web/WiFiUpload
 swift test

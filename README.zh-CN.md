@@ -23,6 +23,22 @@
 
 已使用 Xcode 26.3、Swift 6.2.4 构建。最低系统为 iOS／iPadOS 17 和 macOS 14；依赖需要 Swift 6.1 或以上工具链。Xcode 工程已提交，通常无需安装工程生成工具。
 
+### 不打开 Xcode 安装 Release
+
+连接并解锁 iPhone／iPad，配置本地签名团队后，在项目根目录执行：
+
+```sh
+./Scripts/install_ios_release.py --list-devices
+./Scripts/install_ios_release.py
+# 复用已有签名 Release 产物，只安装，不编译：
+./Scripts/install_ios_release.py --skip-build
+```
+
+单设备自动选择；多设备需传入 `--device "设备名称"` 或 UDID。脚本校验签名、描述文件与目标设备，
+默认使用 Apple 安装工具；支持镜像缺失时可自动切换到 `brew install ideviceinstaller` 安装的备用工具。
+不需要打开 Xcode 界面，但编译仍需要已安装的完整 Xcode 工具链。使用 Python 3.10+；
+详细参数、前置配置和排错见 [命令行安装指南](Docs/InstallRelease.md)。
+
 ### VS Code 代码跳转与引用
 
 用 VS Code 打开项目根目录，安装并启用官方 **Swift** 扩展（`swiftlang.swift-vscode`）。如果曾全局禁用扩展，可在扩展页面选择 **Enable (Workspace)**。项目的 `.vscode/settings.json` 使用 `/Applications/Xcode.app` 中的工具链并开启后台索引；Xcode 安装在其他位置时需调整 `swift.path`。

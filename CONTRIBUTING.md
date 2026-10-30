@@ -44,6 +44,7 @@ Install web dependencies with `npm ci --prefix Web/WiFiUpload`, then run:
 ```sh
 python3 Scripts/swift_style.py check
 python3 Scripts/check_localizations.py
+python3 -m unittest discover -s Scripts/tests -p 'test_*.py'
 npm run format:check --prefix Web/WiFiUpload
 npm test --prefix Web/WiFiUpload
 swift test

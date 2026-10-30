@@ -32,6 +32,8 @@ jobs:
           swift --version
       - name: Swift formatting and style
         run: python3 Scripts/swift_style.py check
+      - name: Release installer regression tests
+        run: python3 -m unittest discover -s Scripts/tests -p 'test_*.py'
       - name: Localization coverage
         run: python3 Scripts/check_localizations.py
       - name: Tests without hardware audio
