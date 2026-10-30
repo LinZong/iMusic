@@ -9,37 +9,16 @@ struct QueueView: View {
     /// controls.
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(model.playback.session.entries) { entry in
-                    if let track = model.library.tracks.first(where: { $0.id == entry.trackID }) {
-                        HStack {
-                            if entry.id == model.playback.session.currentID {
-                                Image(systemName: "speaker.wave.2.fill").foregroundStyle(.tint)
-                            }
-                            Button {
-                                model.playback.selectEntry(entry.id)
-                            } label: {
-                                VStack(alignment: .leading) {
-                                    Text(track.title).lineLimit(1)
-                                    Text(track.displayArtist).font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .contextMenu {
-                            Button(L10n.text("Remove from Queue"), role: .destructive) {
-                                model.playback.removeEntry(entry.id)
-                            }
-                        }
-                    }
-                }
-                .onMove { model.playback.moveEntries(from: $0, to: $1) }
-                .onDelete { offsets in
-                    let ids = offsets.map { model.playback.session.entries[$0].id }
-                    for id in ids { model.playback.removeEntry(id) }
+            Group {
+                if model.playback.session.entries.isEmpty {
+                    ContentUnavailableView(
+                        L10n.text("Nothing Playing"),
+                        systemImage: "music.note.list",
+                        description: Text(L10n.text("Choose music to start playing"))
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    queueList
                 }
             }
             .navigationTitle(L10n.text("format.queue.count", model.playback.session.entries.count))
@@ -57,4 +36,41 @@ struct QueueView: View {
         }
         .frame(idealWidth: 480, idealHeight: 580)
     }
+    /// Native queue rows retain occurrence selection, removal, and drag reordering.
+    private var queueList: some View {
+        List {
+            ForEach(model.playback.session.entries) { entry in
+                if let track = model.library.tracks.first(where: { $0.id == entry.trackID }) {
+                    HStack {
+                        if entry.id == model.playback.session.currentID {
+                            Image(systemName: "speaker.wave.2.fill").foregroundStyle(.tint)
+                        }
+                        Button {
+                            model.playback.selectEntry(entry.id)
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text(track.title).lineLimit(1)
+                                Text(track.displayArtist).font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .contextMenu {
+                        Button(L10n.text("Remove from Queue"), role: .destructive) {
+                            model.playback.removeEntry(entry.id)
+                        }
+                    }
+                }
+            }
+            .onMove { model.playback.moveEntries(from: $0, to: $1) }
+            .onDelete { offsets in
+                let ids = offsets.map { model.playback.session.entries[$0].id }
+                for id in ids { model.playback.removeEntry(id) }
+            }
+        }
+    }
+
 }

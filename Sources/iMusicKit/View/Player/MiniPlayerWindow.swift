@@ -7,6 +7,22 @@ public struct MiniPlayerWindow: View {
     public init(model: PlayerViewModel) { self.model = model }
     /// Renders the standalone macOS compact player window and its expanded-player action.
     public var body: some View {
+        Group {
+            if model.playback.track == nil {
+                ContentUnavailableView(
+                    L10n.text("Nothing Playing"),
+                    systemImage: "music.note",
+                    description: Text(L10n.text("Choose music to start playing"))
+                )
+            } else {
+                playerContent
+            }
+        }
+        .frame(minWidth: 280, idealWidth: 340)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    /// Compact artwork and playback controls displayed when a current song is available.
+    private var playerContent: some View {
         VStack(spacing: 18) {
             ArtworkView(track: model.playback.track, vault: model.library.vault, size: 220)
             Text(model.playback.track?.title ?? "iMusic").font(.headline).lineLimit(2)
@@ -44,6 +60,6 @@ public struct MiniPlayerWindow: View {
             VolumeControl(playback: model.playback)
             #endif
         }
-        .padding(24).frame(minWidth: 280, idealWidth: 340)
+        .padding(24)
     }
 }

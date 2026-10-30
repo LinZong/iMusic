@@ -7,7 +7,7 @@ struct HomeView: View {
     @ScaledMetric(relativeTo: .title2) private var categoryIconHeight: CGFloat = 28
     /// Renders the unfiltered library overview and the user-configured home sections.
     var body: some View {
-        ScrollView {
+        PageScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L10n.text("Your music, always with you.")).font(.largeTitle.bold())
@@ -54,7 +54,7 @@ struct HomeView: View {
                             )
                         )
                     )
-                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .padding(24).frame(maxWidth: 1_200, alignment: .leading).frame(maxWidth: .infinity)

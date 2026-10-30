@@ -16,55 +16,19 @@ public struct NowPlayingView: View {
         @Bindable var presentation = model.player.presentation
         @Bindable var model = model
         NavigationStack {
-            GeometryReader { geometry in
-                // A wide portrait sheet still needs a single column; text accessibility takes
-                // priority.
-                let columns =
-                    geometry.size.width >= 680
-                    && geometry.size.width > geometry.size.height
-                    && !dynamicTypeSize.isAccessibilitySize
-                let inset: CGFloat = columns ? 32 : 24
-                let contentWidth = max(0, min(geometry.size.width - inset * 2, columns ? 960 : 420))
-                // Reserve vertical space for metadata and controls before allocating artwork on a
-                // phone.
-                let coverSize =
-                    columns
-                    ? min(
-                        360,
-                        max(160, (contentWidth - 40) * 0.46),
-                        max(160, geometry.size.height - 64)
+            Group {
+                if model.player.playback.track == nil {
+                    ContentUnavailableView(
+                        L10n.text("Nothing Playing"),
+                        systemImage: "music.note",
+                        description: Text(L10n.text("Choose music to start playing"))
                     )
-                    : min(contentWidth, max(180, geometry.size.height - 390))
-                ScrollView {
-                    Group {
-                        if columns {
-                            HStack(alignment: .center, spacing: 40) {
-                                artwork(size: coverSize)
-                                controls(compact: geometry.size.height < 420).frame(maxWidth: 420)
-                            }
-                        } else {
-                            VStack(spacing: 28) {
-                                artwork(size: coverSize)
-                                controls(compact: false)
-                            }
-                        }
-                    }
-                    .frame(width: contentWidth)
-                    .padding(.horizontal, inset)
-                    .padding(.vertical, columns ? (geometry.size.height < 420 ? 12 : 32) : 20)
-                    .frame(maxWidth: .infinity, minHeight: geometry.size.height)
-                }
-                .background {
-                    Rectangle().fill(.background)
-                        .overlay {
-                            LinearGradient(
-                                colors: [Color.accentColor.opacity(0.06), .clear],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    playerContent
                 }
             }
+
             #if os(iOS)
             .navigationTitle(L10n.text("Now Playing"))
             .navigationBarTitleDisplayMode(.inline)
@@ -99,6 +63,59 @@ public struct NowPlayingView: View {
             )
         }
         .onDisappear { model.player.playback.cancelScrubbing() }
+    }
+
+    /// Adaptive artwork and transport layout, shown only when a current track exists.
+    private var playerContent: some View {
+        GeometryReader { geometry in
+            // A wide portrait sheet still needs a single column; text accessibility takes
+            // priority.
+            let columns =
+                geometry.size.width >= 680
+                && geometry.size.width > geometry.size.height
+                && !dynamicTypeSize.isAccessibilitySize
+            let inset: CGFloat = columns ? 32 : 24
+            let contentWidth = max(0, min(geometry.size.width - inset * 2, columns ? 960 : 420))
+            // Reserve vertical space for metadata and controls before allocating artwork on a
+            // phone.
+            let coverSize =
+                columns
+                ? min(
+                    360,
+                    max(160, (contentWidth - 40) * 0.46),
+                    max(160, geometry.size.height - 64)
+                )
+                : min(contentWidth, max(180, geometry.size.height - 390))
+            ScrollView {
+                Group {
+                    if columns {
+                        HStack(alignment: .center, spacing: 40) {
+                            artwork(size: coverSize)
+                            controls(compact: geometry.size.height < 420).frame(maxWidth: 420)
+                        }
+                    } else {
+                        VStack(spacing: 28) {
+                            artwork(size: coverSize)
+                            controls(compact: false)
+                        }
+                    }
+                }
+                .frame(width: contentWidth)
+                .padding(.horizontal, inset)
+                .padding(.vertical, columns ? (geometry.size.height < 420 ? 12 : 32) : 20)
+                .frame(maxWidth: .infinity, minHeight: geometry.size.height)
+            }
+            .background {
+                Rectangle().fill(.background)
+                    .overlay {
+                        LinearGradient(
+                            colors: [Color.accentColor.opacity(0.06), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
+            }
+        }
     }
 
     /// Native track actions shared by the phone navigation bar and the desktop player header.

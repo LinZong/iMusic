@@ -39,19 +39,7 @@ struct IMusicApp: App {
             if let model {
                 RootView(model: model).onOpenURL { url in model.imports.importURLs([url]) }
             } else {
-                ContentUnavailableView(
-                    L10n.text("Unable to Open Library"),
-                    systemImage: "externaldrive.badge.exclamationmark",
-                    description: Text(
-                        startupError
-                            ?? L10n.text(
-                                """
-                                Check disk space and file permissions. The library will not be \
-                                cleared automatically.
-                                """
-                            )
-                    )
-                )
+                startupFailure
             }
         }
         #if os(macOS)
@@ -77,11 +65,33 @@ struct IMusicApp: App {
         #endif
         #if os(macOS)
         Window(L10n.text("Mini Player"), id: "mini-player") {
-            if let model { MiniPlayerWindow(model: model.player) }
+            if let model {
+                MiniPlayerWindow(model: model.player)
+            } else {
+                startupFailure
+            }
         }
         .defaultSize(width: 340, height: 420).windowResizability(.contentMinSize)
         #endif
     }
+    /// Shows the same centered library failure in both the main and restored mini-player windows.
+    private var startupFailure: some View {
+        ContentUnavailableView(
+            L10n.text("Unable to Open Library"),
+            systemImage: "externaldrive.badge.exclamationmark",
+            description: Text(
+                startupError
+                    ?? L10n.text(
+                        """
+                        Check disk space and file permissions. The library will not be \
+                        cleared automatically.
+                        """
+                    )
+            )
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
 }
 
 #if os(iOS)

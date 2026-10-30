@@ -29,6 +29,21 @@ struct PlaylistSongPicker: View {
                 }
                 .buttonStyle(.plain)
             }
+            .overlay {
+                if model.visibleTracks.isEmpty {
+                    if LibrarySearch.isEmpty(model.search) {
+                        ContentUnavailableView(
+                            L10n.text("No Music Here Yet"),
+                            systemImage: "music.note",
+                            description: Text(
+                                L10n.text("Import music to start organizing your library.")
+                            )
+                        )
+                    } else {
+                        ContentUnavailableView.search(text: model.search)
+                    }
+                }
+            }
             .searchable(text: $model.search, prompt: L10n.text("Search Songs"))
             .navigationTitle(
                 L10n.text("format.playlist.add_to", String(describing: model.playlist.name))

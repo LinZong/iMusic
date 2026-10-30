@@ -192,3 +192,48 @@ PosixSpawn 且不附加 LLDB；iMusic／iMusicMac 保留断点调试及原有检
 或重置资料库，未将用户原有 HomeView 的未提交修改纳入本次提交。
 本次修改的 Swift 文件严格格式检查及 100 字符行宽检查通过；全仓检查仅在上述用户原有
 HomeView 注释块的缩进处报错，未擅自格式化或覆盖该未提交修改。
+
+## Empty-state audit — 2026-10-30
+
+Reviewed every first-party SwiftUI empty state and placeholder in the iPhone, iPad, and macOS
+apps. Page placeholders occupy the available content area; page headers, search controls,
+statistics, tab bars, and playback footers are excluded from that area. Artwork placeholders
+remain centered inside their artwork bounds. Form hints, field placeholders, inline progress,
+and operation errors retain their contextual alignment rather than becoming page placeholders.
+
+Changes:
+
+- Home and listening statistics use `PageScrollView`: short content fills the viewport and the
+  placeholder expands below the header, while long content can still scroll.
+- Duplicate-song results separate the empty presentation from native list rows and use the same
+  viewport layout, preserving the matching-rules explanation above the placeholder.
+- The song picker has library-empty and query-specific no-results overlays.
+- Empty playback queues, full players, and the macOS mini player have centered native placeholders.
+- Tablet split navigation now reserves footer height explicitly, matching the desktop shell.
+  A paused, metadata-only fixture reproduced the iPad offset without decoding or playing audio.
+- Startup failures fill the window. Restoring a macOS mini-player window after a library-open
+  failure now shows the same failure as the main window instead of a blank window.
+
+Runtime verification used iPhone 15 Pro / iOS 17.4, iPad Pro 11-inch (M5) / iOS 26.3, and the
+native macOS app. Shared route variants were also inspected at source level; this is not a claim
+that every route, language, text size, and device combination was exercised interactively.
+
+| Presentation | Runtime cases checked |
+| --- | --- |
+| Empty Home | iPhone portrait, iPad portrait, macOS empty library |
+| Empty song collection | iPhone Favorites; iPad Favorites with a paused playback footer |
+| Empty collection grid | iPad Artists; iPhone Playlists with a paused playback footer |
+| Listening statistics | iPhone portrait; iPad portrait and landscape; macOS |
+| Duplicate songs | iPhone portrait; iPad landscape; macOS |
+| Song picker | iPad empty library and query-specific no results |
+| Playback queue | iPad removal of the final queue occurrence; macOS empty queue |
+| No current song | macOS Now Playing and Mini Player |
+| Library-open failure | iPhone; macOS main and restored mini-player windows |
+| Missing cover | Centered music-symbol artwork in paused phone/tablet fixtures |
+
+The existing SongListView and CollectionGrid centering covers All Songs, Favorites, Trash,
+individual artist/album/genre song lists, playlists, and their scoped search results. The
+startup failure check used an invalid test path; the desktop empty-library and footer checks
+used separate fixture libraries. No audio was played and the user's desktop music library
+was retained. macOS and iOS simulator builds, the full Swift style check (including the
+100-character limit), and localization validation passed.

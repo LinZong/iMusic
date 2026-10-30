@@ -7,7 +7,7 @@ struct ListeningStatsView: View {
     /// Renders period-scoped listening totals, daily activity, and the most played songs.
     var body: some View {
         @Bindable var model = model
-        ScrollView {
+        PageScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 Picker(L10n.text("Time Range"), selection: $model.period) {
                     Text(L10n.text("Last 7 Days")).tag(7)
@@ -34,6 +34,7 @@ struct ListeningStatsView: View {
                             )
                         )
                     )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     Chart(model.daily, id: \.date) { day in
                         BarMark(
