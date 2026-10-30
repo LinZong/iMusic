@@ -21,11 +21,25 @@ ARCHITECTURES = {
     "arm64": {"arm64"},
     "x86_64": {"x86_64"},
 }
+# Ad-hoc signatures have no team identity for Hardened Runtime's library policy.
+LOCAL_LIBRARY_EXCEPTION = "com.apple.security.cs.disable-library-validation"
+
+
+def local_entitlements(directory: Path) -> Path:
+    """Preserve the sandbox and add a codec-loading exception only to local ad-hoc builds."""
+    base = ROOT / "Config/macOS.entitlements"
+    entitlements = plistlib.loads(base.read_bytes())
+    entitlements[LOCAL_LIBRARY_EXCEPTION] = True
+    directory.mkdir(parents=True, exist_ok=True)
+    destination = directory / "macOS-local.entitlements"
+    destination.write_bytes(plistlib.dumps(entitlements))
+    return destination
 
 
 def build_release(runner: Runner, derived_data: Path, architecture: str) -> Path:
     """Build the local Mac target with Release optimization and account-free ad-hoc signing."""
     prepare_web(runner)
+    entitlements = local_entitlements(runner.directory)
     architectures = " ".join(sorted(ARCHITECTURES[architecture]))
     print(f"Building macOS Release ({architecture}). Logs: {runner.directory}", flush=True)
     runner.run([
@@ -34,7 +48,8 @@ def build_release(runner: Runner, derived_data: Path, architecture: str) -> Path
         "-destination", "generic/platform=macOS", "-derivedDataPath", str(derived_data),
         f"ARCHS={architectures}", "ONLY_ACTIVE_ARCH=NO", "CODE_SIGN_STYLE=Manual",
         "CODE_SIGN_IDENTITY=-", "DEVELOPMENT_TEAM=", "PROVISIONING_PROFILE_SPECIFIER=",
-        "PROVISIONING_PROFILE=", "CODE_SIGNING_ALLOWED=YES", "build",
+        "PROVISIONING_PROFILE=", "CODE_SIGNING_ALLOWED=YES", "ENABLE_HARDENED_RUNTIME=YES",
+        f"CODE_SIGN_ENTITLEMENTS={entitlements}", "build",
     ], "macos-release-build")
     return derived_data / "Build/Products/Release/iMusic.app"
 
@@ -84,6 +99,21 @@ def validate_app(runner: Runner, app: Path, architecture: str) -> dict:
         )
     validate_web_resources(app)
     runner.run(["codesign", "--verify", "--deep", "--strict", str(app)], "verify-mac-signature")
+    signed_output = runner.run([
+        "codesign", "--display", "--entitlements", "-", "--xml", str(app),
+    ], "verify-local-entitlements")
+    # codesign writes an executable diagnostic to stderr alongside its XML output.
+    start = signed_output.find("<?xml")
+    end = signed_output.find("</plist>", start)
+    if start < 0 or end < 0:
+        raise BuildError("Unable to read the app's signed local-build entitlements.")
+    signed = plistlib.loads(signed_output[start:end + len("</plist>")].encode())
+    if signed.get(LOCAL_LIBRARY_EXCEPTION) is not True:
+        raise BuildError(
+            "The ad-hoc app lacks its local library-loading exception and may abort at launch."
+        )
+    if signed.get("com.apple.security.app-sandbox") is not True:
+        raise BuildError("The local-build app must retain its App Sandbox entitlement.")
     return info
 
 

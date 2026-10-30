@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import plistlib
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -37,8 +38,16 @@ def app_fixture(parent: Path, bundle_id="org.example.imusic") -> Path:
 class MacBuildTests(unittest.TestCase):
     def test_release_is_universal_and_independent_of_personal_signing_settings(self):
         runner = Mock()
-        with patch.object(builder, "prepare_web"):
-            builder.build_release(runner, Path("/tmp/Build With Spaces"), "universal")
+        with tempfile.TemporaryDirectory() as temporary:
+            runner.directory = Path(temporary)
+            with patch.object(builder, "prepare_web"):
+                builder.build_release(runner, Path("/tmp/Build With Spaces"), "universal")
+            entitlements = plistlib.loads(
+                (runner.directory / "macOS-local.entitlements").read_bytes()
+            )
+            self.assertTrue(entitlements[builder.LOCAL_LIBRARY_EXCEPTION])
+            self.assertIn(f"CODE_SIGN_ENTITLEMENTS={runner.directory}/macOS-local.entitlements",
+                          runner.run.call_args.args[0])
         command = runner.run.call_args.args[0]
         self.assertEqual(command[command.index("-configuration") + 1], "Release")
         self.assertEqual(command[command.index("-scheme") + 1], "iMusicMac")
@@ -46,6 +55,18 @@ class MacBuildTests(unittest.TestCase):
         self.assertIn("ONLY_ACTIVE_ARCH=NO", command)
         self.assertIn("CODE_SIGN_IDENTITY=-", command)
         self.assertIn("DEVELOPMENT_TEAM=", command)
+        self.assertIn("ENABLE_HARDENED_RUNTIME=YES", command)
+
+    def test_local_exception_preserves_sandbox_without_changing_shared_entitlements(self):
+        base = builder.ROOT / "Config/macOS.entitlements"
+        original = base.read_bytes()
+        with tempfile.TemporaryDirectory() as temporary:
+            path = builder.local_entitlements(Path(temporary))
+            local = plistlib.loads(path.read_bytes())
+        self.assertTrue(local[builder.LOCAL_LIBRARY_EXCEPTION])
+        for key, value in plistlib.loads(original).items():
+            self.assertEqual(local[key], value)
+        self.assertEqual(base.read_bytes(), original)
 
     def test_universal_build_rejects_a_missing_intel_slice(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -59,13 +80,28 @@ class MacBuildTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             app = app_fixture(Path(temporary))
             runner = Mock()
-            runner.run.side_effect = ["arm64 x86_64\n", ""]
+            entitlements = plistlib.dumps({
+                builder.LOCAL_LIBRARY_EXCEPTION: True,
+                "com.apple.security.app-sandbox": True,
+            }).decode()
+            runner.run.side_effect = ["arm64 x86_64\n", "", "Executable=iMusic\n" + entitlements]
             info = builder.validate_app(runner, app, "universal")
             self.assertEqual(info["CFBundleIdentifier"], "org.example.imusic")
-            self.assertEqual(
-                runner.run.call_args.args[0],
+            runner.run.assert_any_call(
                 ["codesign", "--verify", "--deep", "--strict", str(app)],
+                "verify-mac-signature",
             )
+
+    def test_valid_signature_without_local_loading_exception_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            app = app_fixture(Path(temporary))
+            runner = Mock()
+            # This is the original failing configuration: a valid signature and sandbox,
+            # but no exception for team-less ad-hoc audio frameworks.
+            signed = plistlib.dumps({"com.apple.security.app-sandbox": True}).decode()
+            runner.run.side_effect = ["arm64 x86_64\n", "", signed]
+            with self.assertRaisesRegex(builder.BuildError, "may abort at launch"):
+                builder.validate_app(runner, app, "universal")
 
     def test_missing_web_asset_prevents_exporting_an_incomplete_app(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -143,6 +179,40 @@ class MacExportTests(unittest.TestCase):
                 builder.export_app(Mock(), source, output, "universal")
             self.assertTrue(source.exists())
             self.assertTrue(destination.is_symlink())
+
+
+@unittest.skipUnless(sys.platform == "darwin", "Requires Apple's native signing and loader tools")
+class NativeLibraryLoadingTests(unittest.TestCase):
+    def test_hardened_ad_hoc_host_can_load_ad_hoc_library(self):
+        """Exercise dyld's real team policy without starting a UI or audio engine."""
+        with tempfile.TemporaryDirectory(prefix="imusic loader ") as temporary:
+            root = Path(temporary)
+            generated = plistlib.loads(builder.local_entitlements(root / "logs").read_bytes())
+            # The probe isolates the loader policy; sandbox preservation is checked above.
+            policy = root / "loader.entitlements"
+            policy.write_bytes(plistlib.dumps({
+                builder.LOCAL_LIBRARY_EXCEPTION: generated[builder.LOCAL_LIBRARY_EXCEPTION],
+            }))
+            library = root / "libfixture.dylib"
+            host = root / "host"
+            (root / "codec.c").write_text("int codec_fixture(void) { return 42; }\n")
+            (root / "main.c").write_text(
+                "extern int codec_fixture(void);\n"
+                "int main(void) { return codec_fixture() == 42 ? 0 : 1; }\n"
+            )
+            commands = [
+                ["xcrun", "clang", "-dynamiclib", str(root / "codec.c"),
+                 "-Wl,-install_name,@rpath/libfixture.dylib", "-o", str(library)],
+                ["xcrun", "clang", str(root / "main.c"), f"-L{root}", "-lfixture",
+                 "-Wl,-rpath,@executable_path", "-o", str(host)],
+                ["codesign", "--force", "--sign", "-", "--options", "runtime", str(library)],
+                ["codesign", "--force", "--sign", "-", "--options", "runtime",
+                 "--entitlements", str(policy), str(host)],
+                [str(host)],
+            ]
+            for command in commands:
+                result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

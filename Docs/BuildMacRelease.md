@@ -17,6 +17,14 @@ certificate is required. Your local signing file and the shared Xcode project
 remain unchanged. Developer ID signing, notarization, and public distribution are
 separate release steps.
 
+The script preserves App Sandbox and Hardened Runtime. Because ad-hoc signatures
+have no Team ID, each invocation generates an ignored local entitlements file
+with `com.apple.security.cs.disable-library-validation` enabled for the bundled
+audio frameworks. It verifies that exception in the signed app before exporting.
+The shared `Config/macOS.entitlements` file retains the normal library policy for
+certificate-signed builds. See Apple's
+[library validation documentation](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.cs.disable-library-validation).
+
 ## Commands
 
 From the repository root:
@@ -51,7 +59,8 @@ existing application in `/Applications`.
 
 Every build runs `npm ci` to honor the upload client's lockfile. The script checks
 the app's platform, requested CPU slices, bundled upload assets and license notices,
-and recursive code signature. It copies the app with `ditto` and verifies the copy
+recursive code signature, and signed local-build entitlements. It copies the app with
+`ditto` and verifies the copy
 before replacing an earlier export. An unrelated app or symbolic link at the
 destination is rejected. Failed staging leaves the earlier export in place.
 
@@ -65,7 +74,9 @@ Node version on PATH, or set `NODE_BINARY`, when the web dependency check fails.
 Use `DEVELOPER_DIR` or `xcode-select` to choose an installed Xcode toolchain; the
 script does not change the machine's selected toolchain.
 
-Build-script regression tests do not launch applications or play audio:
+Build-script regression tests do not launch the iMusic UI or play audio. On macOS,
+one regression test builds a tiny signed host and dynamic library to exercise the
+real Hardened Runtime loader policy:
 
 ```sh
 python3 -m unittest discover -s Scripts/tests -p 'test_*.py'
