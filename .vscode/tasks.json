@@ -2,6 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Swift: Format repository",
+            "type": "process",
+            "command": "python3",
+            "args": ["${workspaceFolder}/Scripts/swift_style.py", "format"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$swiftc"]
+        },
+        {
+            "label": "Swift: Check repository style",
+            "type": "process",
+            "command": "python3",
+            "args": ["${workspaceFolder}/Scripts/swift_style.py", "check"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$swiftc"]
+        },
+        {
             "label": "Swift: Build package and tests",
             "type": "process",
             "command": "/usr/bin/xcrun",

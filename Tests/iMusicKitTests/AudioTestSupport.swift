@@ -1,16 +1,21 @@
-import XCTest
 import AVFAudio
+import XCTest
+
 @testable import iMusicKit
 
 enum AudioTestSupport {
     static func requireHardwareAudio() throws {
         let environment = ProcessInfo.processInfo.environment
-        try XCTSkipUnless(environment["IMUSIC_AUDIO_TESTS"] == "1" && environment["IMUSIC_SKIP_AUDIO_TESTS"] != "1",
-                          "Hardware audio is opt-in. Run with IMUSIC_AUDIO_TESTS=1; fixtures remain silent.")
+        try XCTSkipUnless(
+            environment["IMUSIC_AUDIO_TESTS"] == "1"
+                && environment["IMUSIC_SKIP_AUDIO_TESTS"] != "1",
+            "Hardware audio is opt-in. Run with IMUSIC_AUDIO_TESTS=1; fixtures remain silent."
+        )
     }
 }
 
-/// Deterministic coordinator test double. Never constructs an AVAudioEngine or opens an audio device.
+/// Deterministic coordinator test double. Never constructs an AVAudioEngine or opens an audio
+/// device.
 @MainActor final class TestPlaybackEngine: PlaybackEngine {
     struct PlayCall {
         /// Managed file URL captured from a playback request without opening an audio device.
@@ -45,18 +50,40 @@ enum AudioTestSupport {
     /// Number of explicit resume calls received by the fake backend.
     private(set) var resumeCount = 0
 
-    func play(url: URL, entryID: UUID, position: Double, region: ClosedRange<Double>?, sampleRate: Double) throws {
+    func play(
+        url: URL,
+        entryID: UUID,
+        position: Double,
+        region: ClosedRange<Double>?,
+        sampleRate: Double
+    ) throws {
         plays.append(PlayCall(url: url, entryID: entryID, position: position))
         elapsed = position
         if announcesStartAutomatically { announcePlaying(entryID: entryID) }
     }
     func announcePlaying(entryID: UUID) {
-        isPlaying = true; onState?(.playing); onTrack?(entryID)
+        isPlaying = true
+        onState?(.playing)
+        onTrack?(entryID)
     }
-    func pause() { pauseCount += 1; isPlaying = false; onState?(.paused) }
-    func resume() throws { resumeCount += 1; isPlaying = true; onState?(.playing) }
-    func seek(to seconds: Double) throws { seeks.append(seconds); elapsed = seconds }
-    func stop() { isPlaying = false; elapsed = nil }
+    func pause() {
+        pauseCount += 1
+        isPlaying = false
+        onState?(.paused)
+    }
+    func resume() throws {
+        resumeCount += 1
+        isPlaying = true
+        onState?(.playing)
+    }
+    func seek(to seconds: Double) throws {
+        seeks.append(seconds)
+        elapsed = seconds
+    }
+    func stop() {
+        isPlaying = false
+        elapsed = nil
+    }
     func enqueue(url: URL, entryID: UUID) throws {}
     func clearUpcoming() {}
     func setRate(_ value: Float) {}
@@ -65,15 +92,24 @@ enum AudioTestSupport {
 
 final class SilentFixtureTests: XCTestCase {
     func testGeneratedFixtureHasDurationAndNoAudibleSamples() throws {
-        let library = try TestLibrary(), url = try library.fixture(seconds: 0.3)
+        let library = try TestLibrary()
+        let url = try library.fixture(seconds: 0.3)
         let file = try AVAudioFile(forReading: url)
         XCTAssertEqual(Double(file.length) / file.processingFormat.sampleRate, 0.3, accuracy: 0.001)
-        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length)))
+        let buffer = try XCTUnwrap(
+            AVAudioPCMBuffer(
+                pcmFormat: file.processingFormat,
+                frameCapacity: AVAudioFrameCount(file.length)
+            )
+        )
         try file.read(into: buffer)
         let channels = try XCTUnwrap(buffer.floatChannelData)
         XCTAssertGreaterThan(buffer.frameLength, 0)
         for channel in 0..<Int(buffer.format.channelCount) {
-            XCTAssertTrue(UnsafeBufferPointer(start: channels[channel], count: Int(buffer.frameLength)).allSatisfy { $0 == 0 })
+            XCTAssertTrue(
+                UnsafeBufferPointer(start: channels[channel], count: Int(buffer.frameLength))
+                    .allSatisfy { $0 == 0 }
+            )
         }
     }
 }

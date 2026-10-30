@@ -7,6 +7,28 @@ catalog = json.loads((ROOT / 'Localization/Strings.json').read_text())
 languages = {'en', 'zh-Hans', 'zh-Hant'}
 errors = []
 placeholder = re.compile(r'%(\d+)\$(ld|@)')
+
+
+def localization_keys(source):
+    """Read single-line and formatter-wrapped multiline Swift localization keys."""
+    pattern = r'L10n\.(?:text|format)\(\s*("""[\s\S]*?"""|"(?:\\.|[^"\\])*")'
+    escapes = {'0': '\0', 't': '\t', 'n': '\n', 'r': '\r', '"': '"', "'": "'", '\\': '\\'}
+    for literal in re.findall(pattern, source):
+        if literal.startswith('"""'):
+            lines = literal[3:-3].splitlines()
+            indentation = lines[-1]
+            content = '\n'.join(line[len(indentation):] for line in lines[1:-1])
+            content = re.sub(r'\\\r?\n', '', content)
+        else:
+            content = literal[1:-1]
+
+        def decode(match):
+            escape = match.group(1)
+            return chr(int(escape[2:-1], 16)) if escape.startswith('u{') else escapes[escape]
+
+        yield re.sub(r'\\(u\{[0-9a-fA-F]+\}|[0tnr"\'\\])', decode, content)
+
+
 for key, values in catalog.items():
     expected = sorted(placeholder.findall(values['en']))
     for language in languages:
@@ -25,8 +47,7 @@ for folder in ['Sources', 'Apps']:
         for index, line in enumerate(source.splitlines(), 1):
             if re.search(r'[\u3400-\u9fff]', line) and not line.lstrip().startswith('//'):
                 errors.append(f'{path.relative_to(ROOT)}:{index}: inline Han text')
-        for key in re.findall(r'L10n\.(?:text|format)\("((?:\\.|[^"\\])*)"', source):
-            key = json.loads('"' + key + '"')
+        for key in localization_keys(source):
             if key not in catalog:
                 errors.append(f'{path.relative_to(ROOT)}: missing key {key}')
 result = subprocess.run([sys.executable, str(ROOT / 'Scripts/generate_localizations.py'), '--check'], capture_output=True, text=True)

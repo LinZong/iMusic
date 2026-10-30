@@ -27,6 +27,8 @@ jobs:
           sudo xcode-select --switch "$XCODE_PATH/Contents/Developer"
           xcodebuild -version
           swift --version
+      - name: Swift formatting and style
+        run: python3 Scripts/swift_style.py check
       - name: Localization coverage
         run: python3 Scripts/check_localizations.py
       - name: Tests without hardware audio

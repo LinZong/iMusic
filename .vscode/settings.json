@@ -2,6 +2,13 @@
     "swift.path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
     "swift.sourcekit-lsp.disable": false,
     "swift.sourcekit-lsp.backgroundIndexing": "on",
+    "[swift]": {
+        "editor.defaultFormatter": "swiftlang.swift-vscode",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.rulers": [100]
+    },
     "files.watcherExclude": {
         "**/.build/**": true,
         "**/.build-*/**": true,

@@ -11,18 +11,27 @@ let package = Package(
         .package(url: "https://github.com/sbooth/SFBAudioEngine.git", exact: "0.14.0"),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
-        .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.20.0")
+        .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.20.0"),
     ],
     targets: [
-        .target(name: "iMusicKit", dependencies: [
-            .product(name: "GRDB", package: "GRDB.swift"),
-            .product(name: "SFBAudioEngine", package: "SFBAudioEngine"),
-            .product(name: "ZIPFoundation", package: "ZIPFoundation"),
-            .product(name: "NIOHTTP1", package: "swift-nio"),
-            .product(name: "NIOTransportServices", package: "swift-nio-transport-services")
-        ], resources: [.process("Resources")], swiftSettings: [.swiftLanguageMode(.v5)],
-           plugins: [.plugin(name: "WiFiUploadBuild")]),
+        .target(
+            name: "iMusicKit",
+            dependencies: [
+                .product(name: "GRDB", package: "GRDB.swift"),
+                .product(name: "SFBAudioEngine", package: "SFBAudioEngine"),
+                .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+                .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "NIOTransportServices", package: "swift-nio-transport-services"),
+            ],
+            resources: [.process("Resources")],
+            swiftSettings: [.swiftLanguageMode(.v5)],
+            plugins: [.plugin(name: "WiFiUploadBuild")]
+        ),
         .plugin(name: "WiFiUploadBuild", capability: .buildTool()),
-        .testTarget(name: "iMusicKitTests", dependencies: ["iMusicKit"], swiftSettings: [.swiftLanguageMode(.v5)])
+        .testTarget(
+            name: "iMusicKitTests",
+            dependencies: ["iMusicKit"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
     ]
 )

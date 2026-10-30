@@ -66,6 +66,13 @@ macOS 默认索引只分析当前平台激活的条件编译分支。App 切换�
 
 ## 验证与开发
 
+Swift 使用 Xcode 自带的 `swift-format` 统一为 4 空格缩进、100 字符行宽，覆盖全仓自有 Swift 文件。格式化、严格检查、VS Code 保存时格式化与 CI 规则见 [Swift 代码风格](Docs/CodeStyle.md)。
+
+```sh
+python3 Scripts/swift_style.py format
+python3 Scripts/swift_style.py check
+```
+
 代码文档统一使用英文：Swift 的所有成员字段（包括私有、计算属性与界面状态）及 public 方法／初始化方法使用 `///`，协议 API 同样需要说明；React／TypeScript 类型字段和导出 API 使用 JSDoc。注释应解释用途、单位、状态约定和必要的副作用，新增或修改声明时同步维护。
 
 ```sh

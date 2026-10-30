@@ -111,3 +111,11 @@ macOS arm64 与 iOS 通用模拟器最终构建成功；Swift 64 项测试中 60
 新增 7 项行为测试：页面搜索与选择隔离／共享资料库刷新、重复歌单条目的播放身份、编辑草稿保存语义、批量字段保留与 picker 选择隔离、scene 导航与播放器工具状态隔离、偏好重载、导出原子替换及结果隔离。默认 Swift 71 项测试中 67 项通过、4 项按配置跳过、零失败。测试注入不创建音频设备的 TestPlaybackEngine，实际界面使用独立 iMusicPlayerDesignQA 资料库；未播放用户歌曲、修改 Schema 或清理用户资料库。
 
 macOS arm64 和 iOS 通用模拟器构建通过。实际检查 Mac sidebar 的 Home／All Songs／Settings 路由和 Now Playing 弹窗；iPhone 15 Pro / iOS 17.4 搜索 Morning 后仅保留 Morning Light，切换 Playlists 后返回仍保留关键词与结果，编辑标题为 Draft only 后取消，歌曲名称仍为 Morning Light；iPad Pro 11 英寸 / iPadOS 17.4 竖屏侧栏及横屏 All Songs 分栏可访问。英文语法树注释审计覆盖 511 个成员字段、155 个 public／协议方法、20 个 public 初始化方法，无缺失；340 个本地化键、3 种语言检查通过。完整拆分、状态所有权与新增页面规则见 Architecture.md。
+
+## Swift 全仓格式化验收（2026-10-30）
+
+使用 Xcode 26.3 自带 swift-format 6.2.3，对 85 个自有 Swift 文件统一格式，包括 Package.swift、App、包源码、测试、插件和图标生成脚本。原有 788 行超过 100 字符、最长 516 字符；格式化后所有物理行均不超过 100 字符。统一 4 空格缩进，拆开分号语句、长签名、参数和链式调用，重新排版英文注释。39 个长字面量转换为等值多行语法；SwiftParser／SwiftSyntax 比较全部 1,359 个字符串值和插值结构，零差异。App 入口类型按命名规则由 iMusicApp 改为 IMusicApp，应用显示名称、标识符和数据路径保持不变。
+
+新增 `.swift-format` 和 `Scripts/swift_style.py`，全仓 lint 使用 `--strict`，另设无豁免的物理行宽检查；格式化重复执行结果一致，check 模式只读。通过临时源文件验证：formatter 本身无法拆分的长字符串会被行宽检查拒绝；多行本地化 key 缺少翻译时检查确实失败；空白、转义引号、反斜杠、Unicode 和续行均正确解码。VS Code 保存时格式化及全仓任务、GitHub Actions 检查已接入。
+
+macOS arm64 与 iOS 通用模拟器构建成功。默认 Swift 71 项测试中 67 项通过、4 项按配置跳过、零失败，明确关闭硬件音频测试。本地化检查覆盖 340 个键、3 种语言；英文注释审计仍覆盖 511 个成员字段、155 个 public／协议方法、20 个 public 初始化方法，无缺失。Git 空白检查通过。

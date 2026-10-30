@@ -1,17 +1,30 @@
 import Foundation
 
 enum SyncCodec {
-    /// Compresses a versioned record with LZFSE and rejects payloads exceeding the cloud record budget.
+    /// Compresses a versioned record with LZFSE and rejects payloads exceeding the cloud record
+    /// budget.
     static func encode(_ envelope: SyncEnvelope) throws -> Data {
         let data = try JSONEncoder().encode(envelope)
         let compressed = try (data as NSData).compressed(using: .lzfse) as Data
-        guard compressed.count < 900_000 else { throw MusicError.unavailable(L10n.text("This record is too large to sync with iCloud. Your local information has been preserved.")) }
+        guard compressed.count < 900_000 else {
+            throw MusicError.unavailable(
+                L10n.text(
+                    """
+                    This record is too large to sync with iCloud. Your local information has been \
+                    preserved.
+                    """
+                )
+            )
+        }
         return compressed
     }
-    /// Decodes a bounded record payload, accepting either compressed current records or legacy plain JSON.
+    /// Decodes a bounded record payload, accepting either compressed current records or legacy
+    /// plain JSON.
     static func decode(_ data: Data, compressed: Bool) throws -> SyncEnvelope {
         let decoded = compressed ? try (data as NSData).decompressed(using: .lzfse) as Data : data
-        guard decoded.count < 32_000_000 else { throw MusicError.invalidBackup(L10n.text("The cloud record is too large")) }
+        guard decoded.count < 32_000_000 else {
+            throw MusicError.invalidBackup(L10n.text("The cloud record is too large"))
+        }
         return try JSONDecoder().decode(SyncEnvelope.self, from: decoded)
     }
 }

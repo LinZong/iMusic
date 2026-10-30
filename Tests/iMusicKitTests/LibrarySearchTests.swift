@@ -1,9 +1,15 @@
 import XCTest
+
 @testable import iMusicKit
 
 final class LibrarySearchTests: XCTestCase {
     func testSongMetadataAndUnicodeQueries() {
-        var track = Track(assetHash: "test", fileExtension: "mp3", originalFilename: "夜曲 Live.mp3", title: "Café")
+        var track = Track(
+            assetHash: "test",
+            fileExtension: "mp3",
+            originalFilename: "夜曲 Live.mp3",
+            title: "Café"
+        )
         track.albumArtist = "Various Artists"
         track.album = "Concert"
         for query in ["  CAFE\n", "夜曲", "LIVE.MP3", "various", "concert", " \n"] {
@@ -13,7 +19,12 @@ final class LibrarySearchTests: XCTestCase {
     }
 
     func testPlaylistNameSearchDoesNotSearchItsSongMetadata() {
-        let song = Track(assetHash: "test", fileExtension: "mp3", originalFilename: "Moonlight.mp3", title: "Moonlight")
+        let song = Track(
+            assetHash: "test",
+            fileExtension: "mp3",
+            originalFilename: "Moonlight.mp3",
+            title: "Moonlight"
+        )
         let playlist = Playlist(name: "Morning Run", entries: [QueueEntry(trackID: song.id)])
         XCTAssertTrue(LibrarySearch.matches("moon", track: song))
         XCTAssertFalse(LibrarySearch.matches("moon", in: [playlist.name]))
