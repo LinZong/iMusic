@@ -27,6 +27,13 @@ Release 编译配置与分发签名是两件事：以上方式安装的是开发
 通过 `--skip-build` 复用已有签名产物，缺少新机型支持镜像时可使用 `ideviceinstaller` 备用安装通道。
 前置条件、参数与错误排查见 [命令行安装指南](InstallRelease.md)。
 
+### macOS Release 构建
+
+执行 `./Scripts/build_macos_release.py` 可不打开 Xcode，编译并导出 macOS Release。
+默认使用 ad-hoc 临时签名，产物供本机使用，无需配置开发团队；本机签名配置文件不会被修改。
+脚本默认生成 Apple Silicon／Intel 通用应用，公开分发所需的 Developer ID 签名与公证另行处理。
+参数与输出路径见 [macOS Release 构建指南](BuildMacRelease.md)。
+
 ## Cloud
 
 1. 具备可使用 CloudKit 的开发者团队，注册 iOS 和 macOS App ID。

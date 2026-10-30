@@ -66,6 +66,20 @@ signing and device eligibility before installing. It uses `devicectl`, with an
 optional `ideviceinstaller` fallback for missing developer images. The full Xcode
 toolchain is still required to compile. See [the terminal installation guide](Docs/InstallRelease.md).
 
+### Build a macOS Release app without opening Xcode
+
+```sh
+./Scripts/build_macos_release.py
+# Optional: build only for Apple Silicon.
+./Scripts/build_macos_release.py --arch arm64
+```
+
+The default produces a universal Apple Silicon/Intel app at
+`build/Release-macOS/iMusic.app`. It bundles the upload client, verifies CPU slices
+and signing, and uses ad-hoc signing for local use without a developer account.
+See [the macOS Release build guide](Docs/BuildMacRelease.md) for output paths,
+requirements, and signing scope.
+
 ### Schemes
 
 | Scheme | Purpose |

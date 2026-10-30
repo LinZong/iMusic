@@ -39,6 +39,19 @@
 不需要打开 Xcode 界面，但编译仍需要已安装的完整 Xcode 工具链。使用 Python 3.10+；
 详细参数、前置配置和排错见 [命令行安装指南](Docs/InstallRelease.md)。
 
+### 不打开 Xcode 编译 macOS Release
+
+```sh
+./Scripts/build_macos_release.py
+# 可选：仅编译 Apple Silicon 架构。
+./Scripts/build_macos_release.py --arch arm64
+```
+
+默认生成同时支持 Apple Silicon 和 Intel 的 `build/Release-macOS/iMusic.app`，
+自动打包 React 资源并校验架构、资源和签名。使用本机临时签名，无需开发者账号；
+编译仍需完整 Xcode 工具链、Python 3.10+ 和 Node.js 22.12+。
+输出目录、缓存和签名范围见 [macOS Release 构建指南](Docs/BuildMacRelease.md)。
+
 ### VS Code 代码跳转与引用
 
 用 VS Code 打开项目根目录，安装并启用官方 **Swift** 扩展（`swiftlang.swift-vscode`）。如果曾全局禁用扩展，可在扩展页面选择 **Enable (Workspace)**。项目的 `.vscode/settings.json` 使用 `/Applications/Xcode.app` 中的工具链并开启后台索引；Xcode 安装在其他位置时需调整 `swift.path`。

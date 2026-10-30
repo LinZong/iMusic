@@ -7,31 +7,20 @@ import argparse
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
-import os
 from pathlib import Path
 import plistlib
-import shutil
-import subprocess
 import sys
 from typing import Sequence
 
 
-ROOT = Path(__file__).resolve().parents[1]
-
-
-class InstallError(Exception):
-    """Describe an actionable build, signing, device, or installation failure."""
-
-
-class CommandError(InstallError):
-    """Retain command output so installation can recognize a missing DDI."""
-
-    def __init__(self, command: Sequence[str], output: str, log: Path):
-        """Store the failure without losing its full diagnostic log."""
-        self.output = output
-        self.log = log
-        tail = "\n".join(output.splitlines()[-20:])
-        super().__init__(f"{command[0]} failed. Log: {log}\n{tail}")
+from apple_build_support import (
+    ROOT,
+    BuildError as InstallError,
+    CommandError,
+    Runner,
+    prepare_web,
+    tool,
+)
 
 
 @dataclass(frozen=True)
@@ -52,52 +41,6 @@ class Device:
     usb: bool
     # Developer Mode status reported by CoreDevice, if known.
     developer_mode: str
-
-
-class Runner:
-    """Run argument arrays without a shell and save diagnostics outside tracked files."""
-
-    def __init__(self, directory: Path):
-        """Create the per-run log directory before invoking external tools."""
-        self.directory = directory
-        self.directory.mkdir(parents=True, exist_ok=True)
-        self.index = 0
-
-    def run(self, command: Sequence[str], label: str, timeout: int | None = None) -> str:
-        """Capture stdout/stderr together, raising a readable error on failure."""
-        self.index += 1
-        log = self.directory / f"{self.index:02d}-{label}.log"
-        try:
-            result = subprocess.run(
-                list(command), cwd=ROOT, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, text=True, errors="replace", timeout=timeout,
-            )
-        except subprocess.TimeoutExpired as error:
-            output = error.stdout or b""
-            if isinstance(output, bytes):
-                output = output.decode(errors="replace")
-            log.write_text(output)
-            raise InstallError(
-                f"{label} timed out. Check the device connection. Log: {log}"
-            ) from error
-        except OSError as error:
-            raise InstallError(f"Cannot run {command[0]}: {error}") from error
-        log.write_text(result.stdout)
-        if result.returncode:
-            raise CommandError(command, result.stdout, log)
-        return result.stdout
-
-
-def tool(name: str) -> str | None:
-    """Find a tool on PATH or in the usual Apple Silicon/Intel Homebrew locations."""
-    found = shutil.which(name)
-    if found:
-        return found
-    for directory in ("/opt/homebrew/bin", "/usr/local/bin"):
-        candidate = Path(directory) / name
-        if candidate.is_file() and os.access(candidate, os.X_OK):
-            return str(candidate)
-    return None
 
 
 def reachable_devices(payload: dict, usb_udids: set[str] | None) -> list[Device]:
@@ -167,29 +110,6 @@ def print_devices(devices: list[Device]) -> None:
         transport = "USB" if device.usb else "network"
         print(f"{device.name} | {device.model} | iOS {device.os_version} | {transport}")
         print(f"  UDID: {device.udid}")
-
-
-def prepare_web(runner: Runner) -> None:
-    """Use the npm lockfile so release assets cannot silently use stale dependencies."""
-    node = os.environ.get("NODE_BINARY") or tool("node")
-    npm = tool("npm")
-    if not node or not npm:
-        raise InstallError(
-            "Node.js 22.12+ and npm are required to build the bundled upload client."
-        )
-    version = runner.run([node, "-p", "process.versions.node"], "node-version", timeout=15)
-    parts = tuple(int(part) for part in version.strip().split(".")[:2])
-    if parts < (22, 12):
-        raise InstallError(
-            "Node.js 22.12+ is required. Activate a supported Node version and retry."
-        )
-    # npm and Xcode's build plugin must resolve the same active Node executable.
-    os.environ["PATH"] = str(Path(node).parent) + os.pathsep + os.environ.get("PATH", "")
-    os.environ["NODE_BINARY"] = node
-    print("Installing upload-client dependencies from package-lock.json...", flush=True)
-    runner.run([
-        npm, "ci", "--prefix", str(ROOT / "Web/WiFiUpload"), "--no-audit", "--no-fund",
-    ], "npm-ci")
 
 
 def build_release(runner: Runner, derived_data: Path, team: str | None) -> Path:
