@@ -8,6 +8,29 @@
 - `Tests/iMusicKitTests/`, `UITests/iMusicUITests/`, and `Scripts/tests/` contain Swift, native UI, and Python regressions. UI hosts live in `Apps/Testing/`.
 - Consult `Docs/Architecture.md` before changing state ownership or service boundaries.
 
+## Architecture & Maintenance Rules
+
+### Ownership & Placement
+
+- **Thin roots:** AppModel assembles dependencies and startup callbacks; RootView handles navigation/lifecycle. Keep feature screens, queries, drafts, and business operations outside them.
+- **Single state owner:** Feature ViewModels own search, selection, sorting, confirmations, and editor drafts. Preserve model identity with `@State`; Views retain focus, geometry, and native presentation. Cancelled editors must not commit records.
+- **Layered dependencies:** Views invoke feature commands; ViewModels coordinate domain/services without UI frameworks. Domain must not depend on UI, SQLite, CloudKit, or audio implementations. Never access persistence or probe files during View rendering.
+- **Feature directories:** Pair `View/<Feature>/` with `ViewModel/<Feature>/`. Use focused capability subfolders, such as `Library/SongList/`. Reserve `Shared/` for genuinely shared semantics; avoid miscellaneous utility containers and cosmetic file splitting.
+
+### Extension & Consistency
+
+- **Composition over inheritance:** Extend SongListView/CollectionGrid through builders, bindings, closures, and capability protocols. Feature wrappers own navigation, mutations, and dialogs. Never add destination switches or feature booleans to generic layouts; do not expose unsupported no-op capabilities.
+- **Focused collaborators:** Preserve snapshot/catalog/commands/deletion boundaries. Separate admission/copying/parsing/recovery, listener/authentication/routing/staging, and cloud metadata/assets. Inject narrow, substitutable protocols where useful; avoid speculative interfaces.
+- **One player:** All surfaces share PlaybackCoordinator/PlaybackTimeline. Isolate frequent progress updates from menus. Never duplicate queues/clocks; preserve QueueEntry identities for repeated songs.
+- **Safe concurrency:** Publish UI state on the main actor; keep blocking I/O/decoding/database work off it. Guard asynchronous completions with cancellation and identity/generation checks; invalidate pending playback when intent or sources change.
+- **Atomic persistence:** Records, versions, and outbox share the caller's transaction; no nested independent commits. Commit deletion tombstones before managed cleanup. Refactoring must never copy or delete linked originals.
+- **Adaptive presentation:** Share behavior across platforms; adapt by available space/accessibility. Keep native adapters at UI/platform boundaries. Preserve system accent colors, localization, accessible targets, and content-area-centered placeholders.
+- **React boundaries:** Components render, hooks own UI state, domain functions remain pure, services own transport policies. Keep upload assets in the React build; never inline HTML into Swift.
+
+### Review Gate
+
+Identify each new responsibility's owner, lifetime, dependencies, and data flow. Reproduce and isolate bugs before changing behavior. Update `Docs/Architecture.md` for boundary changes and add focused contract regressions. Run `python3 Scripts/check_architecture.py`; never bypass rules to accommodate coupling. Static checks do not prove SOLID compliance.
+
 ## Build, Test, and Development Commands
 
 Use full Xcode, Python 3.10+, and Node.js 22.12+. Native dependencies use SwiftPM; web dependencies use npm.
