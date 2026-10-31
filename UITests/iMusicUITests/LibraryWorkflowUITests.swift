@@ -47,6 +47,55 @@ import XCTest
         XCTAssertFalse(app.alerts.firstMatch.exists)
     }
 
+    /// Every All Songs shortcut must navigate through an actual pointer click or touch.
+    func testAllSongsShortcutsOpenCollectionsAndReturn() {
+        launch()
+        #if os(macOS)
+        library.resizeWindow(width: 1040, height: 740)
+        #endif
+        assertAllSongsShortcuts()
+    }
+
+    #if os(macOS)
+    /// Shortcut hit regions must remain valid near the minimum supported desktop width.
+    func testAllSongsShortcutsInNarrowWindow() {
+        launch()
+        library.resizeWindow(width: 700, height: 560)
+        assertAllSongsShortcuts()
+    }
+    #endif
+
+    /// Checks target content and stack return for every shortcut using generated fixtures.
+    private func assertAllSongsShortcuts() {
+        navigate("All Songs")
+        XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
+        capture("All Songs shortcuts")
+        let collections = [
+            ("artists", "Search Artists", "UI Test Artist"),
+            ("albums", "Search Albums", "UI Test Album"),
+            ("genres", "Search Genres", "UI Test Genre"),
+            ("favorites", "Search Songs", ""),
+        ]
+        for (identifier, prompt, title) in collections {
+            library.openAllSongsShortcut(identifier)
+            XCTAssertTrue(app.searchFields[prompt].waitForExistence(timeout: 5))
+            XCTAssertTrue(app.element("allSongs.artists").waitForNonExistence(timeout: 5))
+            if title.isEmpty {
+                XCTAssertTrue(app.text(containing: "No Music Here Yet").exists)
+            } else {
+                let card = app.buttons
+                    .matching(
+                        NSPredicate(format: "label CONTAINS %@", title)
+                    )
+                    .firstMatch
+                XCTAssertTrue(card.waitForExistence(timeout: 5), app.debugDescription)
+            }
+            capture("All Songs shortcut " + identifier)
+            library.backToAllSongs()
+            XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
+        }
+    }
+
     /// Artist navigation must preserve generated metadata and open the corresponding songs.
     func testArtistCollectionOpensItsSongs() {
         launch()

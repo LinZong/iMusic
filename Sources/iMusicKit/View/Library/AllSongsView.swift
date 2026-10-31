@@ -28,6 +28,7 @@ struct AllSongsView: View {
                 } label: {
                     Label(L10n.text("Artists"), systemImage: "person.2")
                 }
+                .accessibilityIdentifier("allSongs.artists")
                 NavigationLink {
                     AlbumCollectionView(
                         model: AlbumCollectionViewModel(
@@ -39,6 +40,7 @@ struct AllSongsView: View {
                 } label: {
                     Label(L10n.text("Albums"), systemImage: "square.stack")
                 }
+                .accessibilityIdentifier("allSongs.albums")
                 NavigationLink {
                     GenreCollectionView(
                         model: GenreCollectionViewModel(
@@ -50,6 +52,7 @@ struct AllSongsView: View {
                 } label: {
                     Label(L10n.text("Genres"), systemImage: "guitars")
                 }
+                .accessibilityIdentifier("allSongs.genres")
                 NavigationLink {
                     SongCollectionView(
                         model: SongCollectionViewModel(
@@ -62,8 +65,13 @@ struct AllSongsView: View {
                 } label: {
                     Label(L10n.text("Favorites"), systemImage: "heart")
                 }
+                .accessibilityIdentifier("allSongs.favorites")
             }
-            .buttonStyle(.bordered).padding(.horizontal).padding(.top, 12)
+            .buttonStyle(.bordered).padding(.horizontal)
         }
+        // Keep the scroll content below the toolbar safe area. On macOS, internal top padding
+        // lets native buttons render outside their document view's pointer-hit bounds.
+        .padding(.top, 12)
+        .accessibilityIdentifier("allSongs.shortcuts")
     }
 }

@@ -36,6 +36,49 @@ import XCTest
         destination.interact()
     }
 
+    /// Activates the visible shortcut center, exercising pointer hit testing on macOS.
+    func openAllSongsShortcut(_ identifier: String) {
+        let shortcut = app.element("allSongs." + identifier)
+        XCTAssertTrue(shortcut.waitForExistence(timeout: 5), app.debugDescription)
+        #if os(iOS)
+        for _ in 0..<3 where !shortcut.isHittable {
+            app.element("allSongs.shortcuts").swipeLeft()
+        }
+        #endif
+        XCTAssertTrue(shortcut.isHittable, app.debugDescription)
+        #if os(macOS)
+        shortcut.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).click()
+        #else
+        shortcut.interact()
+        #endif
+    }
+
+    /// Returns from a pushed collection without changing the sidebar or selected tab.
+    func backToAllSongs() {
+        #if os(macOS)
+        let back = app.buttons["chevron.backward"]
+        #else
+        let back = app.navigationBars.buttons.element(boundBy: 0)
+        #endif
+        XCTAssertTrue(back.waitForExistence(timeout: 5), app.debugDescription)
+        back.interact()
+        XCTAssertTrue(app.element("allSongs.artists").waitForExistence(timeout: 5))
+    }
+
+    #if os(macOS)
+    /// Resizes through the native window border instead of changing application layout state.
+    func resizeWindow(width: CGFloat, height: CGFloat) {
+        let window = app.windows.firstMatch
+        let corner = window.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
+            .withOffset(CGVector(dx: -2, dy: -2))
+        let target = window.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: width - 2, dy: height - 2))
+        corner.click(forDuration: 0.1, thenDragTo: target)
+        XCTAssertEqual(window.frame.width, width, accuracy: 6)
+        XCTAssertEqual(window.frame.height, height, accuracy: 6)
+    }
+    #endif
+
     /// Native menu command for toggling the selected song's favorite state.
     var favoriteAction: XCUIElement {
         #if os(macOS)

@@ -49,7 +49,7 @@ replacing production target identities. Running it repeatedly is safe.
 | Feature class | Regression coverage | Platforms |
 | --- | --- | --- |
 | `LibraryUITests` | Empty states/search ownership; song search; name validation and playlist relaunch persistence; player menus, paused seek and next track; Trash restore/permanent deletion; Link Folder picker cancellation | iPhone, iPad, macOS |
-| `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation | iPhone, iPad, macOS |
+| `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation; all four All Songs shortcuts and stack return; narrow desktop window | iPhone, iPad, macOS |
 | `PlaylistUITests` | Cancelled drafts do not persist or leak; scoped playlist search; restore and permanent deletion; Trash category tabs with independent searches, summaries, and empty states; playlist-detail add/remove with library-song preservation; touch-only summary scrolling, empty/search layout, independent summary actions, and occurrence reordering | iPhone, iPad, macOS |
 | `PlayerAppearanceUITests` | Saved light/dark appearance; background pixel checks across three mini-player expansions | iPhone, iPad |
 | `MiniPlayerUITests` | Adaptive compact/wide bars, rotation with paused playback and mode/favorite retention, nonoverlapping 44-point controls, previous/next and queue/full-player access | iPhone, iPad |
@@ -297,3 +297,31 @@ Verified on iPhone and iPad simulators running 26.3.1, an iPhone simulator runni
 and native macOS 15.7.4. Mid-pull frames of a short playlist confirm that the summary follows the
 search field and song rows. For native reordering across OS versions, drag the handle past the
 target row rather than stopping at its center.
+
+## All Songs shortcut hit regions
+
+On native macOS 15.7.4, the four All Songs shortcuts rendered normally but did not respond to
+pointer clicks. Accessibility activation could still push Artists, and the sidebar route worked.
+The horizontal scroll view's native document and its content wrapper were only 32 points tall,
+while their button frames occupied y=59 through y=91. The visible buttons therefore fell outside
+the ancestors' pointer-hit bounds. Expanding only those native parent frames in the isolated test
+process restored pointer navigation; recreating the original page restored the failure.
+
+The source-level comparison moves only `.padding(.top, 12)` from the shortcut HStack to its
+containing horizontal ScrollView. This keeps the scroll content below the toolbar safe area and
+restores pointer navigation while preserving the same spacing, horizontal scrolling, and typed
+NavigationLinks. The production code does not traverse native view trees or impose a fixed height.
+All state ownership and navigation responsibilities remain in their existing feature boundaries.
+
+`testAllSongsShortcutsOpenCollectionsAndReturn` clicks each shortcut's center on macOS, checks its
+search prompt and generated content, then uses Back to verify the original songs remain available.
+On iPhone/iPad it uses native touch and reveals offscreen shortcuts by horizontal scrolling.
+`testAllSongsShortcutsInNarrowWindow` repeats the checks after resizing the native Mac window to
+700 × 560 points through its border. The original layout fails the new pointer regression at
+Artists; moving the padding outside the scroll view passes all four shortcuts.
+
+Validated with the isolated silent hosts on native macOS 15.7.4 (1040 × 740 and 700 × 560),
+iPhone 17 Pro simulator (iOS 26.3.1), and iPad Pro 11-inch (M5) simulator (iPadOS 26.3.1).
+The focused suites passed 3 desktop scenarios and 2 scenarios on each touch destination, including
+empty-library search ownership; the explicit 1040 × 740 desktop rerun also passed. Swift formatting,
+architecture boundaries, localization validation, and whitespace checks passed.
