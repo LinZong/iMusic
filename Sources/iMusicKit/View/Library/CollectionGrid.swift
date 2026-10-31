@@ -117,10 +117,12 @@ struct CollectionGrid: View {
                             model.library.cover(for: playlist)
                         )
                     }
+                    .accessibilityIdentifier("playlist.open.\(playlist.name)")
                     .contextMenu {
                         Button(L10n.text("Delete Playlist"), role: .destructive) {
                             model.library.delete(playlist)
                         }
+                        .accessibilityIdentifier("playlist.delete")
                     }
                 }
             }

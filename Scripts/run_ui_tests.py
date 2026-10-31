@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run isolated, silent XCUITests on an explicitly selected simulator or iOS device."""
+"""Run isolated, silent XCUITests on an explicitly selected Mac, simulator or iOS device."""
 
 from __future__ import annotations
 
@@ -35,15 +35,16 @@ def execute_tests(command: list[str], directory: Path) -> None:
         raise CommandError(command, log.read_text(errors="replace"), log)
 
 
-def main() -> int:
-    """Build the test host, execute UI scenarios, and retain logs and xcresult attachments."""
+def arguments(argv: list[str] | None = None) -> argparse.Namespace:
+    """Require one explicit native platform or device destination."""
     parser = argparse.ArgumentParser(description=__doc__)
     destination = parser.add_mutually_exclusive_group(required=True)
+    destination.add_argument("--macos", action="store_true", help="Native macOS app on this Mac")
     destination.add_argument("--simulator", metavar="UUID", help="Simulator UUID from simctl list devices")
     destination.add_argument("--device", metavar="UDID", help="Paired physical iPhone/iPad UDID")
     parser.add_argument("--team", help="Override the Apple development team for device signing")
     parser.add_argument(
-        "--derived-data", type=Path, default=ROOT / ".build-ui-tests/DerivedData",
+        "--derived-data", type=Path,
         help="Reusable build cache directory",
     )
     parser.add_argument(
@@ -54,33 +55,56 @@ def main() -> int:
         "--skip-build", action="store_true",
         help="Use compatible build-for-testing artifacts already in DerivedData",
     )
-    options = parser.parse_args()
-    run_name = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid4().hex[:8]
-    directory = ROOT / ".build-ui-tests/Results" / run_name
-    runner = Runner(directory)
-    result = directory / "Tests.xcresult"
-    platform = "iOS Simulator" if options.simulator else "iOS"
+    return parser.parse_args(argv)
+
+
+def build_command(options: argparse.Namespace, result: Path) -> list[str]:
+    """Select the native target and platform-specific signing without running a build."""
+    platform = "macOS" if options.macos else "iOS Simulator" if options.simulator else "iOS"
     identifier = options.simulator or options.device
+    scheme = "iMusicMac UI Tests" if options.macos else "iMusic UI Tests"
+    test_target = "iMusicMacUITests" if options.macos else "iMusicUITests"
+    derived_data = options.derived_data or ROOT / ".build-ui-tests/DerivedData" / (
+        "macOS" if options.macos else "iOS"
+    )
     command = [
         "xcrun", "xcodebuild", "-project", str(ROOT / "iMusic.xcodeproj"),
-        "-scheme", "iMusic UI Tests", "-configuration", "Debug",
-        "-destination", f"platform={platform},id={identifier}",
-        "-destination-timeout", "60", "-derivedDataPath", str(options.derived_data.resolve()),
+        "-scheme", scheme, "-configuration", "Debug",
+        "-destination", "platform=macOS" if options.macos else f"platform={platform},id={identifier}",
+        "-destination-timeout", "60", "-derivedDataPath", str(derived_data.resolve()),
         "-resultBundlePath", str(result), "-parallel-testing-enabled", "NO",
         "-maximum-concurrent-test-simulator-destinations", "1",
     ]
     for selection in options.only_testing:
-        command.append(f"-only-testing:iMusicUITests/{selection}")
-    if options.simulator:
+        command.append(f"-only-testing:{test_target}/{selection}")
+    if options.macos:
+        command.extend([
+            "CODE_SIGN_STYLE=Manual", "CODE_SIGN_IDENTITY=-", "DEVELOPMENT_TEAM=",
+            "CODE_SIGNING_ALLOWED=YES",
+        ])
+    elif options.simulator:
         command.append("CODE_SIGNING_ALLOWED=NO")
     else:
         command.extend(["-allowProvisioningUpdates", "-allowProvisioningDeviceRegistration"])
         if options.team:
             command.append(f"DEVELOPMENT_TEAM={options.team}")
     command.append("test-without-building" if options.skip_build else "test")
-    print(f"Target: {platform} {identifier}", flush=True)
+    return command
+
+
+def main() -> int:
+    """Build the test host, execute UI scenarios, and retain logs and xcresult attachments."""
+    options = arguments()
+    run_name = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid4().hex[:8]
+    directory = ROOT / ".build-ui-tests/Results" / run_name
+    runner = Runner(directory)
+    result = directory / "Tests.xcresult"
+    command = build_command(options, result)
+    platform = "macOS" if options.macos else "iOS Simulator" if options.simulator else "iOS"
+    identifier = options.simulator or options.device
+    print(f"Target: {platform}" + (f" {identifier}" if identifier else ""), flush=True)
     print(f"Logs and screenshots: {directory}", flush=True)
-    print("Uses the separate iMusic UI Tests app and silent playback backend.", flush=True)
+    print("Uses the separate platform UI Tests app and silent playback backend.", flush=True)
     try:
         if not options.skip_build:
             prepare_web(runner)

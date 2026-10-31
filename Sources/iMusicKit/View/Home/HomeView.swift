@@ -68,6 +68,7 @@ struct HomeView: View {
                 } label: {
                     category(L10n.text("Artists"), "person.2", model.library.artists.count)
                 }
+                .accessibilityIdentifier("home.artists")
                 NavigationLink {
                     CollectionGrid(
                         model: CollectionViewModel(
@@ -80,6 +81,7 @@ struct HomeView: View {
                 } label: {
                     category(L10n.text("Albums"), "square.stack", model.library.albums.count)
                 }
+                .accessibilityIdentifier("home.albums")
                 NavigationLink {
                     SongListView(
                         model: SongListViewModel(
@@ -96,6 +98,7 @@ struct HomeView: View {
                         model.library.tracks.filter(\.isFavorite).count
                     )
                 }
+                .accessibilityIdentifier("home.favorites")
             }
             .buttonStyle(.plain)
         case "playlists":

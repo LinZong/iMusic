@@ -43,6 +43,7 @@ struct SeekBar: View {
             }
             HStack {
                 Text(musicTime(playback.timeline.displayedTime))
+                    .accessibilityIdentifier("player.elapsed")
                 Spacer()
                 Text(musicTime(playback.timeline.duration))
                     .accessibilityLabel(

@@ -25,6 +25,7 @@ struct VolumeControl: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(playback.isMuted ? L10n.text("Unmute") : L10n.text("Mute"))
+            .accessibilityIdentifier("player.mute")
             .help(playback.isMuted ? L10n.text("Unmute") : L10n.text("Mute"))
             Slider(
                 value: Binding(
@@ -35,6 +36,7 @@ struct VolumeControl: View {
             )
             .controlSize(.small)
             .accessibilityLabel(L10n.text("Volume"))
+            .accessibilityIdentifier("player.volume")
             .accessibilityValue(percentage)
             .accessibilityAdjustableAction { direction in
                 switch direction {

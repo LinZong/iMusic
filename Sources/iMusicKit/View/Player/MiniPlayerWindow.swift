@@ -48,6 +48,10 @@ public struct MiniPlayerWindow: View {
                 .accessibilityLabel(
                     model.playback.isPlaying ? L10n.text("Pause") : L10n.text("Play")
                 )
+                .accessibilityIdentifier("miniWindow.toggle")
+                #if os(macOS)
+                .keyboardShortcut(.space, modifiers: [])
+                #endif
                 Button {
                     model.playback.next()
                 } label: {

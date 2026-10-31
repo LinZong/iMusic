@@ -8,6 +8,10 @@ public struct NowPlayingView: View {
     /// Accessibility text sizes use a scrollable single column instead of constraining the control
     /// panel.
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    #if os(macOS)
+    /// Makes playback the sheet's initial keyboard action instead of the collapse button.
+    @FocusState private var playbackFocused: Bool
+    #endif
     /// Creates the full player using the existing shared library and playback coordinator.
     public init(model: PlayerViewModel) { self.model = NowPlayingViewModel(player: model) }
 
@@ -47,6 +51,7 @@ public struct NowPlayingView: View {
         }
         #if os(macOS)
         .frame(minWidth: 720, idealWidth: 820, minHeight: 520, idealHeight: 600)
+        .defaultFocus($playbackFocused, true)
         #else
         .frame(idealWidth: 820, idealHeight: 620)
         .presentationDetents([.large])
@@ -259,6 +264,10 @@ public struct NowPlayingView: View {
                 isProminent: true
             ) { model.player.playback.toggle() }
             .accessibilityIdentifier("player.toggle")
+            #if os(macOS)
+            .focused($playbackFocused)
+            .keyboardShortcut(.space, modifiers: [])
+            #endif
             Spacer(minLength: 16)
             PlayerControlButton(
                 symbol: "forward.fill",

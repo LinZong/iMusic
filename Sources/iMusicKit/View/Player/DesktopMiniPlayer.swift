@@ -47,6 +47,7 @@ struct DesktopMiniPlayer: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(L10n.text("Expand Now Playing"))
+            .accessibilityIdentifier("miniPlayer.expand")
             .accessibilityValue(model.playback.track?.title ?? "iMusic")
             .help(model.playback.track?.title ?? "iMusic")
             .layoutPriority(1)
@@ -61,6 +62,7 @@ struct DesktopMiniPlayer: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(PlayerControlStyle())
+                .accessibilityIdentifier("miniPlayer.favorite")
                 .accessibilityLabel(
                     track.isFavorite ? L10n.text("Remove from Favorites") : L10n.text("Favorites")
                 )
@@ -84,12 +86,14 @@ struct DesktopMiniPlayer: View {
             ) {
                 model.playback.setRepeat(model.playback.session.repeatMode.next)
             }
+            .accessibilityIdentifier("miniPlayer.repeat")
             PlayerControlButton(
                 symbol: "backward.end.fill",
                 label: L10n.text("Previous Track"),
                 symbolSize: 18,
                 isProminent: true
             ) { model.playback.previous() }
+            .accessibilityIdentifier("miniPlayer.previous")
             PlayerControlButton(
                 symbol: model.playback.isPlaying ? "pause.fill" : "play.fill",
                 label: model.playback.isPlaying ? L10n.text("Pause") : L10n.text("Play"),
@@ -97,6 +101,8 @@ struct DesktopMiniPlayer: View {
                 targetSize: 52,
                 isProminent: true
             ) { model.playback.toggle() }
+            .accessibilityIdentifier("miniPlayer.toggle")
+            .keyboardShortcut(.space, modifiers: [])
             .background(Color.primary.opacity(0.06), in: Circle())
             PlayerControlButton(
                 symbol: "forward.end.fill",
@@ -104,6 +110,7 @@ struct DesktopMiniPlayer: View {
                 symbolSize: 18,
                 isProminent: true
             ) { model.playback.next() }
+            .accessibilityIdentifier("miniPlayer.next")
             PlayerControlButton(
                 symbol: "shuffle",
                 label: model.playback.session.isShuffled
@@ -111,6 +118,7 @@ struct DesktopMiniPlayer: View {
                 symbolSize: 16,
                 isSelected: model.playback.session.isShuffled
             ) { model.playback.toggleShuffle() }
+            .accessibilityIdentifier("miniPlayer.shuffle")
         }
         .disabled(model.playback.session.entries.isEmpty)
     }

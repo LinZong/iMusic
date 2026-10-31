@@ -7,29 +7,60 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		034FD209E45371DD1D9E3C6A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993AF1CB765DE46AEAC337E6 /* Cocoa.framework */; };
 		1DC8A2428204C5CF2D6995FE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BF264FA694D5DAED34074DC2 /* InfoPlist.strings */; };
 		1F1B10EE1CEA00735CA8B408 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 214A70B1A66BA12AE590A1ED /* InfoPlist.strings */; };
+		226326D7B7D3BBD37F78E7B9 /* UITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2E30AEB5CF4E9173D9AFDE /* UITestCase.swift */; };
 		30CB663FEE768BACC56B8A24 /* iMusicKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2ACE3B5AE4F07844A3961F22 /* iMusicKit */; };
 		3BACBEA51F55095BA24A3B7A /* iMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8191A9470D2A324946FABA4C /* iMusicApp.swift */; };
+		42299D0E587405FD4B49B632 /* UITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2E30AEB5CF4E9173D9AFDE /* UITestCase.swift */; };
 		4CE027EEC297067F4DC02FB3 /* iMusicKit in Frameworks */ = {isa = PBXBuildFile; productRef = B51AFC9841173EBA3D298CE7 /* iMusicKit */; };
+		5650FBFF4B9F081BD63140F5 /* MacPlaybackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19088B489469ACA5B6E9B96 /* MacPlaybackUITests.swift */; };
 		57C13568289FA15F501C8C09 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993AF1CB765DE46AEAC337E6 /* Cocoa.framework */; };
+		5B8D03D201106D330754EF31 /* iMusicKit in Frameworks */ = {isa = PBXBuildFile; productRef = 88342EEAC60AD03A67C35792 /* iMusicKit */; };
 		5D5B884B122714F601A89A91 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */; };
+		5EBEFD5C8377B24EE09593BC /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02622CC03C562B115F7C146 /* UITestSupport.swift */; };
 		639F7618EF6387DE03F70027 /* UITestPlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1F99DE70F0F869E108F0A7 /* UITestPlaybackEngine.swift */; };
 		72FB11151FF885C0066469B0 /* iMusicKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B742A7CAEE5085B183F26E4 /* iMusicKit */; };
+		75C8CA1DF1AFF321BDAF3D86 /* PlaylistEditorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DEA0FB9357A0CBAB7AC3261 /* PlaylistEditorScreen.swift */; };
 		76165D16125C2AE4B41EDEB1 /* LibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC641C98DBA9ED1E9EC45DE /* LibraryUITests.swift */; };
 		7F821728DAEA62D23E963518 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */; };
 		8DF4C128ED59A20ACD2EAF5B /* iMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8191A9470D2A324946FABA4C /* iMusicApp.swift */; };
+		8FBC2EADA376CF7760B2C2E0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CB8871546D804E9DADB6023 /* Assets.xcassets */; };
 		91D78AFD6E637489CAABB1E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2786BD5B5C09D7A8361904E5 /* Assets.xcassets */; };
 		9273495BF64B1B1BE80A96CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CB8871546D804E9DADB6023 /* Assets.xcassets */; };
+		9733DAC57FC5675772E8C605 /* MacPlaybackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19088B489469ACA5B6E9B96 /* MacPlaybackUITests.swift */; };
+		97DA1FEE934CC532D6CD9F0D /* PlaylistEditorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DEA0FB9357A0CBAB7AC3261 /* PlaylistEditorScreen.swift */; };
+		9DD84CE75B8A60899E8BE607 /* LibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC641C98DBA9ED1E9EC45DE /* LibraryUITests.swift */; };
+		9EA5C07DCF2163D800C55D88 /* NativeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069BE78418641E7AE722D455 /* NativeUI.swift */; };
 		ABB6E4AF9B8527E1EDCFDF05 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FCFB09D28E5EB9FF7506BA81 /* PrivacyInfo.xcprivacy */; };
+		B628FEC1637A84704A88B5FF /* iMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8191A9470D2A324946FABA4C /* iMusicApp.swift */; };
 		B7ECA3AFC1C2F392002298C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E76E64ADD48D9399806A785 /* Assets.xcassets */; };
+		B89BFBDFB75B2557586B76AD /* LibraryWorkflowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 703639328633882B3520F43F /* LibraryWorkflowUITests.swift */; };
+		BE84CE443438B611527F517D /* NativeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069BE78418641E7AE722D455 /* NativeUI.swift */; };
 		C8962B99C62A9498F45E0C80 /* iMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8191A9470D2A324946FABA4C /* iMusicApp.swift */; };
+		CEC46B83DF52BDB56BBB2158 /* PlayerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2DCA43F741FE0B846CE91A /* PlayerScreen.swift */; };
 		D28E890E92B91E3EC5FE662B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */; };
+		D4C340256E6E774B02CD3C92 /* PlayerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2DCA43F741FE0B846CE91A /* PlayerScreen.swift */; };
+		D746BBCFE15689AF77084741 /* PlaylistUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753EB2E51A7A5081237D1538 /* PlaylistUITests.swift */; };
+		DC0AE28811A028A77694382E /* LibraryWorkflowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 703639328633882B3520F43F /* LibraryWorkflowUITests.swift */; };
+		E091187E38A18472536323D4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993AF1CB765DE46AEAC337E6 /* Cocoa.framework */; };
 		E3DB1FC2FDAA32FAC269BF82 /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02622CC03C562B115F7C146 /* UITestSupport.swift */; };
 		EC7AB0F9DB5E1C996E6FDF2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85875B3354B505178C6ED5D8 /* PrivacyInfo.xcprivacy */; };
+		EDF48F8D9E17B4BB55C558F6 /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB60F79E9F1C80A2689EFAF1 /* LibraryScreen.swift */; };
+		F1EE6064D2C5AA006E26ADFC /* PlaylistUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753EB2E51A7A5081237D1538 /* PlaylistUITests.swift */; };
+		F724AC2AAB168AD398DFBEE4 /* UITestPlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1F99DE70F0F869E108F0A7 /* UITestPlaybackEngine.swift */; };
+		FC9AE54A786839BF0848F8D6 /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB60F79E9F1C80A2689EFAF1 /* LibraryScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B99C2DC02DFC488CCB602969 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9458AB0C9EC3A7D4A62C1046 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB2DC88216FB33DCC4302346;
+			remoteInfo = iMusicMacUITestHost;
+		};
 		FDA7182A4B2F486912943FBF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9458AB0C9EC3A7D4A62C1046 /* Project object */;
@@ -40,14 +71,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		069BE78418641E7AE722D455 /* NativeUI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NativeUI.swift; sourceTree = "<group>"; };
 		098F5BE7FA6A416D683BAA5A /* macOS-Cloud.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = "macOS-Cloud.entitlements"; sourceTree = "<group>"; };
 		0E76E64ADD48D9399806A785 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		0E9B47B3831A70FEF8883E23 /* iMusicMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iMusicMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DEA0FB9357A0CBAB7AC3261 /* PlaylistEditorScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlaylistEditorScreen.swift; sourceTree = "<group>"; };
 		1F96BC37E2C457370D1C1F5B /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		2786BD5B5C09D7A8361904E5 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
 		281C55A70377A18BF6C86F4D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2CDB4DF2FC22910396BE9415 /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		3C7AD88F6590891C5FE9416A /* iMusicMacUITestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMusicMacUITestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CB8871546D804E9DADB6023 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
 		3D3E184E9990F9E2E91D455A /* iOS-Cloud-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-Cloud-Info.plist"; sourceTree = "<group>"; };
+		3E2DCA43F741FE0B846CE91A /* PlayerScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlayerScreen.swift; sourceTree = "<group>"; };
 		3EF640897B7F9FB45036C13A /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		40449B1810F9CFA359CA2BC2 /* iMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		499731E26A48EDBBCDF29319 /* iOS.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
@@ -56,6 +92,8 @@
 		53F165C08E0BBCA639F0F66C /* iOS-CarPlay-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-CarPlay-Info.plist"; sourceTree = "<group>"; };
 		6BA94A2B136ADB2BFB0A43A5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6BDEE2A1EDF73136A8638960 /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		703639328633882B3520F43F /* LibraryWorkflowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryWorkflowUITests.swift; sourceTree = "<group>"; };
+		753EB2E51A7A5081237D1538 /* PlaylistUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlaylistUITests.swift; sourceTree = "<group>"; };
 		7AC641C98DBA9ED1E9EC45DE /* LibraryUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryUITests.swift; sourceTree = "<group>"; };
 		8191A9470D2A324946FABA4C /* iMusicApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = iMusicApp.swift; sourceTree = "<group>"; };
 		85875B3354B505178C6ED5D8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../Sources/iMusicKit/Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -65,12 +103,15 @@
 		AA1F99DE70F0F869E108F0A7 /* UITestPlaybackEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestPlaybackEngine.swift; sourceTree = "<group>"; };
 		B15548FF4F5349A556FFFA8C /* macOS-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "macOS-Info.plist"; sourceTree = "<group>"; };
 		B844451E6B883C9741E132C7 /* iMusicUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iMusicUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD2E30AEB5CF4E9173D9AFDE /* UITestCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestCase.swift; sourceTree = "<group>"; };
 		D02622CC03C562B115F7C146 /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
+		D19088B489469ACA5B6E9B96 /* MacPlaybackUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MacPlaybackUITests.swift; sourceTree = "<group>"; };
 		D76485ACF054FBD55DDE2F8F /* macOS.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		E423C0E5E83D47EFA20BDACA /* Signing.example.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Signing.example.xcconfig; sourceTree = "<group>"; };
 		E66EBD0EF41102DF2E10FD17 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E902FA15BEFC2AE8F10D9ED0 /* iOS-Full-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "iOS-Full-Info.plist"; sourceTree = "<group>"; };
 		E90361A84FB4FB4405074A19 /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		EB60F79E9F1C80A2689EFAF1 /* LibraryScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryScreen.swift; sourceTree = "<group>"; };
 		EF308AA2A8EC1375D9488433 /* iOS-Full.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = "iOS-Full.entitlements"; sourceTree = "<group>"; };
 		F874D6A37EBD6455941F9677 /* iMusicUITestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMusicUITestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCFB09D28E5EB9FF7506BA81 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../Sources/iMusicKit/Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -83,6 +124,15 @@
 			files = (
 				57C13568289FA15F501C8C09 /* Cocoa.framework in Frameworks */,
 				72FB11151FF885C0066469B0 /* iMusicKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		28C621B490B49E38331B82B3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				034FD209E45371DD1D9E3C6A /* Cocoa.framework in Frameworks */,
+				5B8D03D201106D330754EF31 /* iMusicKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +159,14 @@
 			files = (
 				7F821728DAEA62D23E963518 /* Foundation.framework in Frameworks */,
 				30CB663FEE768BACC56B8A24 /* iMusicKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FF408718E0D550BAA99E88CA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E091187E38A18472536323D4 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,6 +225,8 @@
 				40449B1810F9CFA359CA2BC2 /* iMusic.app */,
 				F874D6A37EBD6455941F9677 /* iMusicUITestHost.app */,
 				B844451E6B883C9741E132C7 /* iMusicUITests.xctest */,
+				3C7AD88F6590891C5FE9416A /* iMusicMacUITestHost.app */,
+				0E9B47B3831A70FEF8883E23 /* iMusicMacUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -217,6 +277,17 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		B763B0D4F3C2C43D2FA0822B /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				EB60F79E9F1C80A2689EFAF1 /* LibraryScreen.swift */,
+				3E2DCA43F741FE0B846CE91A /* PlayerScreen.swift */,
+				1DEA0FB9357A0CBAB7AC3261 /* PlaylistEditorScreen.swift */,
+			);
+			name = Screens;
+			path = Screens;
+			sourceTree = "<group>";
+		};
 		D2D70A92F29A53ECAE5FD048 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,10 +296,25 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		E7C2067DC6304B21B17F5BB0 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				069BE78418641E7AE722D455 /* NativeUI.swift */,
+				CD2E30AEB5CF4E9173D9AFDE /* UITestCase.swift */,
+			);
+			name = Support;
+			path = Support;
+			sourceTree = "<group>";
+		};
 		F9770EAFF169226760F68174 /* iMusicUITests */ = {
 			isa = PBXGroup;
 			children = (
 				7AC641C98DBA9ED1E9EC45DE /* LibraryUITests.swift */,
+				B763B0D4F3C2C43D2FA0822B /* Screens */,
+				E7C2067DC6304B21B17F5BB0 /* Support */,
+				703639328633882B3520F43F /* LibraryWorkflowUITests.swift */,
+				D19088B489469ACA5B6E9B96 /* MacPlaybackUITests.swift */,
+				753EB2E51A7A5081237D1538 /* PlaylistUITests.swift */,
 			);
 			name = iMusicUITests;
 			path = iMusicUITests;
@@ -277,6 +363,24 @@
 			productReference = F874D6A37EBD6455941F9677 /* iMusicUITestHost.app */;
 			productType = "com.apple.product-type.application";
 		};
+		691E57A4CC639C1534C5A7F7 /* iMusicMacUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7DDACD328323311D50DBAAF5 /* Build configuration list for PBXNativeTarget "iMusicMacUITests" */;
+			buildPhases = (
+				B31AFCC2248285C27584D35E /* Sources */,
+				FF408718E0D550BAA99E88CA /* Frameworks */,
+				C726A1019652AC945E001D1B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B3C0A0E5694EA5F511DD6896 /* PBXTargetDependency */,
+			);
+			name = iMusicMacUITests;
+			productName = iMusicMacUITests;
+			productReference = 0E9B47B3831A70FEF8883E23 /* iMusicMacUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		B8E2B2719E869A43CD9C787A /* iMusicUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2949CD9D3E69859352C09D1B /* Build configuration list for PBXNativeTarget "iMusicUITests" */;
@@ -294,6 +398,26 @@
 			productName = iMusicUITests;
 			productReference = B844451E6B883C9741E132C7 /* iMusicUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		CB2DC88216FB33DCC4302346 /* iMusicMacUITestHost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 63FC12954878D720C617F722 /* Build configuration list for PBXNativeTarget "iMusicMacUITestHost" */;
+			buildPhases = (
+				7E050850130C3BE9381B88D0 /* Sources */,
+				28C621B490B49E38331B82B3 /* Frameworks */,
+				0FE1B72551E033A689537DBC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iMusicMacUITestHost;
+			packageProductDependencies = (
+				88342EEAC60AD03A67C35792 /* iMusicKit */,
+			);
+			productName = iMusicMacUITestHost;
+			productReference = 3C7AD88F6590891C5FE9416A /* iMusicMacUITestHost.app */;
+			productType = "com.apple.product-type.application";
 		};
 		F26946EC7448C2A60E50DE2C /* iMusicMac */ = {
 			isa = PBXNativeTarget;
@@ -324,6 +448,9 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
+					691E57A4CC639C1534C5A7F7 = {
+						TestTargetID = CB2DC88216FB33DCC4302346;
+					};
 					B8E2B2719E869A43CD9C787A = {
 						TestTargetID = 498CDFAC84DE4EFD760E5CF9;
 					};
@@ -350,6 +477,8 @@
 				F26946EC7448C2A60E50DE2C /* iMusicMac */,
 				498CDFAC84DE4EFD760E5CF9 /* iMusicUITestHost */,
 				B8E2B2719E869A43CD9C787A /* iMusicUITests */,
+				CB2DC88216FB33DCC4302346 /* iMusicMacUITestHost */,
+				691E57A4CC639C1534C5A7F7 /* iMusicMacUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -359,6 +488,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0FE1B72551E033A689537DBC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8FBC2EADA376CF7760B2C2E0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +527,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C726A1019652AC945E001D1B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -416,6 +560,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				76165D16125C2AE4B41EDEB1 /* LibraryUITests.swift in Sources */,
+				FC9AE54A786839BF0848F8D6 /* LibraryScreen.swift in Sources */,
+				D4C340256E6E774B02CD3C92 /* PlayerScreen.swift in Sources */,
+				97DA1FEE934CC532D6CD9F0D /* PlaylistEditorScreen.swift in Sources */,
+				9EA5C07DCF2163D800C55D88 /* NativeUI.swift in Sources */,
+				42299D0E587405FD4B49B632 /* UITestCase.swift in Sources */,
+				DC0AE28811A028A77694382E /* LibraryWorkflowUITests.swift in Sources */,
+				9733DAC57FC5675772E8C605 /* MacPlaybackUITests.swift in Sources */,
+				F1EE6064D2C5AA006E26ADFC /* PlaylistUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,6 +579,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7E050850130C3BE9381B88D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B628FEC1637A84704A88B5FF /* iMusicApp.swift in Sources */,
+				F724AC2AAB168AD398DFBEE4 /* UITestPlaybackEngine.swift in Sources */,
+				5EBEFD5C8377B24EE09593BC /* UITestSupport.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B31AFCC2248285C27584D35E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9DD84CE75B8A60899E8BE607 /* LibraryUITests.swift in Sources */,
+				EDF48F8D9E17B4BB55C558F6 /* LibraryScreen.swift in Sources */,
+				CEC46B83DF52BDB56BBB2158 /* PlayerScreen.swift in Sources */,
+				75C8CA1DF1AFF321BDAF3D86 /* PlaylistEditorScreen.swift in Sources */,
+				BE84CE443438B611527F517D /* NativeUI.swift in Sources */,
+				226326D7B7D3BBD37F78E7B9 /* UITestCase.swift in Sources */,
+				B89BFBDFB75B2557586B76AD /* LibraryWorkflowUITests.swift in Sources */,
+				5650FBFF4B9F081BD63140F5 /* MacPlaybackUITests.swift in Sources */,
+				D746BBCFE15689AF77084741 /* PlaylistUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -435,6 +613,12 @@
 			name = iMusicUITestHost;
 			target = 498CDFAC84DE4EFD760E5CF9 /* iMusicUITestHost */;
 			targetProxy = FDA7182A4B2F486912943FBF /* PBXContainerItemProxy */;
+		};
+		B3C0A0E5694EA5F511DD6896 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = iMusicMacUITestHost;
+			target = CB2DC88216FB33DCC4302346 /* iMusicMacUITestHost */;
+			targetProxy = B99C2DC02DFC488CCB602969 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -505,6 +689,32 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = CloudDebug;
+		};
+		144B66C9ED0052D72A340B10 /* CarPlayDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IMUSIC_CLOUD_CONTAINER = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "iMusicMac UI Tests";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac";
+				PRODUCT_NAME = iMusicMacUITestHost;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_UI_TESTING";
+			};
+			name = CarPlayDebug;
 		};
 		1690C22F3A13B57BD3DA5829 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -625,6 +835,20 @@
 			};
 			name = CarPlayDebug;
 		};
+		1C0FE56A98DC81DD2F55EAF9 /* CloudDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac.tests";
+				PRODUCT_NAME = iMusicMacUITests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = iMusicMacUITestHost;
+			};
+			name = CloudDebug;
+		};
 		231AC487F4EE0F7D82AD0A66 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
@@ -649,6 +873,46 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		299411C65B9870C40874BD9D /* FullRelease */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac.tests";
+				PRODUCT_NAME = iMusicMacUITests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = iMusicMacUITestHost;
+			};
+			name = FullRelease;
+		};
+		2BA997E24ADFFD6318FF1ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IMUSIC_CLOUD_CONTAINER = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "iMusicMac UI Tests";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac";
+				PRODUCT_NAME = iMusicMacUITestHost;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_UI_TESTING";
 			};
 			name = Release;
 		};
@@ -842,6 +1106,58 @@
 			};
 			name = CloudDebug;
 		};
+		6CA3F34FD015C2F4E9EB921F /* FullDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IMUSIC_CLOUD_CONTAINER = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "iMusicMac UI Tests";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac";
+				PRODUCT_NAME = iMusicMacUITestHost;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_UI_TESTING";
+			};
+			name = FullDebug;
+		};
+		75C3BF10DF82B28BA716B1BB /* CloudDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IMUSIC_CLOUD_CONTAINER = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "iMusicMac UI Tests";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac";
+				PRODUCT_NAME = iMusicMacUITestHost;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_UI_TESTING";
+			};
+			name = CloudDebug;
+		};
 		7923B11ADACE50FEFE9B13D6 /* FullRelease */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
@@ -864,6 +1180,32 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = FullRelease;
+		};
+		7CAF9C3EA60FB77FBCF7C3BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IMUSIC_CLOUD_CONTAINER = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "iMusicMac UI Tests";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac";
+				PRODUCT_NAME = iMusicMacUITestHost;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_UI_TESTING";
+			};
+			name = Debug;
 		};
 		902F16B2CC1662F02E79D494 /* FullDebug */ = {
 			isa = XCBuildConfiguration;
@@ -1099,6 +1441,20 @@
 			};
 			name = CarPlayDebug;
 		};
+		B8CCD72BDAB8ED300666AA60 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac.tests";
+				PRODUCT_NAME = iMusicMacUITests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = iMusicMacUITestHost;
+			};
+			name = Release;
+		};
 		BC8DF59577D8D7936C9D0C97 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1219,6 +1575,34 @@
 			};
 			name = FullRelease;
 		};
+		DB23EED6EB49EA9B07FD3E0F /* FullDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac.tests";
+				PRODUCT_NAME = iMusicMacUITests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = iMusicMacUITestHost;
+			};
+			name = FullDebug;
+		};
+		DC973648058D7F1375702E3A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac.tests";
+				PRODUCT_NAME = iMusicMacUITests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = iMusicMacUITestHost;
+			};
+			name = Debug;
+		};
 		DDB17F481A1A902E8E2376D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
@@ -1246,6 +1630,20 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
+		};
+		E07F4F97792A3D2AE6063468 /* CarPlayDebug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac.tests";
+				PRODUCT_NAME = iMusicMacUITests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TEST_TARGET_NAME = iMusicMacUITestHost;
+			};
+			name = CarPlayDebug;
 		};
 		E67BE03EF5D1A7311CA056BC /* FullRelease */ = {
 			isa = XCBuildConfiguration;
@@ -1401,6 +1799,32 @@
 			};
 			name = Release;
 		};
+		F6ED80852743474342E67F9E /* FullRelease */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E90361A84FB4FB4405074A19 /* Base.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = Config/macOS.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IMUSIC_CLOUD_CONTAINER = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "iMusicMac UI Tests";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(IMUSIC_BUNDLE_PREFIX).uitesting.mac";
+				PRODUCT_NAME = iMusicMacUITestHost;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) IMUSIC_UI_TESTING";
+			};
+			name = FullRelease;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1469,6 +1893,32 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		63FC12954878D720C617F722 /* Build configuration list for PBXNativeTarget "iMusicMacUITestHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2BA997E24ADFFD6318FF1ABE /* Release */,
+				7CAF9C3EA60FB77FBCF7C3BB /* Debug */,
+				75C3BF10DF82B28BA716B1BB /* CloudDebug */,
+				144B66C9ED0052D72A340B10 /* CarPlayDebug */,
+				6CA3F34FD015C2F4E9EB921F /* FullDebug */,
+				F6ED80852743474342E67F9E /* FullRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7DDACD328323311D50DBAAF5 /* Build configuration list for PBXNativeTarget "iMusicMacUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B8CCD72BDAB8ED300666AA60 /* Release */,
+				DC973648058D7F1375702E3A /* Debug */,
+				1C0FE56A98DC81DD2F55EAF9 /* CloudDebug */,
+				E07F4F97792A3D2AE6063468 /* CarPlayDebug */,
+				DB23EED6EB49EA9B07FD3E0F /* FullDebug */,
+				299411C65B9870C40874BD9D /* FullRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -1480,6 +1930,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		2ACE3B5AE4F07844A3961F22 /* iMusicKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FA9B50CBEDE3DEB0D5EE79A /* XCLocalSwiftPackageReference "." */;
+			productName = iMusicKit;
+		};
+		88342EEAC60AD03A67C35792 /* iMusicKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6FA9B50CBEDE3DEB0D5EE79A /* XCLocalSwiftPackageReference "." */;
 			productName = iMusicKit;

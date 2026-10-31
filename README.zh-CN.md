@@ -52,11 +52,12 @@
 编译仍需完整 Xcode 工具链、Python 3.10+ 和 Node.js 22.12+。
 输出目录、缓存和签名范围见 [macOS Release 构建指南](Docs/BuildMacRelease.md)。
 
-### iPhone／iPad UI 自动化测试
+### macOS／iPhone／iPad UI 自动化回归
 
-在 Xcode 选择 **iMusic UI Tests**，按 **⌘U**，也可以从命令行执行：
+在 Xcode 选择 **iMusic UI Tests**（iOS）或 **iMusicMac UI Tests**（原生 macOS），按 **⌘U**，也可以从命令行执行：
 
 ```sh
+./Scripts/run_ui_tests.py --macos
 ./Scripts/run_ui_tests.py --simulator '<模拟器 UUID>'
 ./Scripts/run_ui_tests.py --device '<真机 UDID>'
 ```

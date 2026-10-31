@@ -84,11 +84,12 @@ and signing, and uses ad-hoc signing for local use without a developer account.
 See [the macOS Release build guide](Docs/BuildMacRelease.md) for output paths,
 requirements, and signing scope.
 
-### UI tests on simulators and devices
+### UI regression tests on macOS, simulators, and devices
 
-Select **iMusic UI Tests** in Xcode and press **⌘U**, or run:
+Select **iMusic UI Tests** or **iMusicMac UI Tests** in Xcode and press **⌘U**, or run:
 
 ```sh
+./Scripts/run_ui_tests.py --macos
 ./Scripts/run_ui_tests.py --simulator '<simulator-UUID>'
 ./Scripts/run_ui_tests.py --device '<physical-device-UDID>'
 ```
@@ -102,6 +103,7 @@ See [UI testing](Docs/UITesting.md) for signing, coverage, result bundles, and l
 | --- | --- |
 | `iMusic` / `iMusicMac` | Local development with Debug and LLDB |
 | `iMusic UI Tests` | Isolated, silent UI automation on iPhone/iPad simulators and devices |
+| `iMusicMac UI Tests` | Native macOS UI regressions with a sandboxed, silent test host |
 | `iMusic Playback` | iPhone/iPad Release build, launched without LLDB |
 | `iMusicMac Playback` | macOS Debug build, launched without LLDB |
 | `iMusic Cloud` / `iMusicMac Cloud` | Optional private CloudKit sync |

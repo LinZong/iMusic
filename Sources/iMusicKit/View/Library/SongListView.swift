@@ -143,6 +143,9 @@ struct SongListView: View {
                         HStack(spacing: 10) {
                             ArtworkView(track: row.track, vault: model.library.vault, size: 32)
                             Text(row.title).lineLimit(1)
+                                .accessibilityIdentifier(
+                                    "track.title.\(row.track.originalFilename)"
+                                )
                             if row.track.isFavorite {
                                 Image(systemName: "heart.fill").foregroundStyle(.pink)
                                     .font(.caption)
@@ -175,6 +178,7 @@ struct SongListView: View {
                                     }
                                 }
                             }
+                            .accessibilityIdentifier("trash.restore")
                             Button(L10n.text("Delete Permanently"), role: .destructive) {
                                 model.pendingPermanentDeletion = model.rows
                                     .filter { ids.contains($0.id) }
@@ -182,6 +186,7 @@ struct SongListView: View {
                                         \.track
                                     )
                             }
+                            .accessibilityIdentifier("trash.delete")
                             .disabled(
                                 model.library.activity.isWorking || model.library.activity.importing
                             )

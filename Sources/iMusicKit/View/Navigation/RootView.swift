@@ -91,6 +91,7 @@ public struct RootView: View {
                         NavigationLink(value: destination) {
                             Label(destination.title, systemImage: destination.symbol)
                         }
+                        .accessibilityIdentifier("navigation.\(String(describing: destination))")
                     }
                 }
                 if !model.library.playlists.isEmpty {
@@ -113,9 +114,11 @@ public struct RootView: View {
                     NavigationLink(value: LibraryDestination.trash) {
                         Label(L10n.text("Trash"), systemImage: "trash")
                     }
+                    .accessibilityIdentifier("navigation.trash")
                     NavigationLink(value: LibraryDestination.settings) {
                         Label(L10n.text("Settings"), systemImage: "gearshape")
                     }
+                    .accessibilityIdentifier("navigation.settings")
                 }
             }
             .navigationTitle("iMusic")

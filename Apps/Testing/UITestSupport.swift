@@ -64,6 +64,8 @@ import iMusicKit
         }
         for var track in try model.store.tracks() {
             track.artist = "UI Test Artist"
+            track.album = "UI Test Album"
+            track.genre = "UI Test Genre"
             if track.title == "UI Trashed" { track.deletedAt = Date() }
             try model.store.save(track)
         }
