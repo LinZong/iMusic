@@ -112,6 +112,8 @@ public struct NowPlayingView: View {
             }
             .background {
                 Rectangle().fill(.background)
+                    // Isolate the opaque canvas from transient sheet materials.
+                    .environment(\.backgroundMaterial, nil)
                     .overlay {
                         LinearGradient(
                             colors: [Color.accentColor.opacity(0.06), .clear],

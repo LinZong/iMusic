@@ -37,6 +37,7 @@ UITests/iMusicUITests/
   LibraryUITests.swift
   LibraryWorkflowUITests.swift
   PlaylistUITests.swift
+  PlayerAppearanceUITests.swift     # Compiles only on iOS / iPadOS
   MacPlaybackUITests.swift          # Compiles only on macOS
 ```
 
@@ -50,15 +51,23 @@ replacing production target identities. Running it repeatedly is safe.
 | `LibraryUITests` | Empty states/search ownership; song search; name validation and playlist relaunch persistence; player menus, paused seek and next track; Trash restore/permanent deletion; Link Folder picker cancellation | iPhone, iPad, macOS |
 | `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation | iPhone, iPad, macOS |
 | `PlaylistUITests` | Cancelled drafts do not persist or leak; playlist-name search is scoped; soft delete and restore | iPhone, iPad, macOS |
+| `PlayerAppearanceUITests` | Saved light/dark appearance; background pixel checks across three mini-player expansions | iPhone, iPad |
 | `MacPlaybackUITests` | Persistent volume, mute/unmute restoration; desktop previous/next, repeat, shuffle and favorite controls; Space shortcut; full-player and standalone-window synchronization | macOS |
 
-The shared suite has 12 scenarios; native macOS adds 3 desktop scenarios. Each scenario imports
+The shared suite has 12 scenarios; iOS/iPadOS adds 2 appearance scenarios, and native macOS adds
+3 desktop scenarios. Each scenario imports
 only generated fixtures through the production importer or starts empty. Screenshots are attached
 to the result bundle; failures also attach the accessibility hierarchy. Native AppKit tables expose
 Outline rows, and text may be reported in `value` rather than `label`. Mac file-picker queries must
 exclude Touch Bar buttons. Context-menu queries stay inside app windows, avoiding hidden Window
 menu entries with the same titles as commands. These adaptations belong in `Screens/` and
 `Support/`, not feature tests.
+
+Appearance tests sample an unobstructed sheet margin after presentation. They do not measure
+individual animation frames. For a presentation-color regression, also record the simulator with
+`xcrun simctl io '<UUID>' recordVideo --codec=h264 '<output.mp4>'`, repeat mini-player expansion,
+then send SIGINT to the recorder and inspect the opening frames. A settled screenshot alone can
+miss a transient background change.
 
 These are UI regressions, not an audio-quality certification. Real decoder, output routing,
 background playback, gapless playback, interruptions, AirPlay, and audible distortion require
@@ -164,6 +173,46 @@ The existing Swift unit suite complements this UI suite; UI automation intention
 rendering and does not certify production decoder or device-output behavior. Earlier native macOS
 Release acceptance also verified playlist name validation, creation, and process-relaunch persistence
 through the normal application.
+
+## Now Playing background diagnosis (2026-10-31)
+
+On the iPad Pro 11-inch (M5) simulator with iPadOS 26.3.1, expanding the mini player in Dark
+appearance briefly rendered a brighter, tinted player canvas before its normal dark background.
+The affected expression was `Rectangle().fill(.background)` inside `NowPlayingView.playerContent`.
+Here `.background` is the contextual `BackgroundStyle`, not a fixed system background color.
+
+A read-only probe in an ignored source snapshot sampled the presentation's UIKit traits, geometry,
+Core Animation layers, and the SwiftUI environment. Throughout presentation, UIKit stayed Dark and
+Elevated, the sheet stayed 580 × 650 points, and the resolved system background RGBA stayed
+approximately `(0.1098, 0.1098, 0.1176, 1)`. However, SwiftUI's `backgroundMaterial` contained a Glass
+material during presentation and became `nil` after the transition. The canvas's contextual fill
+therefore inherited transient material rendering. A settled screenshot missed the problem.
+
+The same generated song, app appearance, and repeated mini-player expansion were used for
+single-variable comparisons in that snapshot:
+
+| Change from the original player | Opening background |
+| --- | --- |
+| None | Brighter/tinted, then dark |
+| Add a system-color background outside the navigation stack | Still brighter, then dark |
+| Cancel only the native backing layer's background-color animation | Still brighter/tinted, then dark |
+| Replace only the canvas fill with `Color(uiColor: .systemBackground)` | Stable |
+| Keep the original fill and clear `backgroundMaterial` only on that rectangle | Stable |
+
+The last two independent controls isolate the trigger to the canvas's inherited material rendering.
+The fix uses `.environment(\.backgroundMaterial, nil)` only on the background rectangle, preserving
+system colors, the accent gradient, native controls, layout, and sheet transitions. No presentation
+controller traversal, animation cancellation, color constants, or OS-version branch ships in the app.
+The temporary probes and recordings remain under ignored build directories, outside production
+sources.
+
+After removing the probes, the dark/light presentation checks and the menu/seek/track-change test
+passed on both iOS 17.4 and iPadOS 26.3.1 simulators (6 focused passes). An additional recording
+confirmed stable background pixels across all three dark-player expansions. The native macOS app
+also built successfully; Swift formatting and localization checks passed.
+
+Apple references: [BackgroundStyle](https://developer.apple.com/documentation/swiftui/backgroundstyle),
+[backgroundMaterial](https://developer.apple.com/documentation/swiftui/environmentvalues/backgroundmaterial).
 
 ## New-playlist alert diagnosis (2026-10-31)
 
