@@ -101,7 +101,7 @@ flowchart TD
 | 依赖组装 | AppModel：创建存储、导入器、音频、云和 feature models；连接系统媒体及云回调 | 应用进程 |
 | 资料库 | LibraryViewModel：共享快照与刷新代次保护；LibraryCommands：歌曲／歌单修改；LibraryDeletionWorkflow：确认后的永久删除 | 应用进程 |
 | 播放 | PlaybackCoordinator：唯一音频会话；PlayerViewModel：播放页面使用的明确依赖 | 应用进程，共享队列 |
-| 偏好 | PreferencesViewModel：持久化外观、字体、Home 布局、歌手拆分和联网许可 | 应用进程 |
+| 偏好 | PreferencesViewModel：持久化外观、Home 布局、歌手拆分和联网许可 | 应用进程 |
 | 导入与归档 | ImportViewModel：组成与生命周期；Picker／AudioImport／FolderImport／Archive／WiFiTransfer／Diagnostics 子模型分别持有状态和任务 | 跨页面任务 |
 | 跨功能呈现 | PresentationViewModel：请求打开播放器、队列或某首歌曲的编辑器；不存编辑草稿 | 跨页面请求 |
 | 页面状态 | SongCollection／PlaylistDetail／TrashSongs／四类 Collection／Settings 等 ViewModel：本页查询、选择、确认、范围与结果 | 页面实例 |
@@ -146,7 +146,7 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
   `PageScrollView` 为短内容提供视口高度，`EqualTileRow` 统一卡片尺寸。
 - 其他页面的占位必须相对实际内容区布局，保留安全区、工具栏、页签与底部播放栏所占空间；
   不能将统计栏与空态作为一个整体垂直居中，也不能给动态字体文案固定高度。
-- 强调色遵循系统；PreferencesViewModel 保留浅深显示模式、字体、Home 布局等偏好，
+- 强调色遵循系统；PreferencesViewModel 保留浅深显示模式、Home 布局等偏好，
   不提供独立 Accent Color 设置，不覆盖原生选中背景。
 
 ### 歌曲列表基础能力与功能扩展

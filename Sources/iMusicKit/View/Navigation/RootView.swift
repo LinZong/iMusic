@@ -20,7 +20,6 @@ public struct RootView: View {
                 model.preferences.appearance == "light"
                     ? .light : model.preferences.appearance == "dark" ? .dark : nil
             )
-            .fontDesign(model.preferences.serifFont ? .serif : .default)
             .task { await model.launch() }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .background {

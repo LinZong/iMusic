@@ -15,8 +15,6 @@ public final class PreferencesViewModel {
     }
     /// Persisted preference for rendering artwork with the vinyl-record appearance.
     public var vinyl: Bool { didSet { try? store.setSetting("vinyl", value: vinyl) } }
-    /// Persisted preference for using a serif font design in the native interface.
-    public var serifFont: Bool { didSet { try? store.setSetting("serifFont", value: serifFont) } }
     /// Persisted order and visibility of the configurable Home sections.
     public var homeSections: [HomeSectionOption] {
         didSet { try? store.setSetting("homeSections", value: homeSections) }
@@ -37,7 +35,6 @@ public final class PreferencesViewModel {
             (try? store.setting("appearance", as: String.self)) ?? "system"
         )
         vinyl = (try? store.setting("vinyl", as: Bool.self)) ?? false
-        serifFont = (try? store.setting("serifFont", as: Bool.self)) ?? false
         homeSections =
             ((try? store.setting("homeSections", as: [HomeSectionOption].self))
             ?? HomeSectionOption.defaults)
@@ -52,7 +49,6 @@ public final class PreferencesViewModel {
             (try? store.setting("appearance", as: String.self)) ?? appearance
         )
         vinyl = (try? store.setting("vinyl", as: Bool.self)) ?? vinyl
-        serifFont = (try? store.setting("serifFont", as: Bool.self)) ?? serifFont
         homeSections =
             ((try? store.setting("homeSections", as: [HomeSectionOption].self)) ?? homeSections)
             .map {
