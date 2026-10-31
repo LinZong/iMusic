@@ -32,6 +32,9 @@ struct PlayerControlButton: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(PlayerControlStyle())
+        #if os(macOS)
+        .focusEffectDisabled()
+        #endif
         .accessibilityLabel(label)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .help(label)
