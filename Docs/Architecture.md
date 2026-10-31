@@ -143,6 +143,8 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
   右键菜单、滑动操作、窗口与系统文件选择器留在 View／平台适配层。
 - `SongListSummary` 共用计数、时长、操作和 padding 16。所有平台均由 `SongListView` 在歌曲
   滚动容器顶部固定展示：macOS 为 Table 上方的独立布局，触屏为 List 的顶部安全区 inset。
+  macOS 歌曲表格使用系统 `.title3`（15 pt），歌曲及回收站歌单统计栏使用 `.body`（13 pt），
+  避免将常读内容缩为 caption；字体调整不覆盖工具栏或触屏样式。
   iPhone／iPad `TouchSongList` 的行只包含实际歌曲，空态与搜索无结果为剩余内容区的居中
   overlay，不创建虚假列表行，也不移除作为主滚动宿主的 List。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
   `PageScrollView` 为短内容提供视口高度，`EqualTileRow` 统一卡片尺寸。

@@ -79,8 +79,9 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
             TableColumn(L10n.text("Duration"), value: \.duration) { row in
                 Text(musicTime(row.duration)).monospacedDigit().foregroundStyle(.secondary)
             }
-            .width(60)
+            .width(80)
         }
+        .font(.title3)
         .contextMenu(forSelectionType: UUID.self) { ids in
             let selection = state.selection(ids, in: rows)
             if !selection.isEmpty { contextActions(selection) }

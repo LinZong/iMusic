@@ -19,7 +19,12 @@ struct SongListSummary<Actions: View>: View {
                     String(describing: musicTime(duration))
                 )
             )
-            .font(.caption).foregroundStyle(.secondary)
+            #if os(macOS)
+            .font(.body)
+            #else
+            .font(.caption)
+            #endif
+            .foregroundStyle(.secondary)
             .accessibilityIdentifier("library.songSummary")
             Spacer()
             actions()

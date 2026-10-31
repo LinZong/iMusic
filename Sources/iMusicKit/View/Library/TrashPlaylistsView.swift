@@ -15,7 +15,11 @@ struct TrashPlaylistsView: View {
             LibrarySearchInput(text: searchBinding, prompt: L10n.text("Search Trashed Playlists"))
             #endif
             Text(L10n.text("format.playlist.count", model.playlists.count))
-                .font(.caption)
+                #if os(macOS)
+            .font(.body)
+                #else
+            .font(.caption)
+                #endif
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
