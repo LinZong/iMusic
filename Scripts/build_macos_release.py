@@ -183,10 +183,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     app = build_release(runner, derived_data, args.arch)
     info = validate_app(runner, app, args.arch)
     destination = export_app(runner, app, output, args.arch)
-    try:
-        runner.run(["killall", "Dock"], "refresh-dock-icons", timeout=15)
-    except BuildError as error:
-        print(f"warning: App exported, but Dock could not be refreshed: {error}", file=sys.stderr)
     print(
         f"Built iMusic {info.get('CFBundleShortVersionString', '?')} "
         f"(build {info.get('CFBundleVersion', '?')}) for macOS: {args.arch}.\n"
