@@ -26,7 +26,8 @@ import iMusicKit
 
     /// Imports generated silent WAVs through the production importer once per test run.
     static func prepare(_ model: AppModel) async throws {
-        guard ProcessInfo.processInfo.environment["IMUSIC_UI_TEST_SCENARIO"] == "library",
+        guard let scenario = ProcessInfo.processInfo.environment["IMUSIC_UI_TEST_SCENARIO"],
+            ["library", "playlist-scroll"].contains(scenario),
             try model.store.setting("uiTestSeeded", as: Bool.self) != true
         else { return }
         let vault = try MediaVault(
@@ -68,6 +69,11 @@ import iMusicKit
             track.genre = "UI Test Genre"
             if track.title == "UI Trashed" { track.deletedAt = Date() }
             try model.store.save(track)
+        }
+        if scenario == "playlist-scroll" {
+            let active = try model.store.tracks().filter { $0.deletedAt == nil }
+            let entries = (0..<40).map { QueueEntry(trackID: active[$0 % active.count].id) }
+            try model.store.save(Playlist(name: "UI Scroll Playlist", entries: entries))
         }
         try model.store.setSetting("uiTestSeeded", value: true)
         await model.library.refresh()

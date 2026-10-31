@@ -164,6 +164,10 @@ import XCTest
         let cancel = app.buttons["Cancel"]
         if cancel.exists {
             cancel.interact()
+        } else {
+            // iOS 26 replaces the navigation search Cancel command with a Close button.
+            let close = app.navigationBars.buttons["Close"]
+            if close.exists { close.interact() }
         }
         #endif
     }

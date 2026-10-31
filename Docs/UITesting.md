@@ -50,13 +50,13 @@ replacing production target identities. Running it repeatedly is safe.
 | --- | --- | --- |
 | `LibraryUITests` | Empty states/search ownership; song search; name validation and playlist relaunch persistence; player menus, paused seek and next track; Trash restore/permanent deletion; Link Folder picker cancellation | iPhone, iPad, macOS |
 | `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation | iPhone, iPad, macOS |
-| `PlaylistUITests` | Cancelled drafts do not persist or leak; scoped playlist search; restore and permanent deletion; Trash category tabs with independent searches, summaries, and empty states; playlist-detail add/remove with library-song preservation | iPhone, iPad, macOS |
+| `PlaylistUITests` | Cancelled drafts do not persist or leak; scoped playlist search; restore and permanent deletion; Trash category tabs with independent searches, summaries, and empty states; playlist-detail add/remove with library-song preservation; touch-only summary scrolling, empty/search layout, independent summary actions, and occurrence reordering | iPhone, iPad, macOS |
 | `PlayerAppearanceUITests` | Saved light/dark appearance; background pixel checks across three mini-player expansions | iPhone, iPad |
 | `MiniPlayerUITests` | Adaptive compact/wide bars, rotation with paused playback and mode/favorite retention, nonoverlapping 44-point controls, previous/next and queue/full-player access | iPhone, iPad |
 | `MacPlaybackUITests` | Persistent volume, mute/unmute restoration; desktop previous/next, repeat, shuffle and favorite controls; Space shortcut; full-player and standalone-window synchronization | macOS |
 
-The shared suite has 15 scenarios; iOS/iPadOS adds 2 appearance scenarios and 1 adaptive mini-player
-scenario, and native macOS adds
+The shared suite has 15 scenarios; iOS/iPadOS adds 2 appearance scenarios, 1 adaptive mini-player
+scenario, and 2 playlist-summary scenarios; native macOS adds
 3 desktop scenarios. Each scenario imports
 only generated fixtures through the production importer or starts empty. Screenshots are attached
 to the result bundle; failures also attach the accessibility hierarchy. Native AppKit tables expose
@@ -277,3 +277,23 @@ player remains visible. UIKit elapsed-time text is read from `label` when its na
 empty; AppKit reports the same visible text in `value`. An empty UIKit text field can expose its
 placeholder as `value`, so blank-draft assertions accept that representation while still requiring
 Create to remain disabled.
+
+## Playlist summary scrolling
+
+On iOS/iPadOS 26.3.1, a summary HStack outside the song List remained fixed while the native
+navigation title, search field, and song content moved during a whitespace pull-down. The same
+isolated one-song fixture reproduced overlapping title/summary content on iPhone 17 Pro and
+separated summary/title content on iPad Pro 11-inch (M5). The iOS 17.4 comparison did not show the
+same elastic navigation effect, so it is insufficient as the only acceptance destination.
+
+TouchSongList now owns the summary and song rows in one native List. The `playlist-scroll` test-host
+scenario seeds 40 occurrences from generated silent fixtures; the regression requires the summary
+to scroll out of the viewport and return. A separate scenario checks empty/search layout, independent
+Play/Shuffle actions, and song-only reordering. Keep these tests in addition to recording actual
+pull-down frames on iOS/iPadOS 26: a settled screenshot cannot detect transient overlap. Preserve
+macOS's fixed summary and native table layout.
+
+Verified on iPhone and iPad simulators running 26.3.1, an iPhone simulator running 17.4,
+and native macOS 15.7.4. Mid-pull frames of a short playlist confirm that the summary follows the
+search field and song rows. For native reordering across OS versions, drag the handle past the
+target row rather than stopping at its center.

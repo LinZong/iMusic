@@ -203,6 +203,128 @@ import XCTest
         capture("Playlist removal preserves the active library")
     }
 
+    #if os(iOS)
+    /// The summary must leave the viewport with long content and return with its song rows.
+    func testPlaylistSummaryScrollsWithSongContent() {
+        launch(scenario: "playlist-scroll")
+        navigate("Playlists")
+        app.element("playlist.open.UI Scroll Playlist").interact()
+        let list = app.element("library.songList")
+        let summary = app.element("library.songSummary")
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(summary.isHittable)
+        XCTAssertTrue(
+            list.cells.containing(.staticText, identifier: "library.songSummary").firstMatch.exists
+        )
+        list.swipeUp()
+        XCTAssertEqual(
+            XCTWaiter.wait(
+                for: [
+                    XCTNSPredicateExpectation(
+                        predicate: NSPredicate(format: "hittable == false"),
+                        object: summary
+                    )
+                ],
+                timeout: 5
+            ),
+            .completed,
+            "The summary must scroll away instead of remaining fixed above the song rows."
+        )
+        capture("Playlist summary scrolled out with song content")
+        list.swipeDown()
+        list.swipeDown()
+        XCTAssertTrue(summary.isHittable)
+        let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+        let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+        start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 1)
+        XCTAssertTrue(summary.isHittable)
+        capture("Playlist summary restored after pull-down")
+    }
+
+    /// Empty/search layouts stay centered and summary buttons do not acquire row-wide actions.
+    func testPlaylistSummaryActionsEmptyStatesAndReordering() {
+        launch()
+        navigate("Playlists")
+        editor.create("Summary Controls")
+        app.element("playlist.open.Summary Controls").interact()
+        assertSongPlaceholderIsCenteredBelowSummary()
+        app.element("playlist.actions").interact()
+        app.element("playlist.addSongs").interact()
+        app.element("playlistPicker.toggle.UI Alpha.wav").interact()
+        app.element("playlistPicker.toggle.UI Beta.wav").interact()
+        app.element("playlistPicker.commit").interact()
+        XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
+        let list = app.element("library.songList")
+        let whitespace = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6))
+        let pulled = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85))
+        whitespace.press(
+            forDuration: 0.1,
+            thenDragTo: pulled,
+            withVelocity: .slow,
+            thenHoldForDuration: 1
+        )
+        capture("Short playlist restored after whitespace pull-down")
+        let search = app.searchFields["Search Songs"]
+        search.interact()
+        search.typeText("Missing song")
+        XCTAssertTrue(library.track("UI Alpha").waitForNonExistence(timeout: 5))
+        assertSongPlaceholderIsCenteredBelowSummary()
+        library.clearSearch(search)
+        XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
+        app.buttons["Edit"].interact()
+        let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Reorder'"))
+        XCTAssertEqual(handles.count, 2, "Only songs may expose reorder handles.")
+        let first = handles.element(boundBy: 0)
+        let second = handles.element(boundBy: 1)
+        let origin = first.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let destination = second.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1.5))
+        origin.press(forDuration: 0.5, thenDragTo: destination)
+        app.buttons["Done"].interact()
+        XCTAssertGreaterThan(
+            library.track("UI Alpha").frame.midY,
+            library.track("UI Beta").frame.midY
+        )
+        let summaryRow = app.element("library.songList").cells
+            .containing(.staticText, identifier: "library.songSummary").firstMatch
+        summaryRow.buttons["Play"].interact()
+        // The compact root footer is accessed from a root tab, outside the pushed detail page.
+        navigate("All Songs")
+        player.open()
+        player.assertSong("UI Beta")
+        XCTAssertTrue(app.buttons["Turn Shuffle On"].exists, "Play must not trigger Shuffle.")
+        app.buttons["Collapse Player"].interact()
+        navigate("Playlists")
+        let playlist = app.element("playlist.open.Summary Controls")
+        if playlist.exists { playlist.interact() }
+        summaryRow.buttons["Shuffle"].interact()
+        navigate("All Songs")
+        player.open()
+        XCTAssertTrue(app.buttons["Turn Shuffle Off"].exists)
+        capture("Playlist summary controls preserve occurrence editing and independent actions")
+    }
+
+    /// Measures semantic content against the native cell's available area below the summary.
+    private func assertSongPlaceholderIsCenteredBelowSummary() {
+        let list = app.element("library.songList")
+        let placeholder = app.element("library.emptyState")
+        XCTAssertTrue(placeholder.waitForExistence(timeout: 5))
+        let summaryRow = list.cells
+            .containing(.staticText, identifier: "library.songSummary").firstMatch
+        let summaryBar = app.element("library.songSummaryBar")
+        // Accessibility bounds exclude outer padding and the placeholder's flexible space.
+        let contentTop = summaryBar.frame.maxY + 16
+        let contentBottom = summaryRow.frame.maxY
+        XCTAssertGreaterThanOrEqual(placeholder.frame.minY, contentTop)
+        XCTAssertLessThanOrEqual(placeholder.frame.maxY, contentBottom)
+        XCTAssertEqual(
+            placeholder.frame.midY,
+            (contentTop + contentBottom) / 2,
+            accuracy: 24
+        )
+        capture("Song placeholder content centered below the summary")
+    }
+    #endif
+
     /// Opens the playlist's destructive action using desktop buttons or mobile left swipe.
     private func requestPlaylistDeletion(_ name: String) {
         #if os(iOS)

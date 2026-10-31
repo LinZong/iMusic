@@ -21,42 +21,55 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
     /// Native table activation; recovery pages use the default no-op.
     var primaryAction: ([SongRowData]) -> Void = { _ in }
 
-    /// Keeps the summary at the content origin and centers placeholders in the remaining area.
+    /// Keeps desktop summaries fixed while touch summaries participate in native scrolling.
     var body: some View {
+        #if os(macOS)
         VStack(spacing: 0) {
-            HStack {
-                Text(
-                    L10n.text(
-                        "format.song_count.duration",
-                        rows.count,
-                        String(describing: musicTime(rows.reduce(0) { $0 + $1.duration }))
-                    )
-                )
-                .font(.caption).foregroundStyle(.secondary)
-                .accessibilityIdentifier("library.songSummary")
-                Spacer()
-                actions()
-            }
-            .padding(16)
+            summary
             if rows.isEmpty {
-                Group {
-                    if LibrarySearch.isEmpty(state.search) {
-                        emptyContent()
-                    } else {
-                        ContentUnavailableView.search(text: state.search)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                placeholder
             } else {
-                nativeList
+                nativeTable
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        #else
+        TouchSongList(
+            rows: rows,
+            rowContent: rowContent,
+            summary: { summary },
+            placeholder: { placeholder },
+            move: move
+        )
+        #endif
     }
 
-    /// Shares platform presentation without knowing the page's route or mutation semantics.
-    @ViewBuilder private var nativeList: some View {
-        #if os(macOS)
+    /// Shared count, duration, and caller-supplied actions without platform scrolling policy.
+    private var summary: some View {
+        SongListSummary(
+            songCount: rows.count,
+            duration: rows.reduce(0) { $0 + $1.duration },
+            actions: actions
+        )
+    }
+
+    /// Feature-specific empty content or scoped search results fill the remaining viewport.
+    private var placeholder: some View {
+        Group {
+            if LibrarySearch.isEmpty(state.search) {
+                emptyContent()
+            } else {
+                ContentUnavailableView.search(text: state.search)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("library.emptyState")
+    }
+
+    #if os(macOS)
+    /// Retains native table sorting, selection, activation, and feature-supplied context actions.
+    private var nativeTable: some View {
         Table(state.ordered(rows), selection: $state.selected, sortOrder: $state.sortOrder) {
             TableColumn(L10n.text("Title"), value: \.title) { row in
                 SongTableTitle(row: row, library: library)
@@ -75,12 +88,6 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
         } primaryAction: { ids in
             primaryAction(state.selection(ids, in: rows))
         }
-        #else
-        List {
-            ForEach(rows) { row in rowContent(row) }
-                .onMove(perform: move)
-        }
-        .listStyle(.plain)
-        #endif
     }
+    #endif
 }

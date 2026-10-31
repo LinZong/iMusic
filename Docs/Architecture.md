@@ -141,8 +141,9 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
   以及导航进入的可搜索子页，分别绑定自己的查询和准确的搜索提示。
 - 常规宽度的 iPad 与 macOS 使用 NavigationSplitView；iPad 紧凑分屏可切换为 TabView。macOS 歌曲主体为原生 Table，触屏为 List；
   右键菜单、滑动操作、窗口与系统文件选择器留在 View／平台适配层。
-- `SongListView` 统计栏固定在内容起点，统一 padding 16；空态和搜索无结果填充统计栏下的
-  剩余内容区并居中。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
+- `SongListSummary` 共用计数、时长、操作和 padding 16。macOS 在 Table 上方固定展示；
+  iPhone／iPad 由 `TouchSongList` 将它作为普通首行，与歌曲共享滚动及回弹。空态和搜索无结果
+  填充统计栏下的剩余内容区并居中。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
   `PageScrollView` 为短内容提供视口高度，`EqualTileRow` 统一卡片尺寸。
 - 其他页面的占位必须相对实际内容区布局，保留安全区、工具栏、页签与底部播放栏所占空间；
   不能将统计栏与空态作为一个整体垂直居中，也不能给动态字体文案固定高度。
@@ -156,6 +157,12 @@ SwiftUI 的 View 是值类型，列表使用泛型组合与能力协议，不使
 macOS Table、iPhone／iPad List、选择与排序绑定。它通过 ViewBuilder 接收行、统计栏操作、
 空态与上下文菜单，并通过可选闭包接收重排与激活操作；不接收 LibraryDestination，
 也不判断是否为回收站或歌单。
+
+`SongListSummary` 只接收数量、总时长及操作 builder，不生成虚假歌曲。
+`TouchSongList` 统一管理触屏 List：汇总栏不使用吸顶的 Section Header，重排只绑定歌曲
+ForEach；汇总栏按钮使用独立的 borderless 行为，避免原生行级按钮样式将多个操作合并。
+空列表在同一个 List 中用一个至少填满视口的 VStack 承载汇总与弹性占位，文案可自然增高。
+不嵌套纵向滚动容器，也不通过监听 offset 手动模拟导航栏动画。
 
 - `AllSongsView`：拥有分类快捷入口，组合普通歌曲列表。
 - `SongCollectionView`／`SongCollectionViewModel`：所有歌曲、收藏及歌手／专辑／流派筛选。
@@ -355,7 +362,7 @@ OnlineMetadataProviding、CloudSettingsService、UploadTransport 等。
 | `FeatureBoundaryTests.swift` | 集合独立查询、聚合、云／联网许可、可替换导入／封面／快照服务、上传资源生命周期、云通知窄接口 |
 | `npm test --prefix Web/WiFiUpload` | React 交互、取消／迟到结果、请求适配与独立 uploadBatch 策略 |
 | `python3 -m unittest discover -s Scripts/tests -p 'test_*.py'` | Release 构建／安装及 UI runner 的命令、配置与错误处理 |
-| `Scripts/run_ui_tests.py` | 独立测试宿主运行真实 SwiftUI／SQLite／导入及播放协调逻辑；iPhone／iPad 18 个场景，macOS 18 个。仅替换音频渲染并关闭系统媒体／CloudKit，不能证明真实输出音质或 iCloud 物化 |
+| `Scripts/run_ui_tests.py` | 独立测试宿主运行真实 SwiftUI／SQLite／导入及播放协调逻辑；iPhone／iPad 20 个场景，macOS 18 个。仅替换音频渲染并关闭系统媒体／CloudKit，不能证明真实输出音质或 iCloud 物化 |
 
 `.github/workflows/build.yml` 执行前端测试、脚本测试、格式、架构、本地化、无硬件音频的
 Swift 测试，以及原生 macOS、通用 iOS 和可选云／CarPlay 源码构建。三端 UI 回归由本地
