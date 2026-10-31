@@ -181,6 +181,64 @@ class MacExportTests(unittest.TestCase):
             self.assertTrue(destination.is_symlink())
 
 
+class MacReleaseWorkflowTests(unittest.TestCase):
+    def test_dock_refresh_runs_only_after_successful_export(self):
+        for failure in (None, "build", "validation", "export"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
+                runner = Mock()
+                runner.directory = Path(temporary)
+                events = []
+
+                def complete(stage, value):
+                    """Record workflow order and inject failures before Dock is restarted."""
+                    events.append(stage)
+                    if failure == stage:
+                        raise builder.BuildError(f"{stage} failed")
+                    return value
+
+                runner.run.side_effect = lambda *args, **kwargs: events.append("dock")
+                with (
+                    patch.object(builder.sys, "platform", "darwin"),
+                    patch.object(builder, "Runner", return_value=runner),
+                    patch.object(builder, "build_release", side_effect=lambda *args:
+                                 complete("build", Path(temporary) / "iMusic.app")),
+                    patch.object(builder, "validate_app", side_effect=lambda *args:
+                                 complete("validation", {})),
+                    patch.object(builder, "export_app", side_effect=lambda *args:
+                                 complete("export", Path(temporary) / "export/iMusic.app")),
+                    patch("builtins.print"),
+                ):
+                    if failure:
+                        with self.assertRaisesRegex(builder.BuildError, f"{failure} failed"):
+                            builder.main([])
+                        runner.run.assert_not_called()
+                    else:
+                        self.assertEqual(builder.main([]), 0)
+                        self.assertEqual(events, ["build", "validation", "export", "dock"])
+                        runner.run.assert_called_once_with(
+                            ["killall", "Dock"], "refresh-dock-icons", timeout=15,
+                        )
+
+    def test_dock_refresh_failure_does_not_fail_an_exported_build(self):
+        runner = Mock()
+        runner.directory = Path("/tmp/imusic-release-test")
+        runner.run.side_effect = builder.BuildError("Dock is not running")
+        with (
+            patch.object(builder.sys, "platform", "darwin"),
+            patch.object(builder, "Runner", return_value=runner),
+            patch.object(builder, "build_release"),
+            patch.object(builder, "validate_app", return_value={}),
+            patch.object(builder, "export_app"),
+            patch("builtins.print") as output,
+        ):
+            self.assertEqual(builder.main([]), 0)
+        self.assertTrue(any(
+            "Dock could not be refreshed" in str(call.args[0])
+            and call.kwargs.get("file") is sys.stderr
+            for call in output.call_args_list
+        ))
+
+
 @unittest.skipUnless(sys.platform == "darwin", "Requires Apple's native signing and loader tools")
 class NativeLibraryLoadingTests(unittest.TestCase):
     def test_hardened_ad_hoc_host_can_load_ad_hoc_library(self):

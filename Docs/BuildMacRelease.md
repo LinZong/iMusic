@@ -55,6 +55,10 @@ Open that app in Finder, or copy it to Applications yourself. The script only
 builds and exports; it does not launch the app, play music, or install over an
 existing application in `/Applications`.
 
+After a successful export, the script runs `killall Dock` to restart Dock and reload
+its icons. If Dock cannot be restarted, the script reports a warning and preserves
+the successful build result. Refreshing Dock does not update an older installed app.
+
 ## Validation and logs
 
 Every build runs `npm ci` to honor the upload client's lockfile. The script checks
