@@ -36,10 +36,10 @@ struct ExpandedMiniPlayer: View {
                     ArtworkView(track: model.playback.track, vault: model.library.vault, size: 46)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(model.playback.track?.title ?? "iMusic")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.title3.weight(.semibold))
                             .lineLimit(1)
                         Text(model.playback.track?.displayArtist ?? "")
-                            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                            .font(.body).foregroundStyle(.secondary).lineLimit(1)
                     }
                 }
                 .contentShape(Rectangle())
