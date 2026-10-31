@@ -35,7 +35,7 @@ UITests/iMusicUITests/
   Screens/PlaylistEditorScreen.swift
   Screens/PlayerScreen.swift
   LibraryUITests.swift
-  LibraryWorkflowUITests.swift
+  LibraryWorkflowUITests.swift     # Also contains touch-only MiniPlayerUITests
   PlaylistUITests.swift
   PlayerAppearanceUITests.swift     # Compiles only on iOS / iPadOS
   MacPlaybackUITests.swift          # Compiles only on macOS
@@ -52,9 +52,11 @@ replacing production target identities. Running it repeatedly is safe.
 | `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation | iPhone, iPad, macOS |
 | `PlaylistUITests` | Cancelled drafts do not persist or leak; scoped playlist search; restore and permanent deletion; Trash category tabs with independent searches, summaries, and empty states; playlist-detail add/remove with library-song preservation | iPhone, iPad, macOS |
 | `PlayerAppearanceUITests` | Saved light/dark appearance; background pixel checks across three mini-player expansions | iPhone, iPad |
+| `MiniPlayerUITests` | Adaptive compact/wide bars, rotation with paused playback and mode/favorite retention, nonoverlapping 44-point controls, previous/next and queue/full-player access | iPhone, iPad |
 | `MacPlaybackUITests` | Persistent volume, mute/unmute restoration; desktop previous/next, repeat, shuffle and favorite controls; Space shortcut; full-player and standalone-window synchronization | macOS |
 
-The shared suite has 15 scenarios; iOS/iPadOS adds 2 appearance scenarios, and native macOS adds
+The shared suite has 15 scenarios; iOS/iPadOS adds 2 appearance scenarios and 1 adaptive mini-player
+scenario, and native macOS adds
 3 desktop scenarios. Each scenario imports
 only generated fixtures through the production importer or starts empty. Screenshots are attached
 to the result bundle; failures also attach the accessibility hierarchy. Native AppKit tables expose
@@ -68,6 +70,9 @@ summaries, and category empty states. Query clearing uses the native clear-text 
 platforms rather than relying on keyboard focus. The combined scenario also navigates away and
 returns before testing recovery, covering search-view teardown and recreation. Restoration and
 deletion have additional dedicated scenarios.
+
+Mini-player rotation captures use `XCUIScreen.main.screenshot()` because application-bound
+screenshots can crop the rotated window on tested runtimes.
 
 Appearance tests sample an unobstructed sheet margin after presentation. They do not measure
 individual animation frames. For a presentation-color regression, also record the simulator with

@@ -1,14 +1,13 @@
 import SwiftUI
 
-#if os(macOS)
-/// Desktop playback bar with balanced song, transport, and output regions.
-struct DesktopMiniPlayer: View {
+/// Wide playback bar shared by desktop and touch layouts with sufficient horizontal space.
+struct ExpandedMiniPlayer: View {
     /// Shared library mutations, playback state, and presentation actions.
     let model: PlayerViewModel
     /// Fixed transport width keeps its center independent of metadata and volume widths.
     private let transportWidth: CGFloat = 244
 
-    /// Keeps all desktop controls visible down to the main window's minimum supported width.
+    /// Balances metadata and output regions around the shared transport controls.
     var body: some View {
         VStack(spacing: 0) {
             PlaybackProgressLine(playback: model.playback)
@@ -123,16 +122,18 @@ struct DesktopMiniPlayer: View {
         .disabled(model.playback.session.entries.isEmpty)
     }
 
-    /// Persistent application volume and queue access occupy the trailing region.
+    /// Queue access is shared; persistent application gain remains a desktop-only control.
     private var outputControls: some View {
         HStack(spacing: 8) {
+            #if os(macOS)
             VolumeControl(playback: model.playback).frame(width: 132)
+            #endif
             PlayerControlButton(
                 symbol: "list.bullet",
                 label: L10n.text("Play Queue"),
                 symbolSize: 18
             ) { model.presentation.showQueue = true }
+            .accessibilityIdentifier("miniPlayer.queue")
         }
     }
 }
-#endif

@@ -60,3 +60,114 @@ import XCTest
         capture("Artist collection songs")
     }
 }
+
+#if os(iOS)
+/// Touch-platform regressions for shared desktop controls and width-driven layout transitions.
+@MainActor final class MiniPlayerUITests: UITestCase {
+    /// Rotation changes presentation only; transport modes and favorite state remain shared.
+    func testAdaptiveControlsAndPlaybackStateSurviveRotation() {
+        XCUIDevice.shared.orientation = .portrait
+        defer { XCUIDevice.shared.orientation = .portrait }
+        launch()
+        navigate("All Songs")
+        library.play("UI Alpha")
+        let toggle = app.element("miniPlayer.toggle")
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        toggle.interact()
+        XCTAssertEqual(toggle.label, "Play")
+        let compactPortrait = app.frame.width < 680
+        if compactPortrait {
+            XCTAssertFalse(app.element("miniPlayer.previous").exists)
+            XCTAssertFalse(app.element("miniPlayer.favorite").exists)
+            captureMiniPlayer("Compact portrait mini player")
+        } else {
+            assertExpandedControls()
+            captureMiniPlayer("Expanded tablet portrait mini player")
+        }
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let repeatMode = app.element("miniPlayer.repeat")
+        XCTAssertTrue(repeatMode.waitForExistence(timeout: 5))
+        assertExpandedControls()
+        XCTAssertEqual(toggle.label, "Play", "Rotation must not resume paused playback.")
+        XCTAssertEqual(repeatMode.label, "Play in Order")
+        repeatMode.interact()
+        XCTAssertEqual(repeatMode.label, "Repeat All")
+        repeatMode.interact()
+        XCTAssertEqual(repeatMode.label, "Repeat One")
+        let shuffle = app.element("miniPlayer.shuffle")
+        shuffle.interact()
+        XCTAssertEqual(shuffle.label, "Turn Shuffle Off")
+        shuffle.interact()
+        XCTAssertEqual(shuffle.label, "Turn Shuffle On")
+        let favorite = app.element("miniPlayer.favorite")
+        favorite.interact()
+        XCTAssertEqual(favorite.label, "Remove from Favorites")
+        captureMiniPlayer("Expanded landscape mini player")
+
+        XCUIDevice.shared.orientation = .portrait
+        if compactPortrait {
+            XCTAssertTrue(repeatMode.waitForNonExistence(timeout: 5))
+            XCTAssertTrue(toggle.isHittable)
+            XCTAssertEqual(toggle.label, "Play")
+            XCUIDevice.shared.orientation = .landscapeLeft
+            XCTAssertTrue(repeatMode.waitForExistence(timeout: 5))
+        }
+        XCTAssertEqual(repeatMode.label, "Repeat One")
+        XCTAssertEqual(favorite.label, "Remove from Favorites")
+        app.element("miniPlayer.next").interact()
+        let metadata = app.element("miniPlayer.expand")
+        let beta = NSPredicate(format: "value CONTAINS %@", "UI Beta")
+        let result = XCTWaiter.wait(
+            for: [XCTNSPredicateExpectation(predicate: beta, object: metadata)],
+            timeout: 5
+        )
+        XCTAssertEqual(result, .completed)
+        app.element("miniPlayer.previous").interact()
+        let alpha = NSPredicate(format: "value CONTAINS %@", "UI Alpha")
+        XCTAssertEqual(
+            XCTWaiter.wait(
+                for: [XCTNSPredicateExpectation(predicate: alpha, object: metadata)],
+                timeout: 5
+            ),
+            .completed
+        )
+        app.element("miniPlayer.queue").interact()
+        let done = app.buttons["Done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        done.interact()
+        player.open()
+        player.assertSong("UI Alpha")
+    }
+
+    /// Captures the display because application-bound screenshots can crop rotated windows.
+    private func captureMiniPlayer(_ name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    /// All expanded controls must have distinct, visible touch targets within the current window.
+    private func assertExpandedControls() {
+        let identifiers = [
+            "expand", "favorite", "repeat", "previous", "toggle", "next", "shuffle", "queue",
+        ]
+        var previousFrame: CGRect?
+        for identifier in identifiers {
+            let control = app.element("miniPlayer." + identifier)
+            XCTAssertTrue(control.waitForExistence(timeout: 5), identifier)
+            XCTAssertTrue(control.isHittable, identifier)
+            let frame = control.frame
+            XCTAssertGreaterThanOrEqual(frame.width, 43.5, identifier)
+            XCTAssertGreaterThanOrEqual(frame.height, 43.5, identifier)
+            XCTAssertGreaterThanOrEqual(frame.minX, app.frame.minX, identifier)
+            XCTAssertLessThanOrEqual(frame.maxX, app.frame.maxX, identifier)
+            if let previousFrame {
+                XCTAssertLessThanOrEqual(previousFrame.maxX, frame.minX + 1, identifier)
+            }
+            previousFrame = frame
+        }
+    }
+}
+#endif
