@@ -40,6 +40,7 @@ struct TrackRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("track.play.\(track.originalFilename)")
             Button {
                 model.library.toggleFavorite(track)
             } label: {
@@ -49,6 +50,7 @@ struct TrackRow: View {
                     )
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("track.favorite.\(track.originalFilename)")
             .accessibilityLabel(
                 track.isFavorite ? L10n.text("Remove from Favorites") : L10n.text("Favorites")
             )
@@ -58,6 +60,7 @@ struct TrackRow: View {
                 Image(systemName: "ellipsis").frame(width: 28, height: 32).contentShape(Rectangle())
             }
             .menuStyle(.borderlessButton).fixedSize()
+            .accessibilityIdentifier("track.more.\(track.originalFilename)")
         }
         .padding(.vertical, 9).padding(.horizontal, 6)
         .contextMenu { TrackActions(model: model, tracks: [track]) }

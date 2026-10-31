@@ -34,6 +34,7 @@ struct MiniPlayer: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain).accessibilityLabel(L10n.text("Expand Now Playing"))
+                .accessibilityIdentifier("miniPlayer.expand")
                 Button {
                     model.playback.toggle()
                 } label: {

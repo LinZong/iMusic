@@ -20,18 +20,21 @@ struct PlaylistEditor: View {
                     Button(L10n.text("Use Automatic Artwork")) { model.playlist.artworkName = nil }
                 }
                 TextField(L10n.text("Playlist Name"), text: $model.playlist.name)
+                    .accessibilityIdentifier("playlist.name")
                 if let error = model.error { Text(error).foregroundStyle(.orange) }
             }
-            .formStyle(.grouped).navigationTitle(L10n.text("Edit Playlist"))
+            .formStyle(.grouped)
+            .navigationTitle(L10n.text(model.isCreating ? "New Playlist" : "Edit Playlist"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.text("Cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.text("Save")) {
+                    Button(L10n.text(model.isCreating ? "Create" : "Save")) {
                         model.save()
                         dismiss()
                     }
+                    .accessibilityIdentifier("playlist.commit")
                     .disabled(
                         model.playlist.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     )

@@ -13,10 +13,8 @@ final class DestinationViewModel {
     let imports: ImportViewModel
     /// Route owned by this destination model.
     let destination: LibraryDestination
-    /// Whether the new-playlist name alert is presented.
+    /// Whether the new-playlist editor is presented.
     var newPlaylist = false
-    /// Draft name entered in the new-playlist alert.
-    var playlistName = ""
     /// Creates an independent feature model with explicit service and state dependencies.
     init(
         library: LibraryViewModel,

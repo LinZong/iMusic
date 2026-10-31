@@ -85,6 +85,8 @@ project.root_object.package_references << local_package
     end
   end
 end
+require_relative 'configure_ui_tests'
+configure_ui_tests(project)
 project.build_configurations.each { |config| config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '14.0'; config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0' }
 project.save
 puts 'Generated iMusic.xcodeproj'

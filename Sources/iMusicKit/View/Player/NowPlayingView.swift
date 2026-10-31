@@ -131,6 +131,7 @@ public struct NowPlayingView: View {
             .menuIndicator(.hidden)
             #endif
             .fixedSize()
+            .accessibilityIdentifier("player.songOptions")
             .accessibilityLabel(L10n.text("Song Options"))
             .help(L10n.text("Song Options"))
         } else {
@@ -224,6 +225,7 @@ public struct NowPlayingView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("player.metadata")
             if let track = model.player.playback.track {
                 PlayerControlButton(
                     symbol: track.isFavorite ? "heart.fill" : "heart",
@@ -247,6 +249,7 @@ public struct NowPlayingView: View {
                 targetSize: compact ? 56 : 64,
                 isProminent: true
             ) { model.player.playback.previous() }
+            .accessibilityIdentifier("player.previous")
             Spacer(minLength: 16)
             PlayerControlButton(
                 symbol: model.player.playback.isPlaying ? "pause.fill" : "play.fill",
@@ -255,6 +258,7 @@ public struct NowPlayingView: View {
                 targetSize: compact ? 64 : 76,
                 isProminent: true
             ) { model.player.playback.toggle() }
+            .accessibilityIdentifier("player.toggle")
             Spacer(minLength: 16)
             PlayerControlButton(
                 symbol: "forward.fill",
@@ -263,6 +267,7 @@ public struct NowPlayingView: View {
                 targetSize: compact ? 56 : 64,
                 isProminent: true
             ) { model.player.playback.next() }
+            .accessibilityIdentifier("player.next")
             Spacer(minLength: 0)
         }
         .disabled(model.player.playback.session.entries.isEmpty)

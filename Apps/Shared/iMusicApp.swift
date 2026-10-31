@@ -12,6 +12,10 @@ struct IMusicApp: App {
     @State private var model: AppModel?
     /// Localized library initialization failure displayed without deleting the existing library.
     @State private var startupError: String?
+    #if IMUSIC_UI_TESTING
+    /// Prevents test actions before fixture import and library refresh finish.
+    @State private var testReady = false
+    #endif
     #if os(iOS)
     /// UIKit lifecycle adapter handling background cloud notifications for the SwiftUI app.
     @UIApplicationDelegateAdaptor(MusicAppDelegate.self) private var appDelegate
@@ -20,6 +24,9 @@ struct IMusicApp: App {
     /// resetting user data.
     init() {
         do {
+            #if IMUSIC_UI_TESTING
+            _model = State(initialValue: try UITestSupport.makeModel())
+            #else
             let identifier =
                 Bundle.main.object(forInfoDictionaryKey: "IMusicCloudContainer") as? String
             let root =
@@ -31,16 +38,13 @@ struct IMusicApp: App {
                     cloudIdentifier: identifier?.isEmpty == false ? identifier : nil
                 )
             )
+            #endif
         } catch { _startupError = State(initialValue: error.localizedDescription) }
     }
     /// App scenes, feature wiring, macOS playback commands, and the optional mini-player window.
     var body: some Scene {
         WindowGroup {
-            if let model {
-                RootView(model: model).onOpenURL { url in model.imports.importURLs([url]) }
-            } else {
-                startupFailure
-            }
+            mainContent
         }
         #if os(macOS)
         .defaultSize(width: 1_040, height: 740)
@@ -74,6 +78,31 @@ struct IMusicApp: App {
         .defaultSize(width: 340, height: 420).windowResizability(.contentMinSize)
         #endif
     }
+    /// Gates test-host startup until fixtures are ready; normal builds launch directly.
+    @ViewBuilder private var mainContent: some View {
+        if let model {
+            #if IMUSIC_UI_TESTING
+            if testReady {
+                RootView(model: model)
+            } else if startupError != nil {
+                startupFailure
+            } else {
+                ProgressView()
+                    .task {
+                        do {
+                            try await UITestSupport.prepare(model)
+                            testReady = true
+                        } catch { startupError = error.localizedDescription }
+                    }
+            }
+            #else
+            RootView(model: model).onOpenURL { url in model.imports.importURLs([url]) }
+            #endif
+        } else {
+            startupFailure
+        }
+    }
+
     /// Shows the same centered library failure in both the main and restored mini-player windows.
     private var startupFailure: some View {
         ContentUnavailableView(

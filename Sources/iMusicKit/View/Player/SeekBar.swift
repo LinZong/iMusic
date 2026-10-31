@@ -24,6 +24,7 @@ struct SeekBar: View {
                     if !editing { playback.endScrubbing() }
                 }
             )
+            .accessibilityIdentifier("player.seek")
             .disabled(!playback.canSeek).accessibilityLabel(L10n.text("Playback Position"))
             .accessibilityValue(
                 L10n.text(

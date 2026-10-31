@@ -72,6 +72,7 @@ struct SongListView: View {
                     )
                 )
                 .font(.caption).foregroundStyle(.secondary)
+                .accessibilityIdentifier("library.songSummary")
                 Spacer()
                 if model.destination != .trash {
                     Button {
@@ -224,6 +225,7 @@ struct SongListView: View {
                                     )
                             }
                             .padding(.vertical, 6)
+                            .accessibilityIdentifier("trash.track.\(row.track.originalFilename)")
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     model.pendingPermanentDeletion = [row.track]

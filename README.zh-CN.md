@@ -52,6 +52,18 @@
 编译仍需完整 Xcode 工具链、Python 3.10+ 和 Node.js 22.12+。
 输出目录、缓存和签名范围见 [macOS Release 构建指南](Docs/BuildMacRelease.md)。
 
+### iPhone／iPad UI 自动化测试
+
+在 Xcode 选择 **iMusic UI Tests**，按 **⌘U**，也可以从命令行执行：
+
+```sh
+./Scripts/run_ui_tests.py --simulator '<模拟器 UUID>'
+./Scripts/run_ui_tests.py --device '<真机 UDID>'
+```
+
+测试安装独立宿主 App，为每个场景使用 UUID 隔离资料库，不覆盖日常安装，不打开音频输出。
+签名、覆盖范围、结果截图与验收边界见 [UI 测试指南](Docs/UITesting.md)。
+
 ### VS Code 代码跳转与引用
 
 用 VS Code 打开项目根目录，安装并启用官方 **Swift** 扩展（`swiftlang.swift-vscode`）。如果曾全局禁用扩展，可在扩展页面选择 **Enable (Workspace)**。项目的 `.vscode/settings.json` 使用 `/Applications/Xcode.app` 中的工具链并开启后台索引；Xcode 安装在其他位置时需调整 `swift.path`。

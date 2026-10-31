@@ -78,30 +78,36 @@ struct DestinationView: View {
                     Button(L10n.text("Import Music"), systemImage: "square.and.arrow.down") {
                         model.imports.showImporter = true
                     }
+                    .accessibilityIdentifier("library.import")
                     Button(L10n.text("Link Folder"), systemImage: "folder.badge.plus") {
                         model.imports.showFolderPicker = true
                     }
+                    .accessibilityIdentifier("library.linkFolder")
                     Button(L10n.text("Wi-Fi Transfer"), systemImage: "wifi") {
                         model.imports.showWiFi = true
                     }
                     Divider()
                     Button(L10n.text("New Playlist"), systemImage: "plus") {
-                        model.playlistName = ""
                         model.newPlaylist = true
                     }
+                    .accessibilityIdentifier("library.newPlaylist")
                 } label: {
                     Image(systemName: "plus.circle")
                         .accessibilityLabel(L10n.text("Add Music or Playlist"))
                 }
+                .accessibilityIdentifier("library.add")
             }
         }
-        .alert(L10n.text("New Playlist"), isPresented: $model.newPlaylist) {
-            TextField(L10n.text("Playlist Name"), text: $model.playlistName)
-            Button(L10n.text("Create")) { _ = model.library.createPlaylist(model.playlistName) }
-                .disabled(
-                    model.playlistName.trimmingCharacters(in: .whitespaces).isEmpty
+        // Use the editor for validated input. On iOS 17.4, the previous alert's dynamically
+        // disabled Create button became visibly enabled but dismissed without running its action.
+        .sheet(isPresented: $model.newPlaylist) {
+            PlaylistEditor(
+                model: PlaylistEditorViewModel(
+                    library: model.library,
+                    playlist: Playlist(name: ""),
+                    isCreating: true
                 )
-            Button(L10n.text("Cancel"), role: .cancel) {}
+            )
         }
         .dropDestination(for: URL.self) { urls, _ in
             model.imports.importURLs(urls)

@@ -84,11 +84,24 @@ and signing, and uses ad-hoc signing for local use without a developer account.
 See [the macOS Release build guide](Docs/BuildMacRelease.md) for output paths,
 requirements, and signing scope.
 
+### UI tests on simulators and devices
+
+Select **iMusic UI Tests** in Xcode and press **⌘U**, or run:
+
+```sh
+./Scripts/run_ui_tests.py --simulator '<simulator-UUID>'
+./Scripts/run_ui_tests.py --device '<physical-device-UDID>'
+```
+
+Tests install a separate app, use UUID-scoped fixture libraries, and never open audio output.
+See [UI testing](Docs/UITesting.md) for signing, coverage, result bundles, and limitations.
+
 ### Schemes
 
 | Scheme | Purpose |
 | --- | --- |
 | `iMusic` / `iMusicMac` | Local development with Debug and LLDB |
+| `iMusic UI Tests` | Isolated, silent UI automation on iPhone/iPad simulators and devices |
 | `iMusic Playback` | iPhone/iPad Release build, launched without LLDB |
 | `iMusicMac Playback` | macOS Debug build, launched without LLDB |
 | `iMusic Cloud` / `iMusicMac Cloud` | Optional private CloudKit sync |

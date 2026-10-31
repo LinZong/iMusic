@@ -71,6 +71,7 @@ struct SettingsView: View {
                 NavigationLink(L10n.text("Linked Folders")) {
                     LinkedFoldersView(model: model)
                 }
+                .accessibilityIdentifier("settings.linkedFolders")
                 Toggle(L10n.text("Split Collaborating Artists"), isOn: $preferences.splitArtists)
                 if model.preferences.splitArtists {
                     TextField(
@@ -126,6 +127,7 @@ struct SettingsView: View {
                         )
                     )
                 }
+                .accessibilityIdentifier("settings.trash")
                 Text(
                     L10n.text(
                         """

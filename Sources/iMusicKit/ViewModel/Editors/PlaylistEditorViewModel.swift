@@ -8,14 +8,17 @@ final class PlaylistEditorViewModel {
     let library: LibraryViewModel
     /// Editable playlist copy whose name and cover are committed when Save is chosen.
     var playlist: Playlist
+    /// Whether this draft creates a new playlist rather than editing an existing one.
+    let isCreating: Bool
     /// Whether the custom playlist-cover image importer is presented.
     var chooseCover = false
     /// Most recent custom-cover validation or file-access error shown in this editor.
     var error: String?
     /// Creates an independent feature model with explicit service and state dependencies.
-    init(library: LibraryViewModel, playlist: Playlist) {
+    init(library: LibraryViewModel, playlist: Playlist, isCreating: Bool = false) {
         self.library = library
         self.playlist = playlist
+        self.isCreating = isCreating
     }
     /// Reads and validates a selected cover into the playlist draft without persisting it.
     func importArtwork(_ result: Result<URL, Error>) {

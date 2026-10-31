@@ -31,6 +31,7 @@ struct TrackActions: View {
                     model.library.save(value)
                 }
             }
+            .accessibilityIdentifier("trackActions.favorite")
             if tracks.count == 1 {
                 Button(L10n.text("Edit Tags and Artwork"), systemImage: "pencil") {
                     model.presentation.editingTrack = first
@@ -51,5 +52,6 @@ struct TrackActions: View {
         Button(L10n.text("Move to Trash"), systemImage: "trash", role: .destructive) {
             model.library.trash(tracks)
         }
+        .accessibilityIdentifier("trackActions.trash")
     }
 }
