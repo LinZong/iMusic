@@ -120,6 +120,8 @@ public struct Playlist: Codable, Identifiable, Hashable, Sendable {
     public var modifiedAt = Date()
     /// Trash timestamp; nil means the playlist is active.
     public var deletedAt: Date?
+    /// Durable marker preventing old backups or offline edits from restoring a deleted playlist.
+    public var permanentlyDeletedAt: Date?
     /// Optional custom cover file name inside the managed Artwork directory.
     public var artworkName: String?
     /// Creates a named playlist and normalizes supplied occurrence ordering while preserving their

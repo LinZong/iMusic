@@ -1,84 +1,6 @@
 import Foundation
 import GRDB
 
-public struct FieldVersion: Codable, Comparable, Sendable, Equatable {
-    /// Monotonic logical edit clock used to resolve individual field conflicts.
-    public var clock: Int64
-    /// Stable writer identity used to break ties when edit clocks are equal.
-    public var device: String
-    /// Orders logical edit clocks first, then writer identities, so all devices resolve equal-time
-    /// edits consistently.
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.clock == rhs.clock ? lhs.device < rhs.device : lhs.clock < rhs.clock
-    }
-}
-
-public struct SyncEnvelope: Codable, Sendable {
-    /// Record identity shared by SQLite, backup manifests, and CloudKit record names.
-    public var id: String
-    /// Record discriminator: track, playlist, or listen.
-    public var kind: String
-    /// JSON-encoded domain record whose fields are merged using their version stamps.
-    public var payload: Data
-    /// Per-field edit stamps, including entry-prefixed stamps for playlist occurrence changes.
-    public var versions: [String: FieldVersion]
-    /// Whether this envelope contains a track with a durable permanent-deletion tombstone.
-    public var isPermanentlyDeletedTrack: Bool {
-        guard kind == "track", let track = try? JSONDecoder().decode(Track.self, from: payload)
-        else { return false }
-        return track.permanentlyDeletedAt != nil
-    }
-
-    /// Merges matching records field by field using version stamps, merges playlist occurrences
-    /// independently, and preserves permanent deletion. Throws for mismatched identities or
-    /// malformed JSON.
-    public func merged(with other: Self) throws -> Self {
-        guard id == other.id, kind == other.kind else {
-            throw MusicError.invalidBackup(L10n.text("Record identifiers do not match"))
-        }
-        var fields = try JSONSerialization.jsonObject(with: payload) as? [String: Any] ?? [:]
-        let incoming =
-            try JSONSerialization.jsonObject(with: other.payload) as? [String: Any] ?? [:]
-        let permanentDeletion =
-            kind == "track"
-            ? [fields["permanentlyDeletedAt"], incoming["permanentlyDeletedAt"]]
-                .compactMap { $0 as? Double }.min() : nil
-        var result = self
-        for (key, version) in other.versions
-        where !key.hasPrefix("entry:") && !(kind == "playlist" && key == "entries")
-            && (versions[key].map({ $0 < version }) ?? true)
-        {
-            fields[key] = incoming[key] ?? NSNull()
-            result.versions[key] = version
-        }
-        if kind == "playlist" {
-            let localEntries = (fields["entries"] as? [[String: Any]]) ?? []
-            let remoteEntries = (incoming["entries"] as? [[String: Any]]) ?? []
-            var entries: [String: [String: Any]] = [:]
-            var remote: [String: [String: Any]] = [:]
-            for entry in localEntries { if let id = entry["id"] as? String { entries[id] = entry } }
-            for entry in remoteEntries { if let id = entry["id"] as? String { remote[id] = entry } }
-            for (key, version) in other.versions
-            where key.hasPrefix("entry:") && (versions[key].map({ $0 < version }) ?? true) {
-                let entryID = String(key.dropFirst(6))
-                entries[entryID] = remote[entryID]
-                result.versions[key] = version
-            }
-            fields["entries"] = entries.values.sorted { a, b in
-                let lhs = a["order"] as? Double ?? 0
-                let rhs = b["order"] as? Double ?? 0
-                return lhs == rhs
-                    ? (a["id"] as? String ?? "") < (b["id"] as? String ?? "") : lhs < rhs
-            }
-        }
-        // Permanent deletion is monotonic. An old backup or offline edit cannot restore it.
-        // An explicit import creates a new identity for the same audio instead.
-        if let permanentDeletion { fields["permanentlyDeletedAt"] = permanentDeletion }
-        result.payload = try JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys])
-        return result
-    }
-}
-
 public final class LibraryStore: @unchecked Sendable {
     /// Preference keys allowed in backups; excludes local paths, account state, and device
     /// authorization.
@@ -91,6 +13,10 @@ public final class LibraryStore: @unchecked Sendable {
     let database: DatabasePool
     /// Persistent local writer identity used when generating field version stamps.
     public let deviceID: String
+    /// Transaction-scoped record/version/outbox writer, independent of typed library use cases.
+    private var recordWriter: VersionedRecordRepository {
+        VersionedRecordRepository(deviceID: deviceID)
+    }
     /// Opens the SQLite pool, creates the initial schema when needed, and loads or generates the
     /// persistent writer identity. Throws on filesystem or database failure.
     public init(url: URL) throws {
@@ -99,34 +25,7 @@ public final class LibraryStore: @unchecked Sendable {
             withIntermediateDirectories: true
         )
         database = try DatabasePool(path: url.path)
-        var migrator = DatabaseMigrator()
-        // One baseline for the current schema; pre-release development databases are reset.
-        migrator.registerMigration("initial-schema") { db in
-            try db.execute(
-                sql: """
-                    CREATE TABLE records (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload BLOB \
-                    NOT NULL,
-                      versions BLOB NOT NULL, search TEXT NOT NULL DEFAULT '', hash TEXT);
-                    CREATE INDEX records_kind ON records(kind);
-                    CREATE INDEX records_hash ON records(hash);
-                    CREATE TABLE outbox (id TEXT PRIMARY KEY, generation INTEGER NOT NULL);
-                    CREATE TABLE settings (key TEXT PRIMARY KEY, value BLOB NOT NULL);
-                    CREATE VIRTUAL TABLE record_search USING fts5(id UNINDEXED, text, \
-                    tokenize='unicode61');
-                    CREATE TRIGGER records_search_insert AFTER INSERT ON records WHEN \
-                    new.kind='track' BEGIN
-                      INSERT INTO record_search(id,text) VALUES(new.id,new.search); END;
-                    CREATE TRIGGER records_search_update AFTER UPDATE ON records WHEN \
-                    new.kind='track' BEGIN
-                      DELETE FROM record_search WHERE id=old.id;
-                      INSERT INTO record_search(id,text) VALUES(new.id,new.search); END;
-                    CREATE TRIGGER records_search_delete AFTER DELETE ON records WHEN \
-                    old.kind='track' BEGIN
-                      DELETE FROM record_search WHERE id=old.id; END;
-                    """
-            )
-        }
-        try migrator.migrate(database)
+        try LibrarySchema.install(in: database)
         deviceID = try database.write { db in
             if let row = try Row.fetchOne(
                 db,
@@ -244,7 +143,7 @@ public final class LibraryStore: @unchecked Sendable {
     /// Loads playlists sorted by name, optionally including recoverable playlists in Trash.
     public func playlists(includeDeleted: Bool = false) throws -> [Playlist] {
         try records(kind: "playlist", as: Playlist.self)
-            .filter { includeDeleted || $0.deletedAt == nil }
+            .filter { $0.permanentlyDeletedAt == nil && (includeDeleted || $0.deletedAt == nil) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
     /// Loads persisted actual-listening segments for local statistics.
@@ -313,7 +212,12 @@ public final class LibraryStore: @unchecked Sendable {
     ) {
         database.asyncWrite { db in
             if let event {
-                try self.saveRecord(id: event.id.uuidString, kind: "listen", value: event, db: db)
+                try self.recordWriter.saveRecord(
+                    id: event.id.uuidString,
+                    kind: "listen",
+                    value: event,
+                    db: db
+                )
             }
             let data = try JSONEncoder().encode(session)
             try db.execute(
@@ -348,7 +252,11 @@ public final class LibraryStore: @unchecked Sendable {
         try database.write { db in
             var tracks: [Track] = []
             for id in ids {
-                guard let envelope = try Self.fetchEnvelope(db, id: id.uuidString),
+                guard
+                    let envelope = try VersionedRecordRepository.fetchEnvelope(
+                        db,
+                        id: id.uuidString
+                    ),
                     envelope.kind == "track"
                 else { continue }
                 let track = try JSONDecoder().decode(Track.self, from: envelope.payload)
@@ -364,9 +272,39 @@ public final class LibraryStore: @unchecked Sendable {
                 track.permanentlyDeletedAt = Date()
                 track.modifiedAt = Date()
                 track.isFavorite = false
-                try saveRecord(id: track.id.uuidString, kind: "track", value: track, db: db)
+                try recordWriter.saveRecord(
+                    id: track.id.uuidString,
+                    kind: "track",
+                    value: track,
+                    db: db
+                )
             }
             try removePermanentlyDeletedReferences(db)
+        }
+    }
+    /// Permanently removes a trashed playlist's entries and queues a durable deletion marker.
+    /// Song records, audio files, and the independent playback queue remain untouched.
+    public func permanentlyDeletePlaylist(_ id: UUID) throws {
+        try database.write { db in
+            guard let envelope = try VersionedRecordRepository.fetchEnvelope(db, id: id.uuidString),
+                envelope.kind == "playlist"
+            else { return }
+            var playlist = try JSONDecoder().decode(Playlist.self, from: envelope.payload)
+            guard playlist.permanentlyDeletedAt == nil else { return }
+            guard playlist.deletedAt != nil else {
+                throw MusicError.unavailable(
+                    L10n.text("Only playlists in Trash can be permanently deleted.")
+                )
+            }
+            playlist.permanentlyDeletedAt = Date()
+            playlist.modifiedAt = Date()
+            playlist.entries.removeAll()
+            try recordWriter.saveRecord(
+                id: id.uuidString,
+                kind: "playlist",
+                value: playlist,
+                db: db
+            )
         }
     }
     /// Atomically commits parsed linked metadata and its local locator without syncing bookmarks.
@@ -386,13 +324,21 @@ public final class LibraryStore: @unchecked Sendable {
                 })
             else { throw MusicError.permissionDenied }
             var committed = track
-            if let existing = try Self.fetchEnvelope(db, id: track.id.uuidString),
+            if let existing = try VersionedRecordRepository.fetchEnvelope(
+                db,
+                id: track.id.uuidString
+            ),
                 let current = try? JSONDecoder().decode(Track.self, from: existing.payload)
             {
                 if current.permanentlyDeletedAt != nil || current.deletedAt != nil { return false }
                 LinkedMetadataPipeline.preserveEdits(from: current, in: &committed)
             }
-            try saveRecord(id: track.id.uuidString, kind: "track", value: committed, db: db)
+            try recordWriter.saveRecord(
+                id: track.id.uuidString,
+                kind: "track",
+                value: committed,
+                db: db
+            )
             try db.execute(
                 sql: "INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)",
                 arguments: [item.storageKey, try JSONEncoder().encode(item)]
@@ -404,7 +350,7 @@ public final class LibraryStore: @unchecked Sendable {
     /// purged copy.
     func withAvailableTrack(_ id: UUID, perform operation: (Track) throws -> Void) throws {
         try database.write { db in
-            guard let envelope = try Self.fetchEnvelope(db, id: id.uuidString),
+            guard let envelope = try VersionedRecordRepository.fetchEnvelope(db, id: id.uuidString),
                 envelope.kind == "track"
             else { throw MusicError.missingFile }
             let track = try JSONDecoder().decode(Track.self, from: envelope.payload)
@@ -423,43 +369,17 @@ public final class LibraryStore: @unchecked Sendable {
             let playlists =
                 try Data.fetchAll(db, sql: "SELECT payload FROM records WHERE kind='playlist'")
                 .map { try JSONDecoder().decode(Playlist.self, from: $0) }
-            let retained = tracks.filter { $0.permanentlyDeletedAt == nil }
-            let retainedFiles = try Set(
-                retained.filter { !$0.isLinked }.map { try vault.url(for: $0).lastPathComponent }
-            )
-            let retainedArtwork = Set(
-                retained.compactMap(\.artworkName) + playlists.compactMap(\.artworkName)
-            )
-            for track in tracks where track.permanentlyDeletedAt != nil {
-                if !track.isLinked {
-                    let audio = try vault.url(for: track)
-                    if !retainedFiles.contains(audio.lastPathComponent) {
-                        try vault.removeManagedFileIfPresent(audio)
-                    }
-                }
-                if let name = track.artworkName, !retainedArtwork.contains(name),
-                    let artwork = vault.artworkURL(name)
-                {
-                    try vault.removeManagedFileIfPresent(artwork)
-                }
-            }
+            try ManagedMediaCleanup(vault: vault)
+                .removeUnreferenced(
+                    tracks: tracks,
+                    playlists: playlists
+                )
+
         }
     }
-    private static func permanentlyDeletedIDs(_ db: Database) throws -> Set<UUID> {
-        Set(
-            try String.fetchAll(
-                db,
-                sql:
-                    """
-                    SELECT id FROM records WHERE kind='track' AND json_extract(CAST(payload AS \
-                    TEXT),'$.permanentlyDeletedAt') IS NOT NULL
-                    """
-            )
-            .compactMap(UUID.init(uuidString:))
-        )
-    }
+
     private func removePermanentlyDeletedReferences(_ db: Database) throws {
-        let removed = try Self.permanentlyDeletedIDs(db)
+        let removed = try VersionedRecordRepository.permanentlyDeletedIDs(db)
         guard !removed.isEmpty else { return }
         for data in try Data.fetchAll(db, sql: "SELECT payload FROM records WHERE kind='playlist'")
         {
@@ -469,7 +389,12 @@ public final class LibraryStore: @unchecked Sendable {
             }
             playlist.entries.removeAll { removed.contains($0.trackID) }
             playlist.modifiedAt = Date()
-            try saveRecord(id: playlist.id.uuidString, kind: "playlist", value: playlist, db: db)
+            try recordWriter.saveRecord(
+                id: playlist.id.uuidString,
+                kind: "playlist",
+                value: playlist,
+                db: db
+            )
         }
         if let data = try Data.fetchOne(db, sql: "SELECT value FROM settings WHERE key='playback'")
         {
@@ -485,7 +410,8 @@ public final class LibraryStore: @unchecked Sendable {
     /// synchronization.
     public func envelopes() throws -> [SyncEnvelope] {
         try database.read { db in
-            try Row.fetchAll(db, sql: "SELECT * FROM records").map(Self.envelope)
+            try Row.fetchAll(db, sql: "SELECT * FROM records")
+                .map(VersionedRecordRepository.envelope)
         }
     }
     /// Returns each queued sync envelope with its current outbox generation for conditional
@@ -496,7 +422,7 @@ public final class LibraryStore: @unchecked Sendable {
                 db,
                 sql: "SELECT records.*, outbox.generation FROM records JOIN outbox USING(id)"
             )
-            .map { (try Self.envelope($0), $0["generation"]) }
+            .map { (try VersionedRecordRepository.envelope($0), $0["generation"]) }
         }
     }
     /// Clears an outbox item only if the acknowledged generation still matches, preserving edits
@@ -524,15 +450,16 @@ public final class LibraryStore: @unchecked Sendable {
     /// Merge and its outbox update commit together; a concurrent local edit cannot be acknowledged
     /// away.
     public func merge(_ envelope: SyncEnvelope, enqueue: Bool = false) throws {
-        try validate(envelope)
+        try SyncRecordValidator.validate(envelope)
         try database.write { db in
-            let old = try Self.fetchEnvelope(db, id: envelope.id)
+            let old = try VersionedRecordRepository.fetchEnvelope(db, id: envelope.id)
             let merged = try old?.merged(with: envelope) ?? envelope
-            try validate(merged)
-            try Self.write(merged, db: db)
-            if enqueue || (merged.isPermanentlyDeletedTrack && !envelope.isPermanentlyDeletedTrack)
+            try SyncRecordValidator.validate(merged)
+            try VersionedRecordRepository.write(merged, db: db)
+            if enqueue
+                || (merged.isPermanentlyDeletedRecord && !envelope.isPermanentlyDeletedRecord)
             {
-                try Self.enqueue(merged.id, db: db)
+                try VersionedRecordRepository.enqueue(merged.id, db: db)
             }
             if merged.isPermanentlyDeletedTrack || merged.kind == "playlist" {
                 try removePermanentlyDeletedReferences(db)
@@ -544,12 +471,13 @@ public final class LibraryStore: @unchecked Sendable {
     public func restore(_ envelopes: [SyncEnvelope], settings: [String: Data] = [:]) throws {
         try database.write { db in
             for incoming in envelopes {
-                try validate(incoming)
+                try SyncRecordValidator.validate(incoming)
                 let merged =
-                    try Self.fetchEnvelope(db, id: incoming.id)?.merged(with: incoming) ?? incoming
-                try validate(merged)
-                try Self.write(merged, db: db)
-                try Self.enqueue(merged.id, db: db)
+                    try VersionedRecordRepository.fetchEnvelope(db, id: incoming.id)?
+                    .merged(with: incoming) ?? incoming
+                try SyncRecordValidator.validate(merged)
+                try VersionedRecordRepository.write(merged, db: db)
+                try VersionedRecordRepository.enqueue(merged.id, db: db)
             }
             try removePermanentlyDeletedReferences(db)
             for (key, value) in settings where Self.portableSettings.contains(key) {
@@ -611,32 +539,7 @@ public final class LibraryStore: @unchecked Sendable {
         }
         try restore(changes)
     }
-    private func validate(_ value: SyncEnvelope) throws {
-        switch value.kind {
-        case "track":
-            let track = try JSONDecoder().decode(Track.self, from: value.payload)
-            guard value.id == track.id.uuidString,
-                track.isLinked
-                    ? track.assetHash == nil : track.assetHash.map(MediaVault.isValidHash) == true,
-                MediaVault.isValidExtension(track.fileExtension),
-                track.linkedSource.map({ LinkedFolderIndexer.safeRelativePath($0.relativePath) })
-                    ?? true
-            else { throw MusicError.invalidBackup(L10n.text("Invalid audio record")) }
-        case "playlist":
-            let playlist = try JSONDecoder().decode(Playlist.self, from: value.payload)
-            guard value.id == playlist.id.uuidString,
-                Set(playlist.entries.map(\.id)).count == playlist.entries.count,
-                !playlist.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                playlist.entries.allSatisfy({ $0.order?.isFinite ?? true })
-            else { throw MusicError.invalidBackup(L10n.text("Invalid playlist record")) }
-        case "listen":
-            let event = try JSONDecoder().decode(ListenEvent.self, from: value.payload)
-            guard value.id == event.id.uuidString else {
-                throw MusicError.invalidBackup(L10n.text("Invalid listening record"))
-            }
-        default: throw MusicError.invalidBackup(L10n.text("Unsupported record type"))
-        }
-    }
+
     private func records<T: Decodable>(kind: String, as type: T.Type) throws -> [T] {
         try database.read { db in
             try Data.fetchAll(
@@ -660,105 +563,9 @@ public final class LibraryStore: @unchecked Sendable {
         }
     }
     private func saveRecord<T: Encodable>(id: String, kind: String, value: T) throws {
-        try database.write { db in try saveRecord(id: id, kind: kind, value: value, db: db) }
-    }
-    private func saveRecord<T: Encodable>(id: String, kind: String, value: T, db: Database) throws {
-        let data: Data
-        if var playlist = value as? Playlist {
-            let removed = try Self.permanentlyDeletedIDs(db)
-            playlist.entries.removeAll { removed.contains($0.trackID) }
-            data = try JSONEncoder().encode(playlist)
-        } else {
-            data = try JSONEncoder().encode(value)
+        try database.write { db in
+            try recordWriter.saveRecord(id: id, kind: kind, value: value, db: db)
         }
-        let old = try Self.fetchEnvelope(db, id: id)
-        if old?.isPermanentlyDeletedTrack == true, (value as? Track)?.permanentlyDeletedAt == nil {
-            throw MusicError.unavailable(
-                L10n.text("This song was permanently deleted. Import it again to add a new copy.")
-            )
-        }
-        var versions = old?.versions ?? [:]
-        let oldFields =
-            try old.map { try JSONSerialization.jsonObject(with: $0.payload) as? NSDictionary }
-            ?? nil
-        let fields = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
-        if let oldFields, oldFields == fields as NSDictionary { return }
-        let lastClock = versions.values.map(\.clock).max() ?? 0
-        let clock = max(Int64(Date().timeIntervalSince1970 * 1_000), lastClock + 1)
-        for key in Set(fields.keys).union(versions.keys) {
-            if key.hasPrefix("entry:") || (kind == "playlist" && key == "entries") { continue }
-            let previous = oldFields?[key] as? NSObject
-            let next = fields[key] as? NSObject
-            if previous != next { versions[key] = FieldVersion(clock: clock, device: deviceID) }
-        }
-        if kind == "playlist" {
-            let before = (oldFields?["entries"] as? [[String: Any]]) ?? []
-            let after = (fields["entries"] as? [[String: Any]]) ?? []
-            let beforeMap = Dictionary(
-                uniqueKeysWithValues: before.compactMap { entry in
-                    (entry["id"] as? String).map { ($0, entry as NSDictionary) }
-                }
-            )
-            let afterMap = Dictionary(
-                uniqueKeysWithValues: after.compactMap { entry in
-                    (entry["id"] as? String).map { ($0, entry as NSDictionary) }
-                }
-            )
-            for key in Set(beforeMap.keys).union(afterMap.keys)
-            where beforeMap[key] != afterMap[key] {
-                versions["entry:" + key] = FieldVersion(clock: clock, device: deviceID)
-            }
-        }
-        let envelope = SyncEnvelope(id: id, kind: kind, payload: data, versions: versions)
-        try validate(envelope)
-        try Self.write(envelope, db: db)
-        try Self.enqueue(id, db: db)
     }
-    private static func envelope(_ row: Row) throws -> SyncEnvelope {
-        SyncEnvelope(
-            id: row["id"],
-            kind: row["kind"],
-            payload: row["payload"],
-            versions: try JSONDecoder().decode([String: FieldVersion].self, from: row["versions"])
-        )
-    }
-    private static func fetchEnvelope(_ db: Database, id: String) throws -> SyncEnvelope? {
-        try Row.fetchOne(db, sql: "SELECT * FROM records WHERE id=?", arguments: [id]).map(envelope)
-    }
-    private static func write(_ value: SyncEnvelope, db: Database) throws {
-        var search = ""
-        var hash: String?
-        if value.kind == "track" {
-            let track = try JSONDecoder().decode(Track.self, from: value.payload)
-            if track.permanentlyDeletedAt == nil {
-                search =
-                    [track.title, track.artist, track.album, track.originalFilename, track.genre]
-                    .joined(separator: " ").searchKey
-            }
-            hash = track.assetHash
-        }
-        try db.execute(
-            sql:
-                """
-                INSERT INTO records(id,kind,payload,versions,search,hash) VALUES(?,?,?,?,?,?) ON \
-                CONFLICT(id) DO UPDATE SET \
-                payload=excluded.payload,versions=excluded.versions,\
-                search=excluded.search,hash=excluded.hash
-                """,
-            arguments: [
-                value.id, value.kind, value.payload, try JSONEncoder().encode(value.versions),
-                search, hash,
-            ]
-        )
-    }
-    private static func enqueue(_ id: String, db: Database) throws {
-        try db.execute(
-            sql:
-                """
-                INSERT INTO outbox(id,generation) VALUES(?,1) ON CONFLICT(id) DO UPDATE SET \
-                generation=generation+1
-                """,
-            arguments: [id]
-        )
-    }
+
 }

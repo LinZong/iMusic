@@ -12,6 +12,13 @@ final class HomeViewModel {
     /// Import and archive workflows requested from this feature.
     let imports: ImportViewModel
 
+    /// Recently added queue order shared by the preview and playback action.
+    var recentTracks: [Track] { library.tracks.sorted { $0.addedAt > $1.addedAt } }
+    /// Number of active favorites displayed by the Home tile.
+    var favoriteCount: Int { library.tracks.filter(\.isFavorite).count }
+    /// Total actual listening seconds displayed by the Home statistics shortcut.
+    var listeningSeconds: Double { library.events.reduce(0) { $0 + $1.seconds } }
+
     /// Creates an independent feature model with explicit service and state dependencies.
     init(
         library: LibraryViewModel,

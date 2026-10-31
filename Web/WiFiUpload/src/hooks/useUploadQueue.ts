@@ -7,7 +7,7 @@ import {
 import type { Message } from "../i18n";
 import { upload } from "../services/uploadApi";
 import type { Configuration } from "../domain/uploadConfiguration";
-import { transferErrorMessage } from "../services/transferErrors";
+import { runUploadBatch } from "../services/uploadBatch";
 
 /** Queue state and commands exposed to upload components without exposing transport internals. */
 interface UploadQueue {
@@ -76,35 +76,14 @@ export function useUploadQueue(
     setBusy(true);
     onStart();
     try {
-      for (const entry of pending) {
-        if (request.signal.aborted) {
-          update(entry.id, { status: "cancelled" });
-          continue;
-        }
-        update(entry.id, {
-          status: "uploading",
-          progress: 0,
-          error: undefined,
-        });
-        try {
-          await upload(entry.file, token, request.signal, (progress) => {
-            if (!request.signal.aborted) update(entry.id, { progress });
-          });
-          update(entry.id, { status: "received", progress: 100 });
-        } catch (value) {
-          const message = request.signal.aborted
-            ? "cancelled"
-            : transferErrorMessage(value);
-          update(entry.id, {
-            status: message === "cancelled" ? "cancelled" : "failed",
-            error: message,
-          });
-          if (message === "expired" || message === "networkError") {
-            onFailure(message);
-            break;
-          }
-        }
-      }
+      await runUploadBatch({
+        pending,
+        token,
+        signal: request.signal,
+        transport: upload,
+        update,
+        onFailure,
+      });
     } finally {
       running.current = false;
       setBusy(false);

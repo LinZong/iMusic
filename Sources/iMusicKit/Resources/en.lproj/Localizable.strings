@@ -158,6 +158,8 @@
 "Needs Attention" = "Needs Attention";
 "New Playlist" = "New Playlist";
 "Next Track" = "Next Track";
+"No Deleted Playlists" = "No Deleted Playlists";
+"No Deleted Songs" = "No Deleted Songs";
 "No Identical Duplicate Songs" = "No Identical Duplicate Songs";
 "No Music Here Yet" = "No Music Here Yet";
 "No artwork available." = "No artwork available.";
@@ -173,6 +175,7 @@
 "Online Metadata (Optional)" = "Online Metadata (Optional)";
 "Only files with identical contents can be merged." = "Only files with identical contents can be merged.";
 "Only library entries and derived artwork will be deleted. Original files in linked folders will remain untouched." = "Only library entries and derived artwork will be deleted. Original files in linked folders will remain untouched.";
+"Only playlists in Trash can be permanently deleted." = "Only playlists in Trash can be permanently deleted.";
 "Only songs in Trash can be permanently deleted." = "Only songs in Trash can be permanently deleted.";
 "Original Filename" = "Original Filename";
 "Pair" = "Pair";
@@ -183,6 +186,7 @@
 "Pause" = "Pause";
 "Pause at the end of this song" = "Pause at the end of this song";
 "Permanently Delete Music?" = "Permanently Delete Music?";
+"Permanently Delete Playlist?" = "Permanently Delete Playlist?";
 "Play" = "Play";
 "Play / Pause" = "Play / Pause";
 "Play Next" = "Play Next";
@@ -194,6 +198,7 @@
 "Playback Speed" = "Playback Speed";
 "Playlist Name" = "Playlist Name";
 "Playlists" = "Playlists";
+"Playlists moved to Trash appear here until you restore or permanently delete them. Songs and audio files are kept." = "Playlists moved to Trash appear here until you restore or permanently delete them. Songs and audio files are kept.";
 "Please wait for the current task to finish." = "Please wait for the current task to finish.";
 "Presets" = "Presets";
 "Preview Decoding" = "Preview Decoding";
@@ -234,6 +239,8 @@
 "Search Playlists" = "Search Playlists";
 "Search Songs" = "Search Songs";
 "Search Trash" = "Search Trash";
+"Search Trashed Playlists" = "Search Trashed Playlists";
+"Search Trashed Songs" = "Search Trashed Songs";
 "Search for Album Artwork" = "Search for Album Artwork";
 "Seeking is unavailable. Wait for the music to load and try again." = "Seeking is unavailable. Wait for the music to load and try again.";
 "Separators (separate with |)" = "Separators (separate with |)";
@@ -283,6 +290,7 @@
 "This file exceeds the upload size limit." = "This file exceeds the upload size limit.";
 "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration." = "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration.";
 "This legacy folder imported copies. Relink to index originals; existing copies will be kept." = "This legacy folder imported copies. Relink to index originals; existing copies will be kept.";
+"This playlist was permanently deleted. Create a new playlist instead." = "This playlist was permanently deleted. Create a new playlist instead.";
 "This record is too large to sync with iCloud. Your local information has been preserved." = "This record is too large to sync with iCloud. Your local information has been preserved.";
 "This song uses an external source file." = "This song uses an external source file.";
 "This song was permanently deleted. Import it again to add a new copy." = "This song was permanently deleted. Import it again to add a new copy.";
@@ -294,6 +302,7 @@
 "Transfer Music" = "Transfer Music";
 "Transfer Music from Your Computer" = "Transfer Music from Your Computer";
 "Trash" = "Trash";
+"Trash Categories" = "Trash Categories";
 "Trash Is Empty" = "Trash Is Empty";
 "Try Again" = "Try Again";
 "Try Encoding" = "Try Encoding";
@@ -353,6 +362,7 @@
 "format.playback.save_error" = "Unable to save playback state: %1$@";
 "format.playlist.add_count" = "Add %1$ld Songs";
 "format.playlist.add_to" = "Add to “%1$@”";
+"format.playlist.count" = "%1$ld playlists";
 "format.queue.count" = "Play Queue · %1$ld";
 "format.restore.missing" = "Library information restored. %1$ld songs still need to be imported or downloaded.";
 "format.song_count" = "%1$ld songs";
@@ -360,6 +370,8 @@
 "format.song_count.short" = "%1$ld songs";
 "format.track_number" = "Track Number: %1$ld";
 "format.trash.delete_count" = "%1$ld songs will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.";
+"format.trash.delete_playlist" = "“%1$@” and its playlist entries will be permanently removed. Songs and audio files will be kept.";
 "format.trash.delete_song" = "“%1$@” will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.";
+"format.trash.summary" = "Songs: %1$ld · Playlists: %2$ld";
 "iCloud (Optional)" = "iCloud (Optional)";
 "iCloud is not configured in this build. Use a developer team with iCloud access and a Cloud build configuration." = "iCloud is not configured in this build. Use a developer team with iCloud access and a Cloud build configuration.";

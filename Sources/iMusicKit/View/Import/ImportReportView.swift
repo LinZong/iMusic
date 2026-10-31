@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ImportReportView: View {
     /// Feature model containing only this page's state and explicit dependencies.
-    @Bindable var model: ImportViewModel
+    @Bindable var model: AudioImportViewModel
     /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
     /// Renders completed import counts and any per-file failures.

@@ -28,6 +28,7 @@ struct PlaylistSongPicker: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("playlistPicker.toggle.\(track.originalFilename)")
             }
             .overlay {
                 if model.visibleTracks.isEmpty {
@@ -58,6 +59,7 @@ struct PlaylistSongPicker: View {
                         dismiss()
                     }
                     .disabled(model.selected.isEmpty)
+                    .accessibilityIdentifier("playlistPicker.commit")
                 }
             }
         }

@@ -8,29 +8,18 @@ struct AppPresentations: ViewModifier {
     /// Attaches import pickers, feature sheets, errors, and operation progress to the navigation
     /// scene.
     func body(content: Content) -> some View {
-        @Bindable var imports = model.imports
+        @Bindable var picker = model.imports.picker
+        @Bindable var transfers = model.imports.transfers
+        @Bindable var folders = model.imports.folders
         @Bindable var presentation = model.player.presentation
         content
             .fileImporter(
-                isPresented: $imports.filePickerPresented,
+                isPresented: $picker.presented,
                 allowedContentTypes: pickerTypes,
-                allowsMultipleSelection: model.imports.fileImportPurpose == .audio
-            ) { result in
-                switch result {
-                case .success(let urls):
-                    switch model.imports.fileImportPurpose {
-                    case .audio: model.imports.importURLs(urls)
-                    case .folder: if let url = urls.first { model.imports.addFolder(url) }
-                    case .backup: if let url = urls.first { model.imports.restoreBackup(url) }
-                    }
-                case .failure(let error):
-                    if (error as NSError).code != NSUserCancelledError {
-                        model.library.activity.message = error.localizedDescription
-                    }
-                }
-            }
-            .sheet(item: $imports.relinkPreview) { preview in
-                RelinkSourceView(model: model.imports, preview: preview)
+                allowsMultipleSelection: model.imports.picker.purpose == .audio
+            ) { model.imports.accept($0) }
+            .sheet(item: $folders.relinkPreview) { preview in
+                RelinkSourceView(model: model.imports.folders, preview: preview)
             }
             .sheet(isPresented: $presentation.showPlayer) { NowPlayingView(model: model.player) }
             .sheet(
@@ -42,9 +31,9 @@ struct AppPresentations: ViewModifier {
                 )
             ) { QueueView(model: model.player) }
             .sheet(
-                isPresented: $imports.showWiFi,
-                onDismiss: { Task { await model.imports.wifi.stop() } }
-            ) { WiFiView(model: model.imports) }
+                isPresented: $transfers.presented,
+                onDismiss: { Task { await model.imports.transfers.server.stop() } }
+            ) { WiFiView(model: model.imports.transfers) }
             .sheet(
                 item: Binding(
                     get: {
@@ -76,27 +65,27 @@ struct AppPresentations: ViewModifier {
             }
             .sheet(
                 isPresented: Binding(
-                    get: { model.imports.importReport != nil },
-                    set: { if !$0 { model.imports.importReport = nil } }
+                    get: { model.imports.audio.importReport != nil },
+                    set: { if !$0 { model.imports.audio.importReport = nil } }
                 )
-            ) { ImportReportView(model: model.imports) }
+            ) { ImportReportView(model: model.imports.audio) }
             .sheet(
                 isPresented: Binding(
-                    get: { model.imports.exportedBackup != nil },
-                    set: { if !$0 { model.imports.exportedBackup = nil } }
+                    get: { model.imports.archives.exportedBackup != nil },
+                    set: { if !$0 { model.imports.archives.exportedBackup = nil } }
                 )
             ) {
-                if let url = model.imports.exportedBackup {
-                    BackupExportView(url: url, detail: model.imports.backupDetail)
+                if let url = model.imports.archives.exportedBackup {
+                    BackupExportView(url: url, detail: model.imports.archives.backupDetail)
                 }
             }
             .sheet(
                 isPresented: Binding(
-                    get: { model.imports.diagnosticsURL != nil },
-                    set: { if !$0 { model.imports.diagnosticsURL = nil } }
+                    get: { model.imports.diagnostics.diagnosticsURL != nil },
+                    set: { if !$0 { model.imports.diagnostics.diagnosticsURL = nil } }
                 )
             ) {
-                if let url = model.imports.diagnosticsURL {
+                if let url = model.imports.diagnostics.diagnosticsURL {
                     BackupExportView(
                         url: url,
                         title: L10n.text("Diagnostics Ready"),
@@ -132,7 +121,7 @@ struct AppPresentations: ViewModifier {
     }
     /// Allowed file types for the current audio import, linked-folder, or backup picker operation.
     private var pickerTypes: [UTType] {
-        switch model.imports.fileImportPurpose {
+        switch model.imports.picker.purpose {
         case .audio: [.audio, .data]
         case .folder: [.folder]
         case .backup: [.zip]

@@ -66,6 +66,22 @@
 			<string>Add %1$ld Songs</string>
 		</dict>
 	</dict>
+	<key>format.playlist.count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld playlist</string>
+			<key>other</key>
+			<string>%1$ld playlists</string>
+		</dict>
+	</dict>
 	<key>format.restore.missing</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

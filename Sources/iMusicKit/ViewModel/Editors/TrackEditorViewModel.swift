@@ -1,12 +1,13 @@
 import CoreFoundation
 import Foundation
-import ImageIO
 import Observation
 
 @MainActor @Observable
 final class TrackEditorViewModel {
     /// Consent-gated metadata lookup service owned by the editor.
-    let online: OnlineMetadataService = OnlineMetadataService()
+    private let online: any OnlineMetadataProviding
+    /// Image validation and managed-cover storage independent of editor drafts.
+    private let artworkImporter: any ArtworkImporting
 
     /// Observable library records and record-level actions.
     let library: LibraryViewModel
@@ -29,42 +30,29 @@ final class TrackEditorViewModel {
     /// Preview title, artist, and album strings awaiting explicit application to the draft.
     var repaired: [String]?
     /// Creates an independent feature model with explicit service and state dependencies.
-    init(library: LibraryViewModel, preferences: PreferencesViewModel, original: Track) {
+    init(
+        library: LibraryViewModel,
+        preferences: PreferencesViewModel,
+        original: Track,
+        online: any OnlineMetadataProviding = OnlineMetadataService(),
+        artworkImporter: (any ArtworkImporting)? = nil
+    ) {
         self.library = library
         self.preferences = preferences
         self.original = original
         self.draft = original
+        self.online = online
+        self.artworkImporter = artworkImporter ?? ManagedArtworkImporter(vault: library.vault)
     }
-    /// Validates and stores a draft cover without changing the persisted track until Save.
-    func setArtwork(_ data: Data) throws {
-        guard CGImageSourceCreateWithData(data as CFData, nil) != nil else {
-            throw MusicError.unavailable(L10n.text("Unable to read this image."))
-        }
-        let name = UUID().uuidString + ".image"
-        try data.write(to: library.vault.artwork.appendingPathComponent(name), options: .atomic)
-        draft.artworkName = name
-    }
+    /// Admits a selected cover reference into this draft without saving the song record.
+    func setArtwork(_ data: Data) throws { draft.artworkName = try artworkImporter.store(data) }
 
-    /// Previews a different decoding of legacy tag bytes without saving the draft.
+    /// Previews legacy decoding without mutating the saved tags or draft fields.
     func previewDecoding() {
-        let encoding: String.Encoding =
-            encodingName == "Shift-JIS"
-            ? .shiftJIS
-            : encodingName == "UTF-8"
-                ? .utf8
-                : String.Encoding(
-                    rawValue: CFStringConvertEncodingToNSStringEncoding(
-                        CFStringEncoding(CFStringEncodings.GB_18030_2000.rawValue)
-                    )
-                )
-        repaired = [draft.title, draft.artist, draft.album]
-            .map { value in
-                guard
-                    let bytes = value.data(using: .isoLatin1) ?? value.data(using: .windowsCP1252),
-                    let text = String(data: bytes, encoding: encoding), !text.contains("\u{fffd}")
-                else { return value }
-                return text
-            }
+        repaired = TagEncodingRepair.preview(
+            [draft.title, draft.artist, draft.album],
+            encodingName: encodingName
+        )
     }
     /// Applies the current decoding preview to the editable copy only.
     func applyPreview() {
@@ -104,19 +92,12 @@ final class TrackEditorViewModel {
             self.error = error.localizedDescription
         }
     }
-    /// Reads a size-limited cover selected through the native security-scoped file picker.
+    /// Applies a user-selected cover only to this editor's draft.
     func importArtwork(_ result: Result<URL, Error>) {
-        do {
-            let url = try result.get()
-            let access = url.startAccessingSecurityScopedResource()
-            defer { if access { url.stopAccessingSecurityScopedResource() } }
-            guard (try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? .max) <= 20_000_000
-            else {
-                throw MusicError.unavailable(L10n.text("Choose an image smaller than 20 MB."))
-            }
-            try setArtwork(Data(contentsOf: url))
-        } catch { self.error = error.localizedDescription }
+        do { draft.artworkName = try artworkImporter.importFile(result.get()) } catch {
+            self.error = error.localizedDescription
+        }
     }
     /// Commits the current draft through the library mutation boundary.
-    func save() { library.save(draft) }
+    func save() { library.commands.save(draft) }
 }

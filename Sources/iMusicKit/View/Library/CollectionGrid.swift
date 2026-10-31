@@ -1,15 +1,22 @@
 import SwiftUI
 
-struct CollectionGrid: View {
-    /// Feature model containing only this page's state and explicit dependencies.
-    @State var model: CollectionViewModel
-    /// Renders the selected collection with its own search scope and appropriate empty state.
+/// Layout and search foundation; the caller supplies collection-specific cards and navigation.
+struct CollectionGrid<Content: View>: View {
+    /// Page-local collection query.
+    @Binding var search: String
+    /// Localized prompt describing the actual collection type.
+    let searchPrompt: String
+    /// Whether the current source has any matching cards.
+    let isEmpty: Bool
+    /// Typed feature cards, including their navigation and context actions.
+    @ViewBuilder var content: () -> Content
+
+    /// Centers empty states and lays out cards without interpreting a collection kind.
     var body: some View {
-        @Bindable var model = model
         Group {
-            if model.isEmpty && !LibrarySearch.isEmpty(model.search) {
-                ContentUnavailableView.search(text: model.search)
-            } else if model.isEmpty {
+            if isEmpty && !LibrarySearch.isEmpty(search) {
+                ContentUnavailableView.search(text: search)
+            } else if isEmpty {
                 ContentUnavailableView(
                     L10n.text("Nothing Here Yet"),
                     systemImage: "square.stack",
@@ -19,122 +26,17 @@ struct CollectionGrid: View {
                 )
             } else {
                 ScrollView {
-                    collectionContent
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: 145, maximum: 210), spacing: 20)],
+                        alignment: .leading,
+                        spacing: 24,
+                        content: content
+                    )
+                    .buttonStyle(.plain).padding(24)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .librarySearch(text: $model.search, prompt: model.searchPrompt)
-    }
-    /// Scrollable collection cards, created only when this page has visible results.
-    private var collectionContent: some View {
-        LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 145, maximum: 210), spacing: 20)],
-            alignment: .leading,
-            spacing: 24
-        ) {
-            if model.kind == .artists {
-                ForEach(model.artists, id: \.self) { artist in
-                    NavigationLink {
-                        SongListView(
-                            model: SongListViewModel(
-                                library: model.library,
-                                player: model.player,
-                                destination: .artist(artist)
-                            )
-                        )
-                        .navigationTitle(artist)
-                    } label: {
-                        card(
-                            artist,
-                            L10n.text(
-                                "format.song_count.short",
-                                model.library.songs(for: .artist(artist)).count
-                            ),
-                            model.library.tracks.first { $0.artist == artist }
-                        )
-                    }
-                }
-            } else if model.kind == .albums {
-                ForEach(model.albums) { track in
-                    NavigationLink {
-                        SongListView(
-                            model: SongListViewModel(
-                                library: model.library,
-                                player: model.player,
-                                destination: .album(track.albumKey)
-                            )
-                        )
-                        .navigationTitle(track.displayAlbum)
-                    } label: {
-                        card(
-                            track.displayAlbum,
-                            track.albumArtist.isEmpty
-                                ? track.displayArtist : track.albumArtist,
-                            track
-                        )
-                    }
-                }
-            } else if model.kind == .genres {
-                ForEach(model.genres, id: \.self) { genre in
-                    NavigationLink {
-                        SongListView(
-                            model: SongListViewModel(
-                                library: model.library,
-                                player: model.player,
-                                destination: .genre(genre)
-                            )
-                        )
-                        .navigationTitle(
-                            genre.isEmpty ? L10n.text("Uncategorized") : genre
-                        )
-                    } label: {
-                        card(
-                            genre.isEmpty ? L10n.text("Uncategorized") : genre,
-                            L10n.text(
-                                "format.song_count.short",
-                                model.library.tracks.filter { $0.genre == genre }.count
-                            ),
-                            model.library.tracks.first { $0.genre == genre }
-                        )
-                    }
-                }
-            } else {
-                ForEach(model.playlists) { playlist in
-                    NavigationLink {
-                        SongListView(
-                            model: SongListViewModel(
-                                library: model.library,
-                                player: model.player,
-                                destination: .playlist(playlist.id)
-                            )
-                        )
-                        .navigationTitle(playlist.name)
-                    } label: {
-                        card(
-                            playlist.name,
-                            L10n.text("format.song_count", playlist.entries.count),
-                            model.library.cover(for: playlist)
-                        )
-                    }
-                    .accessibilityIdentifier("playlist.open.\(playlist.name)")
-                    .contextMenu {
-                        Button(L10n.text("Delete Playlist"), role: .destructive) {
-                            model.library.delete(playlist)
-                        }
-                        .accessibilityIdentifier("playlist.delete")
-                    }
-                }
-            }
-        }
-        .buttonStyle(.plain).padding(24)
-    }
-    private func card(_ title: String, _ subtitle: String, _ track: Track?) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ArtworkView(track: track, vault: model.library.vault, size: 144)
-            Text(title).font(.headline).lineLimit(2)
-            Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .librarySearch(text: $search, prompt: searchPrompt)
     }
 }

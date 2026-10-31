@@ -240,6 +240,136 @@ final class TrashDeletionTests: XCTestCase {
     }
 }
 
+/// Protects playlist-only deletion boundaries, persistence, and stale-record synchronization.
+final class PlaylistTrashDeletionTests: XCTestCase {
+    /// Duplicate entries disappear while imported audio, source files, and queue state survive.
+    func testDeletingPlaylistPreservesSongsFilesOtherPlaylistsAndPlayback() async throws {
+        let library = try TestLibrary()
+        let source = try library.fixture(seconds: 1)
+        let report = await library.importer.importFiles([source]) { _ in }
+        XCTAssertTrue(report.errors.isEmpty)
+        let track = try XCTUnwrap(library.store.tracks().first)
+        let managed = try library.vault.url(for: track)
+        let sourceHash = try MediaVault.digest(source)
+        let managedHash = try MediaVault.digest(managed)
+        var playlist = Playlist(
+            name: "Delete duplicates",
+            entries: [QueueEntry(trackID: track.id), QueueEntry(trackID: track.id)]
+        )
+        playlist.deletedAt = Date()
+        try library.store.save(playlist)
+        let retained = Playlist(name: "Retained", entries: [QueueEntry(trackID: track.id)])
+        try library.store.save(retained)
+        var session = PlaybackSession()
+        session.replace(with: [track.id, track.id])
+        try library.store.setSetting("playback", value: session)
+        let before = try library.store.setting("playback", as: PlaybackSession.self)
+
+        try library.store.permanentlyDeletePlaylist(playlist.id)
+        try library.store.permanentlyDeletePlaylist(playlist.id)
+        XCTAssertEqual(try library.store.playlists(includeDeleted: true), [retained])
+        XCTAssertEqual(try library.store.tracks(includeDeleted: true), [track])
+        XCTAssertEqual(try MediaVault.digest(source), sourceHash)
+        XCTAssertEqual(try MediaVault.digest(managed), managedHash)
+        XCTAssertEqual(try library.store.setting("playback", as: PlaybackSession.self), before)
+        let envelope = try XCTUnwrap(
+            library.store.envelopes().first { $0.id == playlist.id.uuidString }
+        )
+        XCTAssertTrue(envelope.isPermanentlyDeletedPlaylist)
+        XCTAssertTrue(
+            try JSONDecoder().decode(Playlist.self, from: envelope.payload).entries.isEmpty
+        )
+        XCTAssertTrue(try library.store.pending().contains { $0.0.id == playlist.id.uuidString })
+        XCTAssertThrowsError(try library.store.save(playlist))
+        let restarted = try LibraryStore(url: library.root.appendingPathComponent("Library.sqlite"))
+        XCTAssertEqual(try restarted.playlists(includeDeleted: true), [retained])
+    }
+
+    /// Active playlists cannot bypass Trash, and unrelated or absent identities are harmless.
+    func testOnlyTrashedPlaylistsCanBePermanentlyDeleted() throws {
+        let library = try TestLibrary()
+        let track = library.track()
+        try library.store.save(track)
+        let playlist = Playlist(name: "Active", entries: [QueueEntry(trackID: track.id)])
+        try library.store.save(playlist)
+        XCTAssertThrowsError(try library.store.permanentlyDeletePlaylist(playlist.id))
+        try library.store.permanentlyDeletePlaylist(track.id)
+        try library.store.permanentlyDeletePlaylist(UUID())
+        XCTAssertEqual(try library.store.playlists(), [playlist])
+        XCTAssertEqual(try library.store.track(id: track.id), track)
+    }
+
+    /// Future offline restores and occurrence edits cannot revive a permanently deleted playlist.
+    func testStaleSyncAndBackupRestoreCannotResurrectPlaylistEntries() throws {
+        let first = try TestLibrary()
+        let second = try TestLibrary()
+        var playlist = Playlist(name: "Synced", entries: [QueueEntry(trackID: UUID())])
+        playlist.deletedAt = Date()
+        try first.store.save(playlist)
+        let old = try first.store.envelopes()
+        try second.store.restore(old)
+        try first.store.permanentlyDeletePlaylist(playlist.id)
+        let tombstone = try XCTUnwrap(first.store.envelopes().first)
+        var stale = try XCTUnwrap(old.first)
+        playlist.deletedAt = nil
+        playlist.entries.append(QueueEntry(trackID: UUID()))
+        stale.payload = try JSONEncoder().encode(playlist)
+        let future = FieldVersion(clock: Int64.max - 1, device: "offline")
+        stale.versions = stale.versions.mapValues { _ in future }
+        stale.versions["entry:" + playlist.entries.last!.id.uuidString] = future
+        let merged = try tombstone.merged(with: stale)
+        XCTAssertTrue(merged.isPermanentlyDeletedPlaylist)
+        XCTAssertTrue(try JSONDecoder().decode(Playlist.self, from: merged.payload).entries.isEmpty)
+        XCTAssertEqual(
+            try JSONDecoder().decode(Playlist.self, from: merged.payload),
+            try JSONDecoder().decode(Playlist.self, from: stale.merged(with: tombstone).payload)
+        )
+        for pending in try first.store.pending() {
+            try first.store.acknowledge(id: pending.0.id, generation: pending.1)
+        }
+        try first.store.merge(stale)
+        XCTAssertTrue(try first.store.pending().contains { $0.0.isPermanentlyDeletedPlaylist })
+        try second.store.merge(tombstone)
+        try second.store.restore(old)
+        XCTAssertTrue(try first.store.playlists(includeDeleted: true).isEmpty)
+        XCTAssertTrue(try second.store.playlists(includeDeleted: true).isEmpty)
+        let restored = try XCTUnwrap(second.store.envelopes().first)
+        XCTAssertTrue(
+            try JSONDecoder().decode(Playlist.self, from: restored.payload).entries.isEmpty
+        )
+    }
+
+    /// Full archives preserve audio but cannot restore purged playlists, including on a new store.
+    func testFullBackupKeepsSongsButDoesNotRestorePermanentlyDeletedPlaylist() async throws {
+        let library = try TestLibrary()
+        let source = try library.fixture(seconds: 1)
+        _ = await library.importer.importFiles([source]) { _ in }
+        let track = try XCTUnwrap(library.store.tracks().first)
+        var playlist = Playlist(name: "Backed up", entries: [QueueEntry(trackID: track.id)])
+        try library.store.save(playlist)
+        let service = BackupService(store: library.store, vault: library.vault)
+        let oldZIP = try await service.export(includeAudio: true)
+        defer { try? FileManager.default.removeItem(at: oldZIP) }
+        playlist.deletedAt = Date()
+        try library.store.save(playlist)
+        try library.store.permanentlyDeletePlaylist(playlist.id)
+        _ = try await service.restore(from: oldZIP)
+        XCTAssertTrue(try library.store.playlists(includeDeleted: true).isEmpty)
+        XCTAssertEqual(try library.store.tracks(), [track])
+        XCTAssertTrue(library.vault.contains(track))
+        let newZIP = try await service.export(includeAudio: true)
+        defer { try? FileManager.default.removeItem(at: newZIP) }
+        let other = try TestLibrary()
+        _ = try await BackupService(store: other.store, vault: other.vault).restore(from: newZIP)
+        XCTAssertTrue(try other.store.playlists(includeDeleted: true).isEmpty)
+        XCTAssertTrue(other.vault.contains(track))
+        let tombstone = try XCTUnwrap(
+            other.store.envelopes().first { $0.id == playlist.id.uuidString }
+        )
+        XCTAssertTrue(tombstone.isPermanentlyDeletedPlaylist)
+    }
+}
+
 @MainActor final class TrashPlaybackTests: XCTestCase {
     func testDeletingCurrentTrackInvalidatesPendingDownloadAndKeepsRemainingSongPaused() throws {
         let library = try TestLibrary()

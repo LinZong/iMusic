@@ -1,5 +1,4 @@
 import Foundation
-import ImageIO
 import Observation
 
 @MainActor @Observable
@@ -14,31 +13,26 @@ final class PlaylistEditorViewModel {
     var chooseCover = false
     /// Most recent custom-cover validation or file-access error shown in this editor.
     var error: String?
+    /// Image validation and source access are independent of playlist draft state.
+    private let artworkImporter: any ArtworkImporting
     /// Creates an independent feature model with explicit service and state dependencies.
-    init(library: LibraryViewModel, playlist: Playlist, isCreating: Bool = false) {
+    init(
+        library: LibraryViewModel,
+        playlist: Playlist,
+        isCreating: Bool = false,
+        artworkImporter: (any ArtworkImporting)? = nil
+    ) {
         self.library = library
         self.playlist = playlist
         self.isCreating = isCreating
+        self.artworkImporter = artworkImporter ?? ManagedArtworkImporter(vault: library.vault)
     }
-    /// Reads and validates a selected cover into the playlist draft without persisting it.
+    /// Applies a selected cover to this draft without persisting the playlist.
     func importArtwork(_ result: Result<URL, Error>) {
-        do {
-            let url = try result.get()
-            let access = url.startAccessingSecurityScopedResource()
-            defer { if access { url.stopAccessingSecurityScopedResource() } }
-            guard (try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? .max) <= 20_000_000
-            else {
-                throw MusicError.unavailable(L10n.text("Choose an image smaller than 20 MB."))
-            }
-            let data = try Data(contentsOf: url)
-            guard CGImageSourceCreateWithData(data as CFData, nil) != nil else {
-                throw MusicError.unavailable(L10n.text("Unable to read this image."))
-            }
-            let name = UUID().uuidString + ".image"
-            try data.write(to: library.vault.artwork.appendingPathComponent(name), options: .atomic)
-            playlist.artworkName = name
-        } catch { self.error = error.localizedDescription }
+        do { playlist.artworkName = try artworkImporter.importFile(result.get()) } catch {
+            self.error = error.localizedDescription
+        }
     }
     /// Commits the edited playlist name and artwork reference.
-    func save() { library.save(playlist) }
+    func save() { library.commands.save(playlist) }
 }

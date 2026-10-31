@@ -53,7 +53,7 @@ struct DesktopMiniPlayer: View {
             .layoutPriority(1)
             if let track = model.playback.track {
                 Button {
-                    model.library.toggleFavorite(track)
+                    model.library.commands.toggleFavorite(track)
                 } label: {
                     Image(systemName: track.isFavorite ? "heart.fill" : "heart")
                         .font(.system(size: 18, weight: .medium))

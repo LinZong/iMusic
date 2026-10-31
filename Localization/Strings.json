@@ -794,6 +794,16 @@
     "zh-Hans": "下一首",
     "zh-Hant": "下一首"
   },
+  "No Deleted Playlists": {
+    "en": "No Deleted Playlists",
+    "zh-Hans": "没有已删除的歌单",
+    "zh-Hant": "沒有已刪除的歌單"
+  },
+  "No Deleted Songs": {
+    "en": "No Deleted Songs",
+    "zh-Hans": "没有已删除的歌曲",
+    "zh-Hant": "沒有已刪除的歌曲"
+  },
   "No Identical Duplicate Songs": {
     "en": "No Identical Duplicate Songs",
     "zh-Hans": "没有内容完全相同的重复歌曲",
@@ -869,6 +879,11 @@
     "zh-Hans": "仅删除资料库记录和派生封面，关联文件夹中的源文件将保留。",
     "zh-Hant": "僅刪除資料庫記錄和衍生封面，關聯資料夾中的來源檔案將保留。"
   },
+  "Only playlists in Trash can be permanently deleted.": {
+    "en": "Only playlists in Trash can be permanently deleted.",
+    "zh-Hans": "只能永久删除回收站中的歌单。",
+    "zh-Hant": "只能永久刪除回收站中的歌單。"
+  },
   "Only songs in Trash can be permanently deleted.": {
     "en": "Only songs in Trash can be permanently deleted.",
     "zh-Hans": "只能永久删除回收站中的歌曲。",
@@ -918,6 +933,11 @@
     "en": "Permanently Delete Music?",
     "zh-Hans": "永久删除音乐？",
     "zh-Hant": "永久刪除音樂？"
+  },
+  "Permanently Delete Playlist?": {
+    "en": "Permanently Delete Playlist?",
+    "zh-Hans": "永久删除歌单？",
+    "zh-Hant": "永久刪除歌單？"
   },
   "Play": {
     "en": "Play",
@@ -973,6 +993,11 @@
     "en": "Playlists",
     "zh-Hans": "歌单",
     "zh-Hant": "歌單"
+  },
+  "Playlists moved to Trash appear here until you restore or permanently delete them. Songs and audio files are kept.": {
+    "en": "Playlists moved to Trash appear here until you restore or permanently delete them. Songs and audio files are kept.",
+    "zh-Hans": "移入回收站的歌单会保留在这里，直到您恢复或永久删除。歌曲和音频文件会保留。",
+    "zh-Hant": "移入回收站的歌單會保留在這裡，直到您還原或永久刪除。歌曲和音訊檔案會保留。"
   },
   "Please wait for the current task to finish.": {
     "en": "Please wait for the current task to finish.",
@@ -1173,6 +1198,16 @@
     "en": "Search Trash",
     "zh-Hans": "搜索回收站",
     "zh-Hant": "搜尋垃圾桶"
+  },
+  "Search Trashed Playlists": {
+    "en": "Search Trashed Playlists",
+    "zh-Hans": "搜索回收站中的歌单",
+    "zh-Hant": "搜尋回收站中的歌單"
+  },
+  "Search Trashed Songs": {
+    "en": "Search Trashed Songs",
+    "zh-Hans": "搜索回收站中的歌曲",
+    "zh-Hant": "搜尋回收站中的歌曲"
   },
   "Search for Album Artwork": {
     "en": "Search for Album Artwork",
@@ -1419,6 +1454,11 @@
     "zh-Hans": "此旧版关联文件夹已导入音频副本。重新关联可索引源文件，已有副本将保留。",
     "zh-Hant": "此舊版關聯資料夾已匯入音訊副本。重新關聯可索引來源檔案，現有副本將保留。"
   },
+  "This playlist was permanently deleted. Create a new playlist instead.": {
+    "en": "This playlist was permanently deleted. Create a new playlist instead.",
+    "zh-Hans": "此歌单已被永久删除，请创建新歌单。",
+    "zh-Hant": "此歌單已被永久刪除，請建立新歌單。"
+  },
   "This record is too large to sync with iCloud. Your local information has been preserved.": {
     "en": "This record is too large to sync with iCloud. Your local information has been preserved.",
     "zh-Hans": "此记录过大，无法同步到 iCloud；本地内容已保留。",
@@ -1473,6 +1513,11 @@
     "en": "Trash",
     "zh-Hans": "回收站",
     "zh-Hant": "回收站"
+  },
+  "Trash Categories": {
+    "en": "Trash Categories",
+    "zh-Hans": "回收站分类",
+    "zh-Hant": "回收站分類"
   },
   "Trash Is Empty": {
     "en": "Trash Is Empty",
@@ -1785,6 +1830,15 @@
     "zh-Hans": "添加到“%1$@”",
     "zh-Hant": "添加到“%1$@”"
   },
+  "format.playlist.count": {
+    "en": "%1$ld playlists",
+    "zh-Hans": "%1$ld 个歌单",
+    "zh-Hant": "%1$ld 個歌單",
+    "plural": {
+      "one": "%1$ld playlist",
+      "other": "%1$ld playlists"
+    }
+  },
   "format.queue.count": {
     "en": "Play Queue · %1$ld",
     "zh-Hans": "播放队列 · %1$ld",
@@ -1840,10 +1894,20 @@
     "zh-Hans": "将从 iMusic 资料库永久移除 %1$ld 首歌曲，并删除这台设备上应用内的副本。导入来源文件和已有备份不受影响。启用 iCloud 时，删除记录会随资料库同步。",
     "zh-Hant": "將從 iMusic 資料庫永久移除 %1$ld 首歌曲，並刪除這台裝置上應用內的副本。導入來源檔案和已有備份不受影響。啓用 iCloud 時，刪除記錄會隨資料庫同步。"
   },
+  "format.trash.delete_playlist": {
+    "en": "“%1$@” and its playlist entries will be permanently removed. Songs and audio files will be kept.",
+    "zh-Hans": "“%1$@”及其歌单条目将被永久删除。歌曲及音频文件会保留。",
+    "zh-Hant": "「%1$@」及其歌單項目將被永久刪除。歌曲及音訊檔案會保留。"
+  },
   "format.trash.delete_song": {
     "en": "“%1$@” will be permanently removed from iMusic. Its managed copy on this device will be deleted. Source files and existing backups are kept. Library deletion records sync when iCloud is enabled.",
     "zh-Hans": "将从 iMusic 资料库永久移除“%1$@”，并删除这台设备上应用内的副本。导入来源文件和已有备份不受影响。启用 iCloud 时，删除记录会随资料库同步。",
     "zh-Hant": "將從 iMusic 資料庫永久移除「%1$@」，並刪除這台裝置上應用內的副本。導入來源檔案和已有備份不受影響。啓用 iCloud 時，刪除記錄會隨資料庫同步。"
+  },
+  "format.trash.summary": {
+    "en": "Songs: %1$ld · Playlists: %2$ld",
+    "zh-Hans": "歌曲：%1$ld · 歌单：%2$ld",
+    "zh-Hant": "歌曲：%1$ld · 歌單：%2$ld"
   },
   "iCloud (Optional)": {
     "en": "iCloud (Optional)",

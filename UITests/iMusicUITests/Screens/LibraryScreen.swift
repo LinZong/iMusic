@@ -71,7 +71,7 @@ import XCTest
     /// Confirmation button in the native deletion sheet or mobile alert.
     var deletionConfirmation: XCUIElement {
         #if os(macOS)
-        app.windows.buttons["Delete Permanently"]
+        app.windows.sheets.buttons["Delete Permanently"]
         #else
         app.alerts.buttons["Delete Permanently"]
         #endif
@@ -92,6 +92,21 @@ import XCTest
         for _ in 0..<6 where !link.isHittable { app.swipeUp() }
         XCTAssertTrue(link.isHittable, app.debugDescription)
         link.interact()
+        #endif
+    }
+
+    /// Selects a native Trash segment without interacting with the app's main navigation tabs.
+    func selectTrashTab(_ title: String) {
+        let tabs = app.element("trash.tabs")
+        XCTAssertTrue(tabs.waitForExistence(timeout: 5))
+        #if os(macOS)
+        tabs.radioButtons[title].interact()
+        #else
+        let segment = tabs.buttons[title]
+        segment.interact()
+        // An empty native search presentation can consume the first tap to dismiss itself.
+        if !segment.isSelected { segment.interact() }
+        XCTAssertTrue(segment.isSelected, app.debugDescription)
         #endif
     }
 
@@ -143,12 +158,12 @@ import XCTest
         search.typeKey("a", modifierFlags: .command)
         search.typeKey(.delete, modifierFlags: [])
         #else
+        let clear = search.buttons["Clear text"]
+        XCTAssertTrue(clear.waitForExistence(timeout: 5), app.debugDescription)
+        clear.interact()
         let cancel = app.buttons["Cancel"]
         if cancel.exists {
             cancel.interact()
-        } else {
-            let count = (search.value as? String ?? "").count
-            search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: count))
         }
         #endif
     }

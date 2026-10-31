@@ -79,7 +79,10 @@ public final class AppModel {
             }
         }
         #if os(iOS)
-        if integrateWithSystem { CarPlaySceneDelegate.model = self }
+        if integrateWithSystem {
+            CarPlaySceneDelegate.session = self
+            CloudNotificationReceiver.handler = self
+        }
         #endif
     }
     /// Runs startup recovery once and restores explicitly enabled cloud synchronization.
@@ -90,6 +93,18 @@ public final class AppModel {
         if cloud.available, (try? store.setting("cloudEnabled", as: Bool.self)) == true {
             await cloud.enable(allowAccountChange: false)
         }
+    }
+    /// Handles a silent cloud update without depending on any visible window or CarPlay scene.
+    public func handleCloudNotification() async -> Bool {
+        guard cloud.available,
+            (try? store.setting("cloudEnabled", as: Bool.self)) == true
+        else { return false }
+        if cloud.enabled {
+            await cloud.sync()
+        } else {
+            await cloud.enable(allowAccountChange: false)
+        }
+        return cloud.enabled
     }
     /// Creates scene-local navigation state while retaining shared library and playback sessions.
     func makeRootViewModel() -> RootViewModel {

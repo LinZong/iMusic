@@ -12,7 +12,7 @@ struct PlaylistEditor: View {
             Form {
                 Section {
                     ArtworkView(
-                        track: model.library.cover(for: model.playlist),
+                        track: model.library.catalog.cover(for: model.playlist),
                         vault: model.library.vault,
                         size: 140
                     )

@@ -20,71 +20,72 @@ struct DestinationView: View {
                     )
                 )
             case .artists:
-                CollectionGrid(
-                    model: CollectionViewModel(
-                        library: model.library,
-                        player: model.player,
-                        kind: .artists
-                    )
+                ArtistCollectionView(
+                    model: ArtistCollectionViewModel(library: model.library, player: model.player)
                 )
             case .albums:
-                CollectionGrid(
-                    model: CollectionViewModel(
-                        library: model.library,
-                        player: model.player,
-                        kind: .albums
-                    )
+                AlbumCollectionView(
+                    model: AlbumCollectionViewModel(library: model.library, player: model.player)
                 )
             case .genres:
-                CollectionGrid(
-                    model: CollectionViewModel(
-                        library: model.library,
-                        player: model.player,
-                        kind: .genres
-                    )
+                GenreCollectionView(
+                    model: GenreCollectionViewModel(library: model.library, player: model.player)
                 )
             case .playlists:
-                CollectionGrid(
-                    model: CollectionViewModel(
-                        library: model.library,
-                        player: model.player,
-                        kind: .playlists
-                    )
+                PlaylistCollectionView(
+                    model: PlaylistCollectionViewModel(library: model.library, player: model.player)
                 )
             case .settings:
                 SettingsView(
                     model: SettingsViewModel(
                         library: model.library,
-                        player: model.player,
                         preferences: model.preferences,
                         imports: model.imports
                     )
                 )
-            default:
-                SongListView(
-                    model: SongListViewModel(
+            case .trash:
+                TrashView(model: TrashViewModel(library: model.library))
+            case .songs:
+                AllSongsView(
+                    model: SongCollectionViewModel(
                         library: model.library,
                         player: model.player,
-                        destination: destination
+                        scope: .all
                     )
                 )
+            case .playlist(let id):
+                PlaylistDetailView(
+                    model: PlaylistDetailViewModel(
+                        library: model.library,
+                        player: model.player,
+                        playlistID: id
+                    )
+                )
+            case .favorites:
+                songs(in: .favorites)
+            case .artist(let name):
+                songs(in: .artist(name))
+            case .album(let key):
+                songs(in: .album(key))
+            case .genre(let name):
+                songs(in: .genre(name))
             }
         }
         .id(destination)
-        .navigationTitle(model.library.title(for: destination))
+        .navigationTitle(model.library.catalog.title(for: destination))
         .toolbar {
             ToolbarItem {
                 Menu {
                     Button(L10n.text("Import Music"), systemImage: "square.and.arrow.down") {
-                        model.imports.showImporter = true
+                        model.imports.picker.present(.audio)
                     }
                     .accessibilityIdentifier("library.import")
                     Button(L10n.text("Link Folder"), systemImage: "folder.badge.plus") {
-                        model.imports.showFolderPicker = true
+                        model.imports.folders.chooseFolder()
                     }
                     .accessibilityIdentifier("library.linkFolder")
                     Button(L10n.text("Wi-Fi Transfer"), systemImage: "wifi") {
-                        model.imports.showWiFi = true
+                        model.imports.transfers.presented = true
                     }
                     Divider()
                     Button(L10n.text("New Playlist"), systemImage: "plus") {
@@ -114,4 +115,15 @@ struct DestinationView: View {
             return !urls.isEmpty
         }
     }
+    /// Resolves only active collection routes to the collection feature.
+    private func songs(in scope: SongCollectionScope) -> some View {
+        SongCollectionView(
+            model: SongCollectionViewModel(
+                library: model.library,
+                player: model.player,
+                scope: scope
+            )
+        )
+    }
+
 }

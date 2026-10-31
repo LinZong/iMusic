@@ -107,7 +107,7 @@ import XCTest
         launch()
         openTrash()
         library.restoreTrashedTrack("UI Trashed")
-        XCTAssertTrue(app.text(containing: "Trash Is Empty").waitForExistence(timeout: 5))
+        XCTAssertTrue(app.text(containing: "No Deleted Songs").waitForExistence(timeout: 5))
         navigate("All Songs")
         let restored = library.track("UI Trashed")
         XCTAssertTrue(restored.waitForExistence(timeout: 5))
@@ -118,7 +118,7 @@ import XCTest
         let confirm = library.deletionConfirmation
         XCTAssertTrue(confirm.waitForExistence(timeout: 5))
         confirm.interact()
-        XCTAssertTrue(app.text(containing: "Trash Is Empty").waitForExistence(timeout: 10))
+        XCTAssertTrue(app.text(containing: "No Deleted Songs").waitForExistence(timeout: 10))
         capture("Trash empty after deleting generated fixture")
     }
 

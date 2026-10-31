@@ -36,7 +36,7 @@ final class BatchTrackEditorViewModel {
             if editAlbum { track.album = album }
             if editAlbumArtist { track.albumArtist = albumArtist }
             if editGenre { track.genre = genre }
-            library.save(track)
+            library.commands.save(track)
         }
     }
 }

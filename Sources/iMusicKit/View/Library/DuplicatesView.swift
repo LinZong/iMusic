@@ -2,14 +2,11 @@ import SwiftUI
 
 struct DuplicatesView: View {
     /// Feature model containing only this page's state and explicit dependencies.
-    @Bindable var model: LibraryViewModel
+    let model: DuplicatesViewModel
     /// Renders groups of identical audio content and lets the user choose which record to keep.
     var body: some View {
-        let groups = Dictionary(grouping: model.tracks.filter { !$0.isLinked }, by: \.assetHash)
-            .values
-            .filter { $0.count > 1 }
         Group {
-            if groups.isEmpty {
+            if model.groups.isEmpty {
                 PageScrollView {
                     VStack(spacing: 0) {
                         explanation.padding(16)
@@ -31,7 +28,8 @@ struct DuplicatesView: View {
             } else {
                 List {
                     explanation
-                    ForEach(Array(groups.enumerated()), id: \.offset) { _, tracks in
+                    ForEach(model.groups) { group in
+                        let tracks = group.tracks
                         Section(tracks.first?.title ?? L10n.text("Duplicate Files")) {
                             ForEach(tracks) { track in
                                 HStack {
@@ -42,7 +40,7 @@ struct DuplicatesView: View {
                                     }
                                     Spacer()
                                     Button(L10n.text("Keep This Copy and Merge")) {
-                                        model.mergeDuplicates(keeper: track, duplicates: tracks)
+                                        model.keep(track, in: group)
                                     }
                                 }
                             }

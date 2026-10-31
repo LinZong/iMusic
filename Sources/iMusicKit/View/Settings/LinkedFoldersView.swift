@@ -3,17 +3,20 @@ import UniformTypeIdentifiers
 
 struct LinkedFoldersView: View {
     /// Settings dependencies used to invoke explicit authorization and scan actions.
-    let model: SettingsViewModel
+    let library: LibraryViewModel
+    /// Folder import and explicit authorization workflow.
+    let imports: ImportViewModel
     /// Feature-local picker state for explicitly locating a moved or replaced source file.
     @State private var repair: LinkedFileRepairViewModel
 
     /// Creates source management with a dedicated per-file repair model.
-    init(model: SettingsViewModel) {
-        self.model = model
-        _repair = State(initialValue: LinkedFileRepairViewModel(library: model.library))
+    init(library: LibraryViewModel, imports: ImportViewModel) {
+        self.library = library
+        self.imports = imports
+        _repair = State(initialValue: LinkedFileRepairViewModel(library: library))
     }
     /// Pure snapshot projection that keeps file-provider work out of the view body.
-    private var viewModel: LinkedFoldersViewModel { LinkedFoldersViewModel(library: model.library) }
+    private var viewModel: LinkedFoldersViewModel { LinkedFoldersViewModel(library: library) }
 
     var body: some View {
         @Bindable var repair = repair
@@ -29,13 +32,13 @@ struct LinkedFoldersView: View {
                     )
                 )
                 Button(L10n.text("Link Folder…")) {
-                    model.imports.relinkFolderID = nil
-                    model.imports.showFolderPicker = true
+                    imports.folders.relinkFolderID = nil
+                    imports.folders.chooseFolder()
                 }
                 Button(L10n.text("Scan Linked Folders")) {
-                    Task { await model.imports.scanFolders(retryFailures: true) }
+                    Task { await imports.folders.scanFolders(retryFailures: true) }
                 }
-                .disabled(model.library.activity.importing || model.library.folders.isEmpty)
+                .disabled(library.activity.importing || library.folders.isEmpty)
             }
             ForEach(viewModel.folders) { folder in
                 Section(folder.name) {
@@ -58,21 +61,21 @@ struct LinkedFoldersView: View {
                         Text(L10n.text("format.folder.last_scan", date.formatted()))
                             .font(.caption).foregroundStyle(.secondary)
                     }
-                    Button(L10n.text("Relink Folder…")) { model.imports.relinkFolder(folder.id) }
-                        .disabled(model.library.activity.importing)
+                    Button(L10n.text("Relink Folder…")) { imports.folders.relinkFolder(folder.id) }
+                        .disabled(library.activity.importing)
                     if !folder.bookmark.isEmpty {
                         Button(L10n.text("Unlink"), role: .destructive) {
-                            model.library.removeFolder(folder.id)
+                            library.commands.removeFolder(folder.id)
                         }
                     }
                     ForEach(viewModel.problems(folder)) { job in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(job.relativePath).lineLimit(2)
                             if !folder.bookmark.isEmpty,
-                                model.library.tracks.contains(where: { $0.id == job.id })
+                                library.tracks.contains(where: { $0.id == job.id })
                             {
                                 Button(L10n.text("Locate File…")) { repair.select(job) }
-                                    .disabled(model.library.activity.importing)
+                                    .disabled(library.activity.importing)
                             }
                             if let error = job.error {
                                 Text(error).font(.caption).foregroundStyle(.secondary)

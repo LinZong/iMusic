@@ -50,11 +50,11 @@ replacing production target identities. Running it repeatedly is safe.
 | --- | --- | --- |
 | `LibraryUITests` | Empty states/search ownership; song search; name validation and playlist relaunch persistence; player menus, paused seek and next track; Trash restore/permanent deletion; Link Folder picker cancellation | iPhone, iPad, macOS |
 | `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation | iPhone, iPad, macOS |
-| `PlaylistUITests` | Cancelled drafts do not persist or leak; playlist-name search is scoped; soft delete and restore | iPhone, iPad, macOS |
+| `PlaylistUITests` | Cancelled drafts do not persist or leak; scoped playlist search; restore and permanent deletion; Trash category tabs with independent searches, summaries, and empty states; playlist-detail add/remove with library-song preservation | iPhone, iPad, macOS |
 | `PlayerAppearanceUITests` | Saved light/dark appearance; background pixel checks across three mini-player expansions | iPhone, iPad |
 | `MacPlaybackUITests` | Persistent volume, mute/unmute restoration; desktop previous/next, repeat, shuffle and favorite controls; Space shortcut; full-player and standalone-window synchronization | macOS |
 
-The shared suite has 12 scenarios; iOS/iPadOS adds 2 appearance scenarios, and native macOS adds
+The shared suite has 15 scenarios; iOS/iPadOS adds 2 appearance scenarios, and native macOS adds
 3 desktop scenarios. Each scenario imports
 only generated fixtures through the production importer or starts empty. Screenshots are attached
 to the result bundle; failures also attach the accessibility hierarchy. Native AppKit tables expose
@@ -62,6 +62,12 @@ Outline rows, and text may be reported in `value` rather than `label`. Mac file-
 exclude Touch Bar buttons. Context-menu queries stay inside app windows, avoiding hidden Window
 menu entries with the same titles as commands. These adaptations belong in `Screens/` and
 `Support/`, not feature tests.
+
+Trash tests select the Songs or Playlists segment explicitly and verify independent search text,
+summaries, and category empty states. Query clearing uses the native clear-text button on touch
+platforms rather than relying on keyboard focus. The combined scenario also navigates away and
+returns before testing recovery, covering search-view teardown and recreation. Restoration and
+deletion have additional dedicated scenarios.
 
 Appearance tests sample an unobstructed sheet margin after presentation. They do not measure
 individual animation frames. For a presentation-color regression, also record the simulator with

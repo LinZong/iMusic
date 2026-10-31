@@ -34,6 +34,8 @@ jobs:
         run: python3 Scripts/swift_style.py check
       - name: Apple build script regression tests
         run: python3 -m unittest discover -s Scripts/tests -p 'test_*.py'
+      - name: Architecture boundaries
+        run: python3 Scripts/check_architecture.py
       - name: Localization coverage
         run: python3 Scripts/check_localizations.py
       - name: Tests without hardware audio

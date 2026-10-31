@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WiFiView: View {
     /// Feature model containing only this page's state and explicit dependencies.
-    @Bindable var model: ImportViewModel
+    @Bindable var model: WiFiTransferViewModel
     /// SwiftUI presentation action used to close this sheet or editor.
     @Environment(\.dismiss) private var dismiss
     /// Renders all local transfer addresses and the pairing code while managing the listener
@@ -22,9 +22,9 @@ struct WiFiView: View {
                         )
                     )
                     .foregroundStyle(.secondary).multilineTextAlignment(.center)
-                    if !model.wifi.addresses.isEmpty {
+                    if !model.server.addresses.isEmpty {
                         VStack(spacing: 12) {
-                            ForEach(model.wifi.addresses, id: \.self) { address in
+                            ForEach(model.server.addresses, id: \.self) { address in
                                 Text(address)
                                     .font(.headline.monospaced())
                                     .textSelection(.enabled)
@@ -34,7 +34,7 @@ struct WiFiView: View {
                         VStack(spacing: 8) {
                             Text(L10n.text("Pairing Code")).font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text(model.wifi.code)
+                            Text(model.server.code)
                                 .font(.system(size: 38, weight: .semibold, design: .monospaced))
                                 .textSelection(.enabled)
                         }
@@ -57,7 +57,7 @@ struct WiFiView: View {
                             )
                             .font(.caption)
                         }
-                    } else if let error = model.wifi.error {
+                    } else if let error = model.server.error {
                         Text(error).foregroundStyle(.orange)
                         Button(L10n.text("Try Again")) { Task { await model.startWiFi() } }
                     } else {

@@ -42,7 +42,7 @@ struct TrackRow: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("track.play.\(track.originalFilename)")
             Button {
-                model.library.toggleFavorite(track)
+                model.library.commands.toggleFavorite(track)
             } label: {
                 Image(systemName: track.isFavorite ? "heart.fill" : "heart")
                     .foregroundStyle(

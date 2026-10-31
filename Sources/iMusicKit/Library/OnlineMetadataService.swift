@@ -17,6 +17,14 @@ private struct ReleaseResponse: Decodable {
     var releases: [OnlineRelease]
 }
 
+/// Explicit online lookup boundary; editor tests can substitute a local, network-free service.
+protocol OnlineMetadataProviding: Sendable {
+    /// Searches release metadata after the caller checks user consent.
+    func search(album: String, artist: String) async throws -> [OnlineRelease]
+    /// Retrieves the selected release's cover after explicit user action.
+    func artwork(for release: OnlineRelease) async throws -> Data
+}
+
 public actor OnlineMetadataService {
     /// Start time of the last metadata request, used to space MusicBrainz searches apart.
     private var lastRequest = Date.distantPast
@@ -70,3 +78,5 @@ public actor OnlineMetadataService {
         return try Data(contentsOf: urlOnDisk)
     }
 }
+
+extension OnlineMetadataService: OnlineMetadataProviding {}

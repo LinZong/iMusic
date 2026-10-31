@@ -27,7 +27,7 @@ public struct RootView: View {
                     model.player.playback.setSourceObservation(active: false)
                     model.imports.background()
                     model.player.playback.persist()
-                    Task { await model.imports.wifi.stop() }
+                    Task { await model.imports.transfers.server.stop() }
                 } else if phase == .active {
                     model.player.playback.setSourceObservation(active: true)
                     Task { await model.imports.foreground() }
@@ -104,7 +104,7 @@ public struct RootView: View {
                                 let tracks = ids.compactMap { value in
                                     model.library.tracks.first { $0.id.uuidString == value }
                                 }
-                                model.library.add(tracks, to: playlist)
+                                model.library.commands.add(tracks, to: playlist)
                                 return !tracks.isEmpty
                             }
                         }

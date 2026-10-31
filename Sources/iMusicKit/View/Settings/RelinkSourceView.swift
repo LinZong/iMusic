@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RelinkSourceView: View {
     /// Source workflows that own the pending proposal and final authorization action.
-    let model: ImportViewModel
+    let model: FolderImportViewModel
     /// Explicitly selected root and existing references presented for review.
     let preview: FolderRelinkPreview
 

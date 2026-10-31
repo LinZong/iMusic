@@ -8,6 +8,12 @@ public struct LinkedAudioReference: Codable, Hashable, Sendable {
     public var folderName: String
     /// Relative location offered only during an explicit folder relink, never as file identity.
     public var relativePath: String
+    /// Validates a portable location hint before joining it to an explicitly selected root.
+    public static func isSafeRelativePath(_ path: String) -> Bool {
+        !path.isEmpty && !path.hasPrefix("/") && !path.contains("\\") && !path.contains("\0")
+            && !path.split(separator: "/").contains("..")
+    }
+
 }
 
 /// Device-local source state, independent of user edits and synchronized song metadata.

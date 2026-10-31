@@ -23,7 +23,7 @@ final class PlaylistSongPickerViewModel {
     }
     /// Appends selected songs in library order while preserving existing playlist occurrences.
     func addSelection() {
-        library.add(library.tracks.filter { selected.contains($0.id) }, to: playlist)
+        library.commands.add(library.tracks.filter { selected.contains($0.id) }, to: playlist)
     }
     /// Toggles one selected song without changing another picker's selection.
     func toggle(_ id: UUID) {

@@ -1,6 +1,5 @@
 import CryptoKit
 import Foundation
-import SFBAudioEngine
 
 /// Reads tags, technical metadata, and derived artwork directly from coordinated source files.
 enum LinkedMetadataPipeline {
@@ -12,42 +11,19 @@ enum LinkedMetadataPipeline {
         vault: MediaVault,
         previous: Track?
     ) throws -> Track {
-        let audio = try AudioFile(readingPropertiesAndMetadataFrom: url)
-        let metadata = audio.metadata
-        let properties = audio.properties
-        let duration = properties.duration ?? 0
-        guard duration.isFinite, duration > 0 else { throw MusicError.unsupportedFormat }
-        var track = Track(
+        let decoded = try AudioMetadataReader.read(
+            url,
             id: id,
             assetHash: nil,
-            fileExtension: url.pathExtension.lowercased(),
             originalFilename: url.lastPathComponent,
-            title: metadata.title?.isEmpty == false
-                ? metadata.title! : url.deletingPathExtension().lastPathComponent,
-            artist: metadata.artist ?? "",
-            album: metadata.albumTitle ?? "",
-            albumArtist: metadata.albumArtist ?? "",
-            genre: metadata.genre ?? "",
-            discNumber: metadata.discNumber ?? 1,
-            trackNumber: metadata.trackNumber ?? 0,
-            duration: duration,
-            sampleRate: properties.sampleRate ?? 0,
-            channels: Int(properties.channelCount ?? 2),
-            linkedSource: reference
+            reference: reference
         )
-        track.originalMetadata = [
-            "title": track.title, "artist": track.artist, "album": track.album,
-            "albumArtist": track.albumArtist, "genre": track.genre,
-        ]
-        if let picture = metadata.attachedPictures.first, picture.imageData.count <= 20_000_000 {
-            // Derived artwork is allowed; the source audio is never hashed or copied.
-            let hash = SHA256.hash(data: picture.imageData).map { String(format: "%02x", $0) }
-                .joined()
+        var track = decoded.track
+        if let artwork = decoded.artwork {
+            // Derived artwork is allowed; original audio is never hashed or copied.
+            let hash = SHA256.hash(data: artwork).map { String(format: "%02x", $0) }.joined()
             let name = "linked-" + hash + ".image"
-            try picture.imageData.write(
-                to: vault.artwork.appendingPathComponent(name),
-                options: .atomic
-            )
+            try artwork.write(to: vault.artwork.appendingPathComponent(name), options: .atomic)
             track.artworkName = name
         }
         track.originalMetadata["artworkName"] = track.artworkName ?? ""

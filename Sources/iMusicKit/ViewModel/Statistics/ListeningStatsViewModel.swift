@@ -22,6 +22,12 @@ final class ListeningStatsViewModel {
             }
             .sorted { $0.date < $1.date }
     }
+    /// Lifetime summary used by the settings overview.
+    var summary: ListeningSummary {
+        ListeningSummary(events: library.events, tracks: library.tracks)
+    }
+    /// Period-scoped summary used by the detailed statistics page.
+    var report: ListeningSummary { ListeningSummary(events: events, tracks: library.tracks) }
     /// Creates an independent feature model with explicit service and state dependencies.
     init(library: LibraryViewModel) {
         self.library = library

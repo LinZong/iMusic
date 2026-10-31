@@ -50,7 +50,7 @@ struct IMusicApp: App {
         .defaultSize(width: 1_040, height: 740)
         .commands {
             CommandGroup(after: .newItem) {
-                Button(L10n.text("Import Music…")) { model?.imports.showImporter = true }
+                Button(L10n.text("Import Music…")) { model?.imports.presentAudioPicker() }
                 .keyboardShortcut("o")
             }
             CommandMenu(L10n.text("Play")) {
@@ -147,19 +147,8 @@ final class MusicAppDelegate: NSObject, UIApplicationDelegate {
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
         Task { @MainActor in
-            guard let model = CarPlaySceneDelegate.model, model.cloud.available,
-                (try? model.store.setting("cloudEnabled", as: Bool.self)) == true
-            else {
-                completionHandler(.noData)
-                return
-            }
-            // A silent notification can cold-launch without a visible SwiftUI scene.
-            if model.cloud.enabled {
-                await model.cloud.sync()
-            } else {
-                await model.cloud.enable(allowAccountChange: false)
-            }
-            completionHandler(model.cloud.enabled ? .newData : .noData)
+            let changed = await CloudNotificationReceiver.receive()
+            completionHandler(changed ? .newData : .noData)
         }
     }
 }

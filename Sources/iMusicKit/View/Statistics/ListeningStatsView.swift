@@ -15,7 +15,7 @@ struct ListeningStatsView: View {
                     Text(L10n.text("All Time")).tag(0)
                 }
                 .pickerStyle(.segmented)
-                Text(musicTime(model.events.reduce(0) { $0 + $1.seconds }))
+                Text(musicTime(model.report.totalSeconds))
                     .font(
                         .system(.largeTitle, design: .rounded).bold()
                     )
@@ -45,35 +45,24 @@ struct ListeningStatsView: View {
                     }
                     .frame(height: 180)
                     Text(L10n.text("Most Played Songs")).font(.title2.bold())
-                    let totals = Dictionary(grouping: model.events, by: \.trackID)
-                        .mapValues {
-                            $0.reduce(0) { $0 + $1.seconds }
-                        }
-                        .sorted { $0.value > $1.value }
-                    ForEach(Array(totals.prefix(10).enumerated()), id: \.element.key) {
-                        index,
-                        item in
-                        if let track = model.library.tracks.first(where: { $0.id == item.key }) {
-                            HStack {
-                                Text("\(index + 1)").foregroundStyle(.secondary).frame(width: 24)
-                                Text(track.title).lineLimit(1)
-                                Spacer()
-                                Text(musicTime(item.value)).monospacedDigit()
-                                    .foregroundStyle(.secondary)
-                            }
+                    ForEach(
+                        Array(model.report.topTracks.prefix(10).enumerated()),
+                        id: \.element.id
+                    ) { index, item in
+                        HStack {
+                            Text("\(index + 1)").foregroundStyle(.secondary).frame(width: 24)
+                            Text(item.title).lineLimit(1)
+                            Spacer()
+                            Text(musicTime(item.seconds)).monospacedDigit()
+                                .foregroundStyle(.secondary)
                         }
                     }
                     Text(L10n.text("Most Played Artists")).font(.title2.bold())
-                    let artistTotals = Dictionary(grouping: model.events) { event in
-                        model.library.tracks.first(where: { $0.id == event.trackID })?.displayArtist
-                            ?? L10n.text("Unknown Artist")
-                    }
-                    .mapValues { $0.reduce(0) { $0 + $1.seconds } }.sorted { $0.value > $1.value }
-                    ForEach(Array(artistTotals.prefix(10).enumerated()), id: \.offset) { _, item in
+                    ForEach(model.report.topArtists.prefix(10)) { item in
                         HStack {
-                            Text(item.key)
+                            Text(item.title)
                             Spacer()
-                            Text(musicTime(item.value)).monospacedDigit()
+                            Text(musicTime(item.seconds)).monospacedDigit()
                                 .foregroundStyle(.secondary)
                         }
                     }
