@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Shared summary presentation; its containing platform decides whether it scrolls.
+/// Shared count, duration, and controls fixed above the song scroller on every platform.
 struct SongListSummary<Actions: View>: View {
     /// Number of currently visible song occurrences, including playlist duplicates.
     let songCount: Int

@@ -6,18 +6,13 @@ struct TrashPlaylistsView: View {
     @State var model: TrashPlaylistsViewModel
     /// Category-aware search binding that rejects native teardown from an inactive tab.
     let searchBinding: Binding<String>
-    /// Scales the touch search field with the user's preferred text size.
-    @ScaledMetric(relativeTo: .body) private var searchFieldHeight: CGFloat = 36
 
     /// Keeps the summary at the top and centers empty or unmatched content in the remaining area.
     var body: some View {
         @Bindable var model = model
         VStack(spacing: 0) {
             #if os(iOS)
-            TrashSearchField(text: searchBinding, prompt: L10n.text("Search Trashed Playlists"))
-                .frame(height: searchFieldHeight)
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
+            LibrarySearchInput(text: searchBinding, prompt: L10n.text("Search Trashed Playlists"))
             #endif
             Text(L10n.text("format.playlist.count", model.playlists.count))
                 .font(.caption)

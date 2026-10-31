@@ -203,42 +203,73 @@ import XCTest
         capture("Playlist removal preserves the active library")
     }
 
+    #if os(macOS)
+    /// Desktop search stays in the upper-right toolbar while the table scrolls below its summary.
+    func testDesktopPlaylistSummaryStaysFixedWithToolbarSearch() {
+        launch(scenario: "playlist-scroll")
+        navigate("Playlists")
+        app.element("playlist.open.UI Scroll Playlist").interact()
+        let summary = app.element("library.songSummary")
+        let search = app.searchFields["Search Songs"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(search.isHittable)
+        XCTAssertLessThan(search.frame.maxY, summary.frame.minY)
+        XCTAssertGreaterThan(search.frame.midX, app.windows.firstMatch.frame.midX)
+        let y = summary.frame.minY
+        let table = app.outlines.firstMatch
+        XCTAssertTrue(table.exists)
+        table.scroll(byDeltaX: 0, deltaY: -500)
+        XCTAssertTrue(summary.isHittable)
+        XCTAssertEqual(summary.frame.minY, y, accuracy: 1)
+        search.interact()
+        search.typeText("Alpha")
+        XCTAssertTrue(library.track("UI Alpha").exists)
+        XCTAssertFalse(library.track("UI Beta").exists)
+        library.clearSearch(search)
+        XCTAssertTrue(library.track("UI Beta").waitForExistence(timeout: 5))
+        capture("Desktop toolbar search and fixed playlist summary")
+    }
+    #endif
+
     #if os(iOS)
-    /// The summary must leave the viewport with long content and return with its song rows.
-    func testPlaylistSummaryScrollsWithSongContent() {
+    /// Search and summary stay fixed while only playlist occurrences scroll and rebound.
+    func testPlaylistSearchAndSummaryStayFixedWhileSongsScroll() {
         launch(scenario: "playlist-scroll")
         navigate("Playlists")
         app.element("playlist.open.UI Scroll Playlist").interact()
         let list = app.element("library.songList")
         let summary = app.element("library.songSummary")
+        let search = app.searchFields["Search Songs"]
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
-        XCTAssertTrue(summary.isHittable)
-        XCTAssertTrue(
-            list.cells.containing(.staticText, identifier: "library.songSummary").firstMatch.exists
+        let navigation = app.navigationBars.element(boundBy: app.navigationBars.count - 1)
+        let summaryGap = summary.frame.minY - search.frame.maxY
+        XCTAssertFalse(
+            list.cells.containing(.staticText, identifier: "library.songSummary")
+                .firstMatch.exists
         )
+        let firstRowID = list.cells.firstMatch.identifier
+        let firstRowY = list.cells.firstMatch.frame.minY
         list.swipeUp()
-        XCTAssertEqual(
-            XCTWaiter.wait(
-                for: [
-                    XCTNSPredicateExpectation(
-                        predicate: NSPredicate(format: "hittable == false"),
-                        object: summary
-                    )
-                ],
-                timeout: 5
-            ),
-            .completed,
-            "The summary must scroll away instead of remaining fixed above the song rows."
-        )
-        capture("Playlist summary scrolled out with song content")
-        list.swipeDown()
-        list.swipeDown()
         XCTAssertTrue(summary.isHittable)
+        XCTAssertTrue(search.isHittable)
+        XCTAssertEqual(summary.frame.minY - search.frame.maxY, summaryGap, accuracy: 1)
+        // iPad accessibility may exclude the expanded large-title region from the bar frame.
+        XCTAssertGreaterThanOrEqual(search.frame.minY, navigation.frame.maxY)
+        XCTAssertTrue(
+            list.cells.firstMatch.identifier != firstRowID
+                || abs(list.cells.firstMatch.frame.minY - firstRowY) > 5
+        )
+        capture("Playlist fixed search and summary after scrolling songs")
+        list.swipeDown()
+        list.swipeDown()
         let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
         let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
         start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 1)
-        XCTAssertTrue(summary.isHittable)
-        capture("Playlist summary restored after pull-down")
+        XCTAssertEqual(summary.frame.minY - search.frame.maxY, summaryGap, accuracy: 1)
+        // iPad accessibility may exclude the expanded large-title region from the bar frame.
+        XCTAssertGreaterThanOrEqual(search.frame.minY, navigation.frame.maxY)
+        library.assertContentSearchKeepsTitle("UI Scroll Playlist")
+        capture("Playlist fixed header after pull-down and search")
     }
 
     /// Empty/search layouts stay centered and summary buttons do not acquire row-wide actions.
@@ -247,9 +278,10 @@ import XCTest
         navigate("Playlists")
         editor.create("Summary Controls")
         app.element("playlist.open.Summary Controls").interact()
-        assertSongPlaceholderIsCenteredBelowSummary()
+        assertSongPlaceholderBelowFixedSummary()
         app.element("playlist.actions").interact()
         app.element("playlist.addSongs").interact()
+        library.assertContentSearchKeepsTitle("Add to “Summary Controls”")
         app.element("playlistPicker.toggle.UI Alpha.wav").interact()
         app.element("playlistPicker.toggle.UI Beta.wav").interact()
         app.element("playlistPicker.commit").interact()
@@ -268,7 +300,7 @@ import XCTest
         search.interact()
         search.typeText("Missing song")
         XCTAssertTrue(library.track("UI Alpha").waitForNonExistence(timeout: 5))
-        assertSongPlaceholderIsCenteredBelowSummary()
+        assertSongPlaceholderBelowFixedSummary()
         library.clearSearch(search)
         XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
         app.buttons["Edit"].interact()
@@ -284,8 +316,7 @@ import XCTest
             library.track("UI Alpha").frame.midY,
             library.track("UI Beta").frame.midY
         )
-        let summaryRow = app.element("library.songList").cells
-            .containing(.staticText, identifier: "library.songSummary").firstMatch
+        let summaryRow = app.element("library.songSummaryBar")
         summaryRow.buttons["Play"].interact()
         // The compact root footer is accessed from a root tab, outside the pushed detail page.
         navigate("All Songs")
@@ -303,25 +334,15 @@ import XCTest
         capture("Playlist summary controls preserve occurrence editing and independent actions")
     }
 
-    /// Measures semantic content against the native cell's available area below the summary.
-    private func assertSongPlaceholderIsCenteredBelowSummary() {
-        let list = app.element("library.songList")
+    /// Empty and unmatched messages occupy the remaining area below the fixed summary.
+    private func assertSongPlaceholderBelowFixedSummary() {
         let placeholder = app.element("library.emptyState")
         XCTAssertTrue(placeholder.waitForExistence(timeout: 5))
-        let summaryRow = list.cells
-            .containing(.staticText, identifier: "library.songSummary").firstMatch
-        let summaryBar = app.element("library.songSummaryBar")
-        // Accessibility bounds exclude outer padding and the placeholder's flexible space.
-        let contentTop = summaryBar.frame.maxY + 16
-        let contentBottom = summaryRow.frame.maxY
-        XCTAssertGreaterThanOrEqual(placeholder.frame.minY, contentTop)
-        XCTAssertLessThanOrEqual(placeholder.frame.maxY, contentBottom)
-        XCTAssertEqual(
-            placeholder.frame.midY,
-            (contentTop + contentBottom) / 2,
-            accuracy: 24
-        )
-        capture("Song placeholder content centered below the summary")
+        let summary = app.element("library.songSummary")
+        XCTAssertGreaterThan(placeholder.frame.minY, summary.frame.maxY)
+        XCTAssertEqual(app.element("library.songList").cells.count, 0)
+        XCTAssertTrue(summary.isHittable)
+        capture("Song placeholder in content area below the fixed summary")
     }
     #endif
 

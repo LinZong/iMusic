@@ -1,5 +1,9 @@
 import XCTest
 
+#if os(iOS)
+import UIKit
+#endif
+
 /// Adapts navigation, tables, touch lists, menus, and file pickers to each native platform.
 @MainActor struct LibraryScreen {
     /// Isolated host app controlled by this screen object.
@@ -204,6 +208,11 @@ import XCTest
         let clear = search.buttons["Clear text"]
         XCTAssertTrue(clear.waitForExistence(timeout: 5), app.debugDescription)
         clear.interact()
+        if search.identifier == "library.contentSearch" {
+            search.interact()
+            search.typeText("\n")
+            return
+        }
         let cancel = app.buttons["Cancel"]
         if cancel.exists {
             cancel.interact()
@@ -214,6 +223,99 @@ import XCTest
         }
         #endif
     }
+
+    #if os(iOS)
+    /// Only actual song rows may scroll beneath the fixed content search and summary.
+    func assertSongHeaderStaysFixedWhileScrolling(prompt: String = "Search Songs") {
+        let list = app.element("library.songList")
+        let search = app.searchFields[prompt]
+        let summary = app.element("library.songSummary")
+        XCTAssertTrue(list.waitForExistence(timeout: 5))
+        let navigation = app.navigationBars.element(boundBy: app.navigationBars.count - 1)
+        let summaryGap = summary.frame.minY - search.frame.maxY
+        XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, summary.frame.maxY)
+        list.swipeUp()
+        list.swipeUp()
+        XCTAssertTrue(summary.isHittable)
+        XCTAssertTrue(search.isHittable)
+        // iPad accessibility may exclude the expanded large-title region from the bar frame.
+        XCTAssertGreaterThanOrEqual(search.frame.minY, navigation.frame.maxY)
+        XCTAssertEqual(summary.frame.minY - search.frame.maxY, summaryGap, accuracy: 1)
+    }
+
+    /// Search edits and keyboard dismissal must preserve visible, nonoverlapping page headers.
+    func assertContentSearchKeepsTitle(_ title: String, prompt: String = "Search Songs") {
+        let fields = app.searchFields.matching(NSPredicate(format: "label == %@", prompt))
+        XCTAssertTrue(fields.firstMatch.waitForExistence(timeout: 5))
+        guard let search = fields.allElementsBoundByIndex.last(where: { $0.isHittable }) else {
+            XCTFail("No visible content search field: " + prompt)
+            return
+        }
+        let heading = app.navigationBars.staticTexts[title].firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        XCTAssertTrue(heading.isHittable, app.debugDescription)
+        assertTitleIsPainted(heading)
+        let searchY = search.frame.minY
+        for query in ["", "Missing song"] {
+            search.interact()
+            search.typeText(query + "\n")
+            XCTAssertTrue(heading.isHittable, app.debugDescription)
+            assertTitleIsPainted(heading)
+            XCTAssertEqual(search.frame.minY, searchY, accuracy: 1)
+            XCTAssertLessThanOrEqual(heading.frame.maxY, search.frame.minY)
+            if !query.isEmpty {
+                clearSearch(search)
+                search.interact()
+                search.typeText("\n")
+            }
+        }
+        XCTAssertTrue(heading.isHittable, app.debugDescription)
+        assertTitleIsPainted(heading)
+    }
+    /// A hittable label can still be painted over by a fixed header's safe-area background.
+    private func assertTitleIsPainted(_ title: XCUIElement) {
+        let screenshot = app.screenshot().image
+        let frame = title.frame.offsetBy(dx: -app.frame.minX, dy: -app.frame.minY)
+        let sample = CGRect(
+            x: frame.minX * screenshot.scale,
+            y: frame.minY * screenshot.scale,
+            width: frame.width * screenshot.scale,
+            height: frame.height * screenshot.scale
+        )
+        guard let image = screenshot.cgImage?.cropping(to: sample) else {
+            XCTFail("The navigation title must lie inside the rendered window.")
+            return
+        }
+        let width = image.width
+        let height = image.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let contrast = pixels.withUnsafeMutableBytes { bytes -> Int in
+            guard
+                let context = CGContext(
+                    data: bytes.baseAddress,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                )
+            else { return 0 }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            var darkest = 255
+            var lightest = 0
+            for index in stride(from: 0, to: bytes.count, by: 4) {
+                let brightness =
+                    (Int(bytes[index]) + Int(bytes[index + 1])
+                        + Int(bytes[index + 2])) / 3
+                darkest = min(darkest, brightness)
+                lightest = max(lightest, brightness)
+            }
+            return lightest - darkest
+        }
+        XCTAssertGreaterThan(contrast, 100, "The navigation title must be visibly painted.")
+    }
+    #endif
 
     /// Restores a generated song through desktop context actions or an iOS swipe action.
     func restoreTrashedTrack(_ title: String) {

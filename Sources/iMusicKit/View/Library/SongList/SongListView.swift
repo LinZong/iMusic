@@ -21,7 +21,7 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
     /// Native table activation; recovery pages use the default no-op.
     var primaryAction: ([SongRowData]) -> Void = { _ in }
 
-    /// Keeps desktop summaries fixed while touch summaries participate in native scrolling.
+    /// Keeps summary controls outside song rows while preserving the primary scroll host.
     var body: some View {
         #if os(macOS)
         VStack(spacing: 0) {
@@ -34,13 +34,12 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         #else
-        TouchSongList(
-            rows: rows,
-            rowContent: rowContent,
-            summary: { summary },
-            placeholder: { placeholder },
-            move: move
-        )
+        // Preserve the native vertical scroll host even for empty and filtered-out collections.
+        TouchSongList(rows: rows, rowContent: rowContent, move: move)
+            .overlay { if rows.isEmpty { placeholder } }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                summary.background(.background, ignoresSafeAreaEdges: [])
+            }
         #endif
     }
 

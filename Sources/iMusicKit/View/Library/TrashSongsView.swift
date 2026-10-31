@@ -6,17 +6,13 @@ struct TrashSongsView: View {
     @State var model: TrashSongsViewModel
     /// Retained query binding coordinated by the Trash category owner.
     let searchBinding: Binding<String>
-    /// Scales the native touch search field with the preferred text size.
-    @ScaledMetric(relativeTo: .body) private var searchFieldHeight: CGFloat = 36
 
     /// Composes recovery rows and menus while retaining independent native Trash search.
     var body: some View {
         @Bindable var model = model
         VStack(spacing: 0) {
             #if os(iOS)
-            TrashSearchField(text: searchBinding, prompt: L10n.text("Search Trashed Songs"))
-                .frame(height: searchFieldHeight)
-                .padding(.horizontal, 16).padding(.top, 12)
+            LibrarySearchInput(text: searchBinding, prompt: L10n.text("Search Trashed Songs"))
             #endif
             SongListView(
                 state: model.state,

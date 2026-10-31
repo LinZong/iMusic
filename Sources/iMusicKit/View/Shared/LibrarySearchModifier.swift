@@ -23,3 +23,18 @@ extension View {
         }
     }
 }
+
+extension View {
+    /// Fixes song-page search above content on touch platforms; retains desktop toolbar search.
+    @ViewBuilder func contentSearch(text: Binding<String>, prompt: String) -> some View {
+        #if os(iOS)
+        safeAreaInset(edge: .top, spacing: 0) {
+            // A safe-area-filling background can paint over the navigation bar's large title.
+            LibrarySearchInput(text: text, prompt: prompt)
+                .background(.background, ignoresSafeAreaEdges: [])
+        }
+        #else
+        librarySearch(text: text, prompt: prompt)
+        #endif
+    }
+}

@@ -40,7 +40,7 @@ struct PlaylistDetailView: View {
             move: model.canReorder ? { model.move(from: $0, to: $1) } : nil,
             primaryAction: { model.play(row: $0.first) }
         )
-        .librarySearch(text: $state.search, prompt: L10n.text("Search Songs"))
+        .contentSearch(text: $state.search, prompt: L10n.text("Search Songs"))
         .toolbar {
             if let playlist = model.playlist {
                 ToolbarItem {

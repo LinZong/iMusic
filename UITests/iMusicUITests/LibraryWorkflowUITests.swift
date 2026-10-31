@@ -69,6 +69,13 @@ import XCTest
     private func assertAllSongsShortcuts() {
         navigate("All Songs")
         XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
+        #if os(iOS)
+        library.assertContentSearchKeepsTitle("All Songs")
+        let rowY = app.element("allSongs.artists").frame.midY
+        for identifier in ["artists", "albums", "genres", "favorites"] {
+            XCTAssertEqual(app.element("allSongs." + identifier).frame.midY, rowY, accuracy: 2)
+        }
+        #endif
         capture("All Songs shortcuts")
         let collections = [
             ("artists", "Search Artists", "UI Test Artist"),
@@ -95,6 +102,57 @@ import XCTest
             XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
         }
     }
+
+    #if os(iOS)
+    /// Every song-collection scope shares fixed search without losing its navigation title.
+    func testSongCollectionTitlesSurviveSearchEditing() {
+        launch(scenario: "song-scroll")
+        navigate("All Songs")
+        library.assertContentSearchKeepsTitle("All Songs")
+        let search = app.searchFields["Search Songs"]
+        let shortcutGap = app.element("allSongs.artists").frame.minY - search.frame.maxY
+        library.assertSongHeaderStaysFixedWhileScrolling()
+        XCTAssertTrue(app.element("allSongs.artists").isHittable)
+        XCTAssertEqual(
+            app.element("allSongs.artists").frame.minY - search.frame.maxY,
+            shortcutGap,
+            accuracy: 1
+        )
+        for (shortcut, title) in [
+            ("artists", "UI Test Artist"), ("albums", "UI Test Album"),
+            ("genres", "UI Test Genre"),
+        ] {
+            library.openAllSongsShortcut(shortcut)
+            let card = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", title))
+                .firstMatch
+            XCTAssertTrue(card.waitForExistence(timeout: 5))
+            card.interact()
+            library.assertContentSearchKeepsTitle(title)
+            library.assertSongHeaderStaysFixedWhileScrolling()
+            app.navigationBars.buttons.element(boundBy: 0).interact()
+            library.backToAllSongs()
+        }
+        library.openAllSongsShortcut("favorites")
+        library.assertContentSearchKeepsTitle("Favorites")
+        library.assertSongHeaderStaysFixedWhileScrolling()
+        library.backToAllSongs()
+        openTrash()
+        library.assertContentSearchKeepsTitle("Trash", prompt: "Search Trashed Songs")
+        library.assertSongHeaderStaysFixedWhileScrolling(prompt: "Search Trashed Songs")
+        capture("Song scopes retain titles after fixed content search")
+    }
+
+    /// Empty All Songs retains its title, shortcuts, summary, and scoped query during search.
+    func testEmptyAllSongsTitleSurvivesSearchEditing() {
+        launch(scenario: "empty")
+        navigate("All Songs")
+        library.assertContentSearchKeepsTitle("All Songs")
+        XCTAssertTrue(app.element("allSongs.artists").isHittable)
+        XCTAssertTrue(app.element("library.songSummary").isHittable)
+        XCTAssertTrue(app.element("library.emptyState").exists)
+        capture("Empty All Songs after search editing")
+    }
+    #endif
 
     /// Artist navigation must preserve generated metadata and open the corresponding songs.
     func testArtistCollectionOpensItsSongs() {

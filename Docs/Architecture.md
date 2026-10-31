@@ -141,9 +141,10 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
   以及导航进入的可搜索子页，分别绑定自己的查询和准确的搜索提示。
 - 常规宽度的 iPad 与 macOS 使用 NavigationSplitView；iPad 紧凑分屏可切换为 TabView。macOS 歌曲主体为原生 Table，触屏为 List；
   右键菜单、滑动操作、窗口与系统文件选择器留在 View／平台适配层。
-- `SongListSummary` 共用计数、时长、操作和 padding 16。macOS 在 Table 上方固定展示；
-  iPhone／iPad 由 `TouchSongList` 将它作为普通首行，与歌曲共享滚动及回弹。空态和搜索无结果
-  填充统计栏下的剩余内容区并居中。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
+- `SongListSummary` 共用计数、时长、操作和 padding 16。所有平台均由 `SongListView` 在歌曲
+  滚动容器顶部固定展示：macOS 为 Table 上方的独立布局，触屏为 List 的顶部安全区 inset。
+  iPhone／iPad `TouchSongList` 的行只包含实际歌曲，空态与搜索无结果为剩余内容区的居中
+  overlay，不创建虚假列表行，也不移除作为主滚动宿主的 List。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
   `PageScrollView` 为短内容提供视口高度，`EqualTileRow` 统一卡片尺寸。
 - 其他页面的占位必须相对实际内容区布局，保留安全区、工具栏、页签与底部播放栏所占空间；
   不能将统计栏与空态作为一个整体垂直居中，也不能给动态字体文案固定高度。
@@ -159,12 +160,14 @@ macOS Table、iPhone／iPad List、选择与排序绑定。它通过 ViewBuilder
 也不判断是否为回收站或歌单。
 
 `SongListSummary` 只接收数量、总时长及操作 builder，不生成虚假歌曲。
-`TouchSongList` 统一管理触屏 List：汇总栏不使用吸顶的 Section Header，重排只绑定歌曲
-ForEach；汇总栏按钮使用独立的 borderless 行为，避免原生行级按钮样式将多个操作合并。
-空列表在同一个 List 中用一个至少填满视口的 VStack 承载汇总与弹性占位，文案可自然增高。
+`TouchSongList` 只管理触屏歌曲 List，重排只绑定歌曲 ForEach。汇总栏和其播放按钮由
+`SongListView` 放在 List 的顶部安全区 inset 中，不属于列表行，保持常驻和独立操作；
+空态也由它在剩余内容区呈现。
 不嵌套纵向滚动容器，也不通过监听 offset 手动模拟导航栏动画。
 
-- `AllSongsView`：拥有分类快捷入口，组合普通歌曲列表。
+- `AllSongsView`：拥有分类快捷入口，通过 `SongCollectionView` 的 header builder 注入固定
+  控件，位于搜索框和统计栏之间；其他歌曲集合使用空 header。快捷栏在所有平台保持单行，
+  空间不足时横向滚动，独立于下方歌曲的纵向滚动。
 - `SongCollectionView`／`SongCollectionViewModel`：所有歌曲、收藏及歌手／专辑／流派筛选。
 - `PlaylistDetailView`／`PlaylistDetailViewModel`：歌单条目移除、重排、排序、重命名和编辑器。
 - `TrashSongsView`／`TrashSongsViewModel`：恢复、永久删除和确认弹窗，不依赖播放器。
@@ -173,8 +176,21 @@ ForEach；汇总栏按钮使用独立的 borderless 行为，避免原生行级�
 
 新增列表场景应组合基础列表并提供本场景的行与操作；不要向基础组件添加场景标志、路由
 分支或业务弹窗。歌单使用 QueueEntry.id 标识每个出现位置；移除和播放不得退化为 Track.id。
-过滤、排序或存在隐藏失效条目时禁用按索引重排，避免修改不对应的条目。Trash 的原生搜索框
-继续由分类页持有独立绑定，避免 UISearchController 在切换分类与退出搜索时发生布局循环。
+过滤、排序或存在隐藏失效条目时禁用按索引重排，避免修改不对应的条目。
+
+`View/Shared/LibrarySearchField` 复用原 Trash 的原生输入适配：iPhone／iPad 使用
+`UISearchTextField`，macOS 使用 `NSSearchField`；仅用户编辑和清除事件写入绑定，不在
+销毁时清空查询。`LibrarySearchInput` 负责触屏字体缩放、尺寸和间距；`contentSearch` 在
+触屏通过顶部安全区 inset 固定输入框，在 macOS 保留右上角系统 `.searchable`。
+All Songs、收藏、元数据歌曲页、歌单详情和选歌弹窗使用 `contentSearch`；Trash 两类子页
+复用同一输入组件，保留其分类绑定与 macOS 工具栏适配。组件生命周期跟随页面，查询仍由
+各页面 ViewModel 持有，没有共享查询或新的服务依赖。卡片集合页继续使用导航栏搜索。
+活跃歌曲列表及选歌弹窗不安装 UISearchController。搜索、快捷栏和统计栏按顺序组合为
+List 的固定顶部安全区 inset，使用系统背景遮挡下方经过的歌曲行，不参与 List 的滚动与回弹。
+背景显式设置 `ignoresSafeAreaEdges: []`，只绘制固定栏本身，避免延伸进导航栏后盖住大标题。
+原生纵向 List 在空态也保留，以稳定主滚动宿主；横向快捷栏作为固定 inset 呈现，避免
+iPad 在空态将其作为主内容滚动区后出现大标题高度为零的问题。系统导航栏可正常折叠，
+三个固定栏始终锚定导航栏下方；不遍历或修改 UIKit 私有标题视图。
 
 ### 集合、Home、设置与编辑器
 
@@ -362,7 +378,7 @@ OnlineMetadataProviding、CloudSettingsService、UploadTransport 等。
 | `FeatureBoundaryTests.swift` | 集合独立查询、聚合、云／联网许可、可替换导入／封面／快照服务、上传资源生命周期、云通知窄接口 |
 | `npm test --prefix Web/WiFiUpload` | React 交互、取消／迟到结果、请求适配与独立 uploadBatch 策略 |
 | `python3 -m unittest discover -s Scripts/tests -p 'test_*.py'` | Release 构建／安装及 UI runner 的命令、配置与错误处理 |
-| `Scripts/run_ui_tests.py` | 独立测试宿主运行真实 SwiftUI／SQLite／导入及播放协调逻辑；iPhone／iPad 20 个场景，macOS 18 个。仅替换音频渲染并关闭系统媒体／CloudKit，不能证明真实输出音质或 iCloud 物化 |
+| `Scripts/run_ui_tests.py` | 独立测试宿主运行真实 SwiftUI／SQLite／导入及播放协调逻辑；iPhone／iPad 23 个场景，macOS 21 个。仅替换音频渲染并关闭系统媒体／CloudKit，不能证明真实输出音质或 iCloud 物化 |
 
 `.github/workflows/build.yml` 执行前端测试、脚本测试、格式、架构、本地化、无硬件音频的
 Swift 测试，以及原生 macOS、通用 iOS 和可选云／CarPlay 源码构建。三端 UI 回归由本地

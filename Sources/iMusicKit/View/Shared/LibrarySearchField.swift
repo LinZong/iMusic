@@ -4,8 +4,8 @@ import SwiftUI
 import AppKit
 
 /// Native desktop search input whose lifetime is independent of navigation search controllers.
-struct TrashSearchField: NSViewRepresentable {
-    /// Query owned by the visible Trash category.
+struct LibrarySearchField: NSViewRepresentable {
+    /// Query owned by the containing page.
     @Binding var text: String
     /// Localized description of the records searched by this field.
     let prompt: String
@@ -30,9 +30,9 @@ struct TrashSearchField: NSViewRepresentable {
         field.setAccessibilityLabel(prompt)
     }
 
-    /// Forwards only actual native input changes to the category model.
+    /// Forwards only actual native input changes to the page model.
     final class Coordinator: NSObject, NSSearchFieldDelegate {
-        /// Current category binding supplied by the representable.
+        /// Current page binding supplied by the representable.
         var text: Binding<String>
 
         /// Retains the query binding used by native editing callbacks.
@@ -49,8 +49,8 @@ struct TrashSearchField: NSViewRepresentable {
 import UIKit
 
 /// Native touch search input without navigation-controller presentation or dismissal side effects.
-struct TrashSearchField: UIViewRepresentable {
-    /// Query owned by the visible Trash category.
+struct LibrarySearchField: UIViewRepresentable {
+    /// Query owned by the containing page.
     @Binding var text: String
     /// Localized description of the records searched by this field.
     let prompt: String
@@ -61,6 +61,7 @@ struct TrashSearchField: UIViewRepresentable {
     /// Creates a system search text field supporting native clear, keyboard, and accessibility UI.
     func makeUIView(context: Context) -> UISearchTextField {
         let field = UISearchTextField()
+        field.accessibilityIdentifier = "library.contentSearch"
         field.delegate = context.coordinator
         field.addTarget(
             context.coordinator,
@@ -77,7 +78,7 @@ struct TrashSearchField: UIViewRepresentable {
         return field
     }
 
-    /// Reflects the category's saved query without firing an editing event.
+    /// Reflects the page's saved query without firing an editing event.
     func updateUIView(_ field: UISearchTextField, context: Context) {
         context.coordinator.text = $text
         if field.text != text { field.text = text }
@@ -87,7 +88,7 @@ struct TrashSearchField: UIViewRepresentable {
 
     /// Publishes native edits and ends keyboard editing when the user submits a search.
     final class Coordinator: NSObject, UITextFieldDelegate {
-        /// Current category binding supplied by the representable.
+        /// Current page binding supplied by the representable.
         var text: Binding<String>
 
         /// Retains the query binding used by native editing callbacks.
@@ -111,20 +112,22 @@ struct TrashSearchField: UIViewRepresentable {
 }
 #endif
 
-extension View {
-    /// Uses a native toolbar search field for Trash on macOS and leaves touch layout to the page.
-    @ViewBuilder func trashToolbarSearch(text: Binding<String>?, prompt: String) -> some View {
-        #if os(macOS)
-        toolbar {
-            if let text {
-                ToolbarItem {
-                    TrashSearchField(text: text, prompt: prompt)
-                        .frame(minWidth: 200, idealWidth: 340, maxWidth: 480)
-                }
-            }
-        }
-        #else
-        self
-        #endif
+#if os(iOS)
+/// Fixed content search layout shared by song pages, pickers, and Trash categories.
+struct LibrarySearchInput: View {
+    /// Query retained by the containing feature model.
+    @Binding var text: String
+    /// Localized description of the searchable content.
+    let prompt: String
+    /// Native input height follows the user's preferred body text size.
+    @ScaledMetric(relativeTo: .body) private var fieldHeight: CGFloat = 36
+
+    /// Keeps the native field outside scrolling content and navigation search presentation.
+    var body: some View {
+        LibrarySearchField(text: $text, prompt: prompt)
+            .frame(height: fieldHeight)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
     }
 }
+#endif

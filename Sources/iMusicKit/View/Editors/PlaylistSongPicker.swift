@@ -45,7 +45,7 @@ struct PlaylistSongPicker: View {
                     }
                 }
             }
-            .searchable(text: $model.search, prompt: L10n.text("Search Songs"))
+            .contentSearch(text: $model.search, prompt: L10n.text("Search Songs"))
             .navigationTitle(
                 L10n.text("format.playlist.add_to", String(describing: model.playlist.name))
             )
