@@ -88,7 +88,7 @@ public final class LibraryStore: @unchecked Sendable {
     ]
     /// Concurrent SQLite pool that serializes writes and keeps record changes atomic with their
     /// sync outbox.
-    private let database: DatabasePool
+    let database: DatabasePool
     /// Persistent local writer identity used when generating field version stamps.
     public let deviceID: String
     /// Opens the SQLite pool, creates the initial schema when needed, and loads or generates the
@@ -369,6 +369,37 @@ public final class LibraryStore: @unchecked Sendable {
             try removePermanentlyDeletedReferences(db)
         }
     }
+    /// Atomically commits parsed linked metadata and its local locator without syncing bookmarks.
+    @discardableResult
+    func commitLinkedTrack(_ track: Track, item: LinkedFileBinding) throws -> Bool {
+        try database.write { db in
+            guard track.isLinked, track.id == item.id else { throw MusicError.missingFile }
+            guard
+                let folderData = try Data.fetchOne(
+                    db,
+                    sql: "SELECT value FROM settings WHERE key='folders'"
+                ),
+                let folders = try? JSONDecoder().decode([FolderSource].self, from: folderData),
+                folders.contains(where: {
+                    $0.id == item.folderID && $0.usesOriginalFiles == true
+                        && $0.bindingGeneration == item.folderGeneration
+                })
+            else { throw MusicError.permissionDenied }
+            var committed = track
+            if let existing = try Self.fetchEnvelope(db, id: track.id.uuidString),
+                let current = try? JSONDecoder().decode(Track.self, from: existing.payload)
+            {
+                if current.permanentlyDeletedAt != nil || current.deletedAt != nil { return false }
+                LinkedMetadataPipeline.preserveEdits(from: current, in: &committed)
+            }
+            try saveRecord(id: track.id.uuidString, kind: "track", value: committed, db: db)
+            try db.execute(
+                sql: "INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)",
+                arguments: [item.storageKey, try JSONEncoder().encode(item)]
+            )
+            return true
+        }
+    }
     /// Share the database's writer lock with deletion so a late cloud download cannot recreate a
     /// purged copy.
     func withAvailableTrack(_ id: UUID, perform operation: (Track) throws -> Void) throws {
@@ -393,14 +424,18 @@ public final class LibraryStore: @unchecked Sendable {
                 try Data.fetchAll(db, sql: "SELECT payload FROM records WHERE kind='playlist'")
                 .map { try JSONDecoder().decode(Playlist.self, from: $0) }
             let retained = tracks.filter { $0.permanentlyDeletedAt == nil }
-            let retainedFiles = try Set(retained.map { try vault.url(for: $0).lastPathComponent })
+            let retainedFiles = try Set(
+                retained.filter { !$0.isLinked }.map { try vault.url(for: $0).lastPathComponent }
+            )
             let retainedArtwork = Set(
                 retained.compactMap(\.artworkName) + playlists.compactMap(\.artworkName)
             )
             for track in tracks where track.permanentlyDeletedAt != nil {
-                let audio = try vault.url(for: track)
-                if !retainedFiles.contains(audio.lastPathComponent) {
-                    try vault.removeManagedFileIfPresent(audio)
+                if !track.isLinked {
+                    let audio = try vault.url(for: track)
+                    if !retainedFiles.contains(audio.lastPathComponent) {
+                        try vault.removeManagedFileIfPresent(audio)
+                    }
                 }
                 if let name = track.artworkName, !retainedArtwork.contains(name),
                     let artwork = vault.artworkURL(name)
@@ -537,7 +572,9 @@ public final class LibraryStore: @unchecked Sendable {
     public func mergeDuplicates(keeping keeperID: UUID, removing ids: Set<UUID>) throws {
         guard var keeper = try track(id: keeperID), !ids.contains(keeperID) else { return }
         let duplicates = try tracks().filter { ids.contains($0.id) }
-        guard duplicates.allSatisfy({ $0.assetHash == keeper.assetHash }) else {
+        guard !keeper.isLinked,
+            duplicates.allSatisfy({ !$0.isLinked && $0.assetHash == keeper.assetHash })
+        else {
             throw MusicError.unavailable(
                 L10n.text("Only files with identical contents can be merged.")
             )
@@ -578,8 +615,12 @@ public final class LibraryStore: @unchecked Sendable {
         switch value.kind {
         case "track":
             let track = try JSONDecoder().decode(Track.self, from: value.payload)
-            guard value.id == track.id.uuidString, MediaVault.isValidHash(track.assetHash),
-                MediaVault.isValidExtension(track.fileExtension)
+            guard value.id == track.id.uuidString,
+                track.isLinked
+                    ? track.assetHash == nil : track.assetHash.map(MediaVault.isValidHash) == true,
+                MediaVault.isValidExtension(track.fileExtension),
+                track.linkedSource.map({ LinkedFolderIndexer.safeRelativePath($0.relativePath) })
+                    ?? true
             else { throw MusicError.invalidBackup(L10n.text("Invalid audio record")) }
         case "playlist":
             let playlist = try JSONDecoder().decode(Playlist.self, from: value.payload)

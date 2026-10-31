@@ -25,8 +25,10 @@ public final class LibraryViewModel {
     public private(set) var events: [ListenEvent] = []
     /// Saved linked-folder configurations and their latest scan status.
     public private(set) var folders: [FolderSource] = []
-    /// Managed audio files found during the background refresh; views never probe the disk while
-    /// rendering a row or constructing a native menu.
+    /// Device-local source job snapshot for folder status and recovery controls.
+    public private(set) var linkedBindings: [LinkedFileBinding] = []
+    /// Cached managed audio and admitted references with a matching local authorization revision.
+    /// This snapshot is not a guarantee that a provider has retained its downloaded content.
     public private(set) var availableTrackIDs: Set<UUID> = []
     /// Monotonic refresh token that prevents an older asynchronous snapshot from replacing newer
     /// data.
@@ -65,13 +67,29 @@ public final class LibraryViewModel {
             let snapshot =
                 try await Task.detached(priority: .userInitiated) {
                     let tracks = try store.tracks(includeDeleted: true)
+                    let bindings = try store.linkedBindings()
+                    let folders = try store.setting("folders", as: [FolderSource].self) ?? []
+                    let ready = Set(
+                        bindings.filter { binding in
+                            binding.state == .ready
+                                && folders.contains { folder in
+                                    folder.id == binding.folderID
+                                        && folder.usesOriginalFiles == true
+                                        && folder.bindingGeneration == binding.folderGeneration
+                                }
+                        }
+                        .map(\.id)
+                    )
                     return (
                         tracks,
                         try store.playlists(includeDeleted: true),
                         try store.listenEvents(),
-                        try store.setting("folders", as: [FolderSource].self) ?? [],
+                        folders,
                         try store.permanentlyDeletedTracks(),
-                        Set(tracks.filter { vault.contains($0) }.map(\.id))
+                        Set(
+                            tracks.filter { vault.contains($0) || ready.contains($0.id) }.map(\.id)
+                        ),
+                        bindings
                     )
                 }
                 .value
@@ -83,6 +101,7 @@ public final class LibraryViewModel {
             events = snapshot.2
             folders = snapshot.3
             availableTrackIDs = snapshot.5
+            linkedBindings = snapshot.6
             if !snapshot.4.isEmpty {
                 playback.removeTracks(Set(snapshot.4.map(\.id)))
                 if !activity.isWorking && !activity.importing {
@@ -189,7 +208,9 @@ public final class LibraryViewModel {
     /// Unlinks a saved folder configuration without deleting imported copies or original source
     /// files.
     public func removeFolder(_ id: UUID) {
+        playback.removeTracks(Set(tracks.filter { $0.linkedSource?.folderID == id }.map(\.id)))
         folders.removeAll { $0.id == id }
+        availableTrackIDs.subtract(linkedBindings.filter { $0.folderID == id }.map(\.id))
         do { try store.setSetting("folders", value: folders) } catch {
             activity.message = error.localizedDescription
         }

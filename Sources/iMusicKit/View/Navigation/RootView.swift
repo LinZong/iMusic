@@ -24,9 +24,12 @@ public struct RootView: View {
             .task { await model.launch() }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .background {
+                    model.player.playback.setSourceObservation(active: false)
+                    model.imports.background()
                     model.player.playback.persist()
                     Task { await model.imports.wifi.stop() }
                 } else if phase == .active {
+                    model.player.playback.setSourceObservation(active: true)
                     Task { await model.imports.foreground() }
                 }
             }

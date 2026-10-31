@@ -30,6 +30,7 @@ public final class ImportViewModel {
         get { filePickerPresented && fileImportPurpose == .folder }
         set {
             if newValue {
+                relinkFolderID = nil
                 fileImportPurpose = .folder
                 filePickerPresented = true
             } else if fileImportPurpose == .folder {
@@ -54,8 +55,16 @@ public final class ImportViewModel {
     public var showWiFi = false
     /// Completed backup archive URL offered by the export sheet.
     public var exportedBackup: URL?
+    /// Localized source counts and external-audio limitations shown with a completed backup.
+    public private(set) var backupDetail = ""
     /// Generated anonymous diagnostics file offered by the export sheet.
     public var diagnosticsURL: URL?
+    /// Device-local root proposal reviewed before relative-path hints are used for reconnection.
+    var relinkPreview: FolderRelinkPreview?
+    /// Folder identity to reconnect when the shared folder picker returns a selection.
+    public var relinkFolderID: UUID?
+    /// Cancellable task owning original-file scanning and provider hydration.
+    @ObservationIgnored private var folderTask: Task<[String], Never>?
     /// Cancellable task owning the currently active import operation.
     @ObservationIgnored private var importTask: Task<Void, Never>?
     /// Timestamp used to avoid repeatedly rescanning linked folders during rapid foreground
@@ -120,30 +129,85 @@ public final class ImportViewModel {
     }
     /// Requests cancellation of the active import task; already committed songs remain in the
     /// library.
-    public func cancelImport() { importTask?.cancel() }
+    public func cancelImport() {
+        importTask?.cancel()
+        folderTask?.cancel()
+    }
     /// Stores access to a selected folder and scans it asynchronously, presenting any linking or
     /// scan error.
     public func addFolder(_ url: URL) {
+        let replacing = relinkFolderID
+        relinkFolderID = nil
         Task {
             do {
-                try await library.importer.addFolder(url)
+                if let replacing {
+                    let bookmark = try await SourceAccess.perform { _ in
+                        let accessed = url.startAccessingSecurityScopedResource()
+                        defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+                        return try SourceAccess.bookmark(url)
+                    }
+                    relinkPreview = FolderRelinkPreview(
+                        id: replacing,
+                        name: url.lastPathComponent,
+                        bookmark: bookmark,
+                        tracks: (library.tracks + library.deletedTracks)
+                            .filter {
+                                $0.linkedSource?.folderID == replacing
+                            }
+                    )
+                } else {
+                    try await library.importer.addFolder(url)
+                    await scanFolders()
+                }
+            } catch { activity.message = error.localizedDescription }
+        }
+    }
+    /// Applies a reviewed relative-path remapping while retaining existing song and playlist
+    /// identities.
+    func confirmFolderRelink() {
+        guard let preview = relinkPreview else { return }
+        relinkPreview = nil
+        Task {
+            do {
+                let root = try await SourceAccess.perform { _ in
+                    try SourceAccess.resolve(preview.bookmark)
+                }
+                try await library.importer.addFolder(root, replacing: preview.id)
                 await scanFolders()
             } catch { activity.message = error.localizedDescription }
         }
     }
     /// Scans linked folders when no import is active, publishes progress, saves the last-scan time,
     /// and refreshes library snapshots.
-    public func scanFolders() async {
+    public func scanFolders(retryFailures: Bool = false) async {
         guard !activity.importing else { return }
         activity.importing = true
         lastFolderScan = Date()
-        let errors = await library.importer.scanFolders { [weak self] progress in
-            Task { @MainActor in self?.activity.importProgress = progress }
+        let task = Task { [library, weak self] in
+            await library.importer.scanFolders(retryFailures: retryFailures) {
+                [weak self] progress in
+                Task { @MainActor in self?.activity.importProgress = progress }
+            }
         }
+        folderTask = task
+        let errors = await withTaskCancellationHandler {
+            await task.value
+        } onCancel: {
+            task.cancel()
+        }
+        folderTask = nil
         activity.importing = false
         if !errors.isEmpty { activity.message = errors.joined(separator: "\n") }
         await library.refresh()
     }
+    /// Requests an explicit read grant for an existing portable folder identity.
+    public func relinkFolder(_ id: UUID) {
+        showFolderPicker = true
+        relinkFolderID = id
+    }
+    /// Stops folder admission before suspension; committed songs and durable jobs remain
+    /// recoverable.
+    public func background() { folderTask?.cancel() }
     /// Starts the local upload listener and imports each completed upload through the serialized
     /// importer, then refreshes the library.
     public func startWiFi() async {
@@ -167,7 +231,15 @@ public final class ImportViewModel {
         activity.isWorking = true
         Task {
             defer { activity.isWorking = false }
-            do { exportedBackup = try await backup.export(includeAudio: full) } catch {
+            do {
+                exportedBackup = try await backup.export(includeAudio: full)
+                let tracks = library.tracks + library.deletedTracks
+                backupDetail = L10n.text(
+                    "format.backup.sources",
+                    tracks.filter { !$0.isLinked }.count,
+                    tracks.filter(\.isLinked).count
+                )
+            } catch {
                 activity.message = error.localizedDescription
             }
         }

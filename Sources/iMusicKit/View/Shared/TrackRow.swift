@@ -19,6 +19,13 @@ struct TrackRow: View {
                             .lineLimit(1)
                     }
                     Spacer(minLength: 0)
+                    if track.isLinked, !model.library.availableTrackIDs.contains(track.id) {
+                        Image(systemName: "folder.badge.questionmark")
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel(
+                                L10n.text("Authorize the linked folder in Settings.")
+                            )
+                    }
                     if model.playback.track?.id == track.id {
                         Image(systemName: model.playback.isPlaying ? "waveform" : "pause.fill")
                             .foregroundStyle(

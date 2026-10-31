@@ -46,11 +46,14 @@ public actor ImportCoordinator {
     private let store: LibraryStore
     /// Application-owned media layout used to resolve validated files and working directories.
     private let vault: MediaVault
+    /// Original-file indexing service; kept separate from managed-copy imports.
+    private let linked: LinkedFolderIndexer
     /// Binds serialized import and recovery operations to one library store and its managed media
     /// layout.
     public init(store: LibraryStore, vault: MediaVault) {
         self.store = store
         self.vault = vault
+        linked = LinkedFolderIndexer(store: store, vault: vault)
     }
 
     /// Copies selected files or folder contents into the managed library, decodes tags,
@@ -366,67 +369,26 @@ public actor ImportCoordinator {
         return errors
     }
 
-    /// Stores a security-scoped bookmark for a selected folder without moving or modifying its
-    /// source files.
-    public func addFolder(_ url: URL) throws {
-        let accessed = url.startAccessingSecurityScopedResource()
-        defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-        #if os(macOS)
-        let bookmark = try url.bookmarkData(
-            options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        )
-        #else
-        let bookmark = try url.bookmarkData(
-            options: .minimalBookmark,
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        )
-        #endif
-        var folders = try store.setting("folders", as: [FolderSource].self) ?? []
-        folders.append(FolderSource(name: url.lastPathComponent, bookmark: bookmark))
-        try store.setSetting("folders", value: folders)
+    /// Authorizes an original-file folder or explicitly reconnects a portable folder identity.
+    public func addFolder(_ url: URL, replacing id: UUID? = nil) async throws {
+        try await linked.add(url, replacing: id)
     }
-    /// Resolves saved folder bookmarks and imports changed audio while reporting progress; records
-    /// scan times and access failures for settings.
-    public func scanFolders(progress: @escaping @Sendable (ImportProgress) -> Void) async
-        -> [String]
-    {
-        var folders = (try? store.setting("folders", as: [FolderSource].self)) ?? []
-        var errors: [String] = []
-        for index in folders.indices {
-            do {
-                var stale = false
-                #if os(macOS)
-                let url = try URL(
-                    resolvingBookmarkData: folders[index].bookmark,
-                    options: .withSecurityScope,
-                    relativeTo: nil,
-                    bookmarkDataIsStale: &stale
-                )
-                #else
-                let url = try URL(
-                    resolvingBookmarkData: folders[index].bookmark,
-                    options: [],
-                    relativeTo: nil,
-                    bookmarkDataIsStale: &stale
-                )
-                #endif
-                guard url.startAccessingSecurityScopedResource() else {
-                    throw MusicError.permissionDenied
-                }
-                defer { url.stopAccessingSecurityScopedResource() }
-                let result = await importFiles([url], skipUnchanged: true, progress: progress)
-                folders[index].lastScan = Date()
-                folders[index].error = result.errors.first
-                errors += result.errors
-            } catch {
-                folders[index].error = error.localizedDescription
-                errors.append("\(folders[index].name)：\(error.localizedDescription)")
+    /// Reconnects an unavailable original to a file explicitly selected by the user.
+    public func locateLinkedFile(_ url: URL, trackID: UUID) async throws {
+        try await linked.locate(url, trackID: trackID)
+    }
+    /// Indexes originals without copying audio; incomplete provider listings never remove records.
+    public func scanFolders(
+        retryFailures: Bool = false,
+        progress: @escaping @Sendable (ImportProgress) -> Void
+    ) async -> [String] {
+        if retryFailures {
+            for var binding in (try? store.linkedBindings()) ?? [] where binding.state == .failed {
+                binding.attempts = 0
+                binding.state = .pending
+                try? store.saveLinkedBinding(binding)
             }
         }
-        try? store.setSetting("folders", value: folders)
-        return errors
+        return await linked.scan(progress: progress)
     }
 }

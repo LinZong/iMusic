@@ -2,12 +2,13 @@
 
 ## 依赖与边界
 
-两个原生应用目标共享本地 SPM 产品 `iMusicKit`。包内按 Application、Domain、Library、Playback、Import、Sync、Platform、View、ViewModel 分层。第三方版本由根目录及 Xcode 工作区的 `Package.resolved` 锁定。AppModel 只在启动时组装依赖、连接平台回调并执行一次性恢复；页面不再绑定 AppModel。View 绑定相应的 ViewModel，不直接操作 SQL 或音频节点。
+两个原生应用目标共享本地 SPM 产品 `iMusicKit`。包内按 Application、Domain、Library、Playback、Import、Sources、Sync、Platform、View、ViewModel 分层。第三方版本由根目录及 Xcode 工作区的 `Package.resolved` 锁定。AppModel 只在启动时组装依赖、连接平台回调并执行一次性恢复；页面不再绑定 AppModel。View 绑定相应的 ViewModel，不直接操作 SQL 或音频节点。
 
 - Domain：纯值类型 Track、Playlist、QueueEntry、PlaybackSession、PlaybackTimeline、字段版本、歌手解析。
 - Library：GRDB/SQLite WAL、统一初始 Schema、FTS5 与 CJK 子串查询、托管文件、备份、标签覆盖、在线封面。
 - Playback：唯一进程级播放会话、SFBAudioEngine 适配、预加载、音效、睡眠、音频时钟和进度预览。
 - Import：actor 串行导入、分块复制、SHA-256、恢复日志、文件夹书签、增量扫描、局域网上传。
+- Sources：原文件索引、系统物化与协调、安全作用域、后台解码器准备、逐曲定位和当前源观察。
 - Sync：元数据与大文件分区；CKSyncEngine、版本合并、持久化 outbox、按需资产下载。
 - Platform：锁屏／控制中心、音频中断／路由变化、CoreAudio 输出名称、CarPlay 系统模板。
 - Application：进程级依赖组装与启动，不保存搜索、选择、编辑草稿或弹窗开关。
@@ -89,11 +90,11 @@ macOS 的 Now Playing 与独立 MiniPlayerWindow 复用 VolumeControl：小扬�
 
 数据库以单个 `initial-schema` 初始化步骤创建当前完整结构：records、outbox、settings、FTS5 搜索表及维护触发器。发布前的 `v1-library`／`v2-search` 开发历史已合并，不提供旧开发数据库的升级路径，开发安装通过卸载并清理应用数据后重装。保留 GRDB 建库登记机制，后续正式发布后的结构变化再新增迁移；运行时不会自动删除不兼容数据库。
 
-默认文件位于 Application Support/iMusic；沙盒签名构建由系统映射到应用容器。Media、Artwork 属于持久资料库，不是可清除缓存。iOS 使用首次解锁后可访问的数据保护类别，支持锁屏后的持续播放。
+默认文件位于 Application Support/iMusic；沙盒签名构建由系统映射到应用容器。Media、Artwork 属于持久资料库，不是可清除缓存。托管文件在 iOS 使用首次解锁后可访问的数据保护类别，支持锁屏后的持续播放；外部来源仍遵守其所有者和文件提供者的保护规则。
 
 导入先记录日志，流式复制到 Staging，探测元数据并计算哈希，将可恢复的 Track 写入日志，再移动文件并提交 SQL。成功后清除日志。启动恢复不依赖原文件的临时授权。未知文件不会被自动清理。
 
-关联目录保存安全作用域书签；分块读取使用文件协调。文件夹新增／修改会复制到托管资料库，原件保留。相同大小／修改时间且托管副本仍存在的扫描项目可跳过；显式重新导入仍执行内容校验。来源被移除不会删除托管副本。
+关联目录使用独立的原文件索引和元数据管线，不调用复制导入。系统下载云端内容后直接解析原文件；播放在后台协调打开解码器，安全作用域随解码器保留。文件绑定和恢复任务使用现有 settings 的本机命名空间，歌曲使用稳定 UUID 与 linkedSource 描述；不需要新增表、迁移或清空当前资料库。移动／失败状态可重新授权和逐曲修复。详见 [Link Folder 实施说明](LinkedFolderPlaybackPlan.md)。
 
 Wi-Fi 使用用户显式启动的 NWListener/NIO HTTP 服务，随机六位配对码、有限错误尝试和随机会话令牌。仅提供上传，无资料库读取接口。跨源请求被拒绝；文件名限制为单一组件。请求体流式写盘，完成标记写入后才返回接收成功；进程中断后可恢复完整上传。iOS 进入后台关闭服务。
 
@@ -111,7 +112,7 @@ React 页面按 `components`、`hooks`、`domain`、`services` 拆分。App.tsx 
 
 物理删除只作用于 Media／Artwork 中的单个文件，并检查真实父目录。共享同一音频或封面的其他可恢复记录、歌单仍保留该文件；叶子符号链接仅删除链接，目录被替换为外部链接时拒绝操作。来源目录、文件夹书签和原始音乐从不参与删除。
 
-永久删除标记随资料库同步，其他设备接收后清理自己的托管副本。迟到的云下载写文件前通过同一个数据库写锁重新确认记录仍可用。CloudKit 资产及应用外备份不执行物理删除。自动文件夹扫描不重新加入已永久删除的相同内容；显式 Import Music 可以使用新歌曲 ID 重新导入。
+永久删除标记随资料库同步，其他设备接收后清理自己的托管副本。迟到的云下载写文件前通过同一个数据库写锁重新确认记录仍可用。CloudKit 资产及应用外备份不执行物理删除。自动扫描不会复活已永久删除的同一关联文件引用，托管导入继续使用内容哈希删除历史；显式 Import Music 可以使用新歌曲 ID 重新导入。
 
 ## SQLite 与同步
 
@@ -121,7 +122,7 @@ React 页面按 `components`、`hooks`、`domain`、`services` 拆分。App.tsx 
 
 本地记录和 outbox 在同一 SQL 事务提交。发送快照带 generation，旧发送确认不能删除新修改。CKRecord 的系统字段及同步状态按容器／iCloud 账号隔离保存。账号切换暂停同步；跨重启检测到新账号时也必须明确启用。
 
-元数据区和资产区分离。获取音乐是否已存在时只获取系统字段，不能下载整个音频。音频下载先校验 SHA-256，再放入本地库；普通元数据刷新不应拉取音乐文件。活动队列、路径和书签不跨设备同步。
+元数据区 iMusicMetadataV2 和资产区 iMusicAssets 分离；升级后一次性读取旧 iMusicMetadata，不向旧区域写入新来源格式。获取音乐是否已存在时只获取系统字段，不能下载整个音频。音频下载先校验 SHA-256，再放入本地库；普通元数据刷新不应拉取音乐文件。活动队列、路径和书签不跨设备同步。
 
 ## 本地化
 

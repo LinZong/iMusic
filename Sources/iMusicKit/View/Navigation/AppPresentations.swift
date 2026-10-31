@@ -29,6 +29,9 @@ struct AppPresentations: ViewModifier {
                     }
                 }
             }
+            .sheet(item: $imports.relinkPreview) { preview in
+                RelinkSourceView(model: model.imports, preview: preview)
+            }
             .sheet(isPresented: $presentation.showPlayer) { NowPlayingView(model: model.player) }
             .sheet(
                 isPresented: Binding(
@@ -83,7 +86,9 @@ struct AppPresentations: ViewModifier {
                     set: { if !$0 { model.imports.exportedBackup = nil } }
                 )
             ) {
-                if let url = model.imports.exportedBackup { BackupExportView(url: url) }
+                if let url = model.imports.exportedBackup {
+                    BackupExportView(url: url, detail: model.imports.backupDetail)
+                }
             }
             .sheet(
                 isPresented: Binding(

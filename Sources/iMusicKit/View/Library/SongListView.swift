@@ -147,8 +147,11 @@ struct SongListView: View {
                                     .font(.caption)
                             }
                             if !model.library.availableTrackIDs.contains(row.track.id) {
-                                Image(systemName: "icloud.and.arrow.down")
-                                    .foregroundStyle(.secondary)
+                                Image(
+                                    systemName: row.track.isLinked
+                                        ? "folder.badge.questionmark" : "icloud.and.arrow.down"
+                                )
+                                .foregroundStyle(.secondary)
                             }
                         }
                         .draggable(row.track.id.uuidString)
@@ -362,7 +365,16 @@ struct SongListView: View {
             }
             Button(L10n.text("Cancel"), role: .cancel) { model.pendingPermanentDeletion = [] }
         } message: { tracks in
-            if tracks.count == 1, let track = tracks.first {
+            if tracks.allSatisfy(\.isLinked) {
+                Text(
+                    L10n.text(
+                        """
+                        Only library entries and derived artwork will be deleted. Original \
+                        files in linked folders will remain untouched.
+                        """
+                    )
+                )
+            } else if tracks.count == 1, let track = tracks.first {
                 Text(L10n.text("format.trash.delete_song", track.title))
             } else {
                 Text(L10n.text("format.trash.delete_count", tracks.count))

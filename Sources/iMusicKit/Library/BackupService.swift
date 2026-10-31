@@ -3,15 +3,19 @@ import ZIPFoundation
 
 public struct BackupManifest: Codable {
     /// Backup format identifier checked before restoring any records or files.
-    public var formatVersion = 1
+    public var formatVersion = 2
     /// Time the backup manifest was assembled.
     public var createdAt = Date()
-    /// Whether every non-purged audio record must have a matching file in this archive.
+    /// Whether every non-purged managed song must have matching audio in this archive.
     public var includesAudio: Bool
     /// Versioned library records to merge when restoring, including deletion markers.
     public var records: [SyncEnvelope]
     /// Archive-relative file entries with expected sizes and SHA-256 digests.
     public var files: [BackupFile]
+    /// Number of managed song records; absent in legacy archives.
+    public var managedSongCount: Int?
+    /// Number of original-file references whose audio and permissions are intentionally excluded.
+    public var linkedReferenceCount: Int?
     /// Optional encoded portable preferences; absent in backups that do not include settings.
     public var settings: [String: Data]?
 }
@@ -49,7 +53,7 @@ public actor BackupService {
         var files: [BackupFile] = []
         let tracks = try store.tracks(includeDeleted: true)
         if includeAudio {
-            for track in tracks {
+            for track in tracks where !track.isLinked {
                 let source = try vault.url(for: track)
                 guard FileManager.default.fileExists(atPath: source.path) else {
                     throw MusicError.unavailable(
@@ -71,7 +75,8 @@ public actor BackupService {
                 }
                 try copy(source, to: directory.appendingPathComponent(relative))
                 let size = try source.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-                files.append(BackupFile(path: relative, hash: track.assetHash, size: UInt64(size)))
+                guard let hash = track.assetHash else { throw MusicError.missingFile }
+                files.append(BackupFile(path: relative, hash: hash, size: UInt64(size)))
             }
         }
         let playlists = try store.playlists(includeDeleted: true)
@@ -93,6 +98,8 @@ public actor BackupService {
             includesAudio: includeAudio,
             records: records,
             files: files,
+            managedSongCount: tracks.filter { !$0.isLinked }.count,
+            linkedReferenceCount: tracks.filter(\.isLinked).count,
             settings: try store.exportSettings()
         )
         try JSONEncoder().encode(manifest)
@@ -137,7 +144,7 @@ public actor BackupService {
                 BackupManifest.self,
                 from: Data(contentsOf: directory.appendingPathComponent("manifest.json"))
             )
-        guard manifest.formatVersion == 1 else {
+        guard (1...2).contains(manifest.formatVersion) else {
             throw MusicError.invalidBackup(L10n.text("This version is not supported"))
         }
         let tracks = try manifest.records.filter { $0.kind == "track" }
@@ -154,8 +161,9 @@ public actor BackupService {
             }
         }
         if manifest.includesAudio {
-            for track in tracks {
-                let expected = "Media/\(track.assetHash).\(track.fileExtension)"
+            for track in tracks where !track.isLinked {
+                guard let hash = track.assetHash else { throw MusicError.missingFile }
+                let expected = "Media/\(hash).\(track.fileExtension)"
                 guard
                     manifest.files.contains(where: {
                         $0.path == expected && $0.hash == track.assetHash

@@ -25,10 +25,12 @@
 "Artists" = "歌手";
 "At the End of This Song" = "本曲结束后";
 "Audio Output" = "音频输出";
+"Authorize the linked folder in Settings." = "请在设置中重新授权关联文件夹。";
 "Back 10 Seconds" = "后退十秒";
 "Backup Ready" = "备份已准备好";
 "Backup and Restore" = "备份与恢复";
 "Backup restored." = "备份已恢复。";
+"Backups include linked song metadata and artwork, not original audio or folder permissions. Relink folders after restoring on another device." = "备份包含关联歌曲的元数据和封面，不包含源音频和文件夹授权。在其他设备恢复后，请重新关联文件夹。";
 "Bass Boost" = "低音增强";
 "Bright" = "明亮";
 "Bring Your Music In" = "把音乐带进来";
@@ -51,6 +53,7 @@
 "Clear Upcoming" = "清空待播";
 "Cloud Changes Received" = "已接收云端变更";
 "Collapse Player" = "收起播放器";
+"Confirm that this is the same music folder. The paths below will reconnect existing songs; missing files remain unavailable. No original files will be changed." = "请确认所选目录是同一个音乐文件夹。将按以下路径重新关联已有歌曲，缺失的文件仍不可用。不会修改任何源文件。";
 "Connect your computer and this device to the same trusted local network, then open one of the addresses below in a browser." = "电脑和此设备连接同一个可信局域网，在电脑浏览器打开下面的任一地址。";
 "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again." = "连接中断，请保持 iMusic 的 Wi-Fi 传歌页面开启，然后重试。";
 "Continue Listening" = "继续聆听";
@@ -97,6 +100,7 @@
 "Find Duplicate Songs" = "查找重复歌曲";
 "Flat" = "平直";
 "Folder access has expired. Select the folder again." = "文件夹访问权限已失效，请重新选择文件夹。";
+"Folder scan cancelled. Completed songs have been saved." = "文件夹扫描已取消，已完成的歌曲已保存。";
 "Format" = "格式";
 "Forward 10 Seconds" = "前进十秒";
 "Genre" = "流派";
@@ -131,8 +135,12 @@
 "Light" = "浅色";
 "Link Folder" = "关联文件夹";
 "Link Folder…" = "关联文件夹…";
+"Linked Folder" = "关联文件夹";
+"Linked Folders" = "关联文件夹";
+"Linked folders play original files without copying audio into iMusic. Cloud files download through the system before metadata is read. Unlinking and deleting songs never deletes these originals." = "关联文件夹直接播放源文件，不会将音频复制到 iMusic。云端文件由系统下载后再读取元数据。取消关联或删除歌曲均不会删除这些源文件。";
 "Listen to a song you love" = "听一首喜欢的歌";
 "Listening Statistics" = "聆听统计";
+"Locate File…" = "定位源文件…";
 "Mini Player" = "迷你播放器";
 "Minutes" = "分钟";
 "Missing music file" = "缺少音乐文件";
@@ -164,6 +172,7 @@
 "Online Artwork Matches" = "在线封面候选";
 "Online Metadata (Optional)" = "在线资料（可选）";
 "Only files with identical contents can be merged." = "仅允许合并内容完全相同的文件。";
+"Only library entries and derived artwork will be deleted. Original files in linked folders will remain untouched." = "仅删除资料库记录和派生封面，关联文件夹中的源文件将保留。";
 "Only songs in Trash can be permanently deleted." = "只能永久删除回收站中的歌曲。";
 "Original Filename" = "原始文件名";
 "Pair" = "配对";
@@ -194,7 +203,9 @@
 "Received" = "已接收";
 "Received. Importing now." = "已接收，正在导入。";
 "Recently Added" = "最近添加";
+"Reconnect" = "确认关联";
 "Record identifiers do not match" = "记录标识不匹配";
+"Relink Folder…" = "重新关联文件夹…";
 "Remove" = "移除";
 "Remove from Favorites" = "取消收藏";
 "Remove from Playlist" = "从歌单移除";
@@ -209,6 +220,7 @@
 "Restore Playlist" = "恢复歌单";
 "Restore from Backup…" = "从备份恢复…";
 "Restores merge information and preserve newer edits. Deleted music stays in Trash and is never automatically erased." = "恢复采用合并方式，优先保留较新的修改。删除的音乐保留在回收站，不自动永久删除。";
+"Retry failed files in Linked Folders." = "请在关联文件夹中重试失败的文件。";
 "Reverse Order" = "反转顺序";
 "Save" = "保存";
 "Save As…" = "另存为…";
@@ -235,9 +247,11 @@
 "Six-Digit Pairing Code" = "六位配对码";
 "Sleep Timer" = "睡眠定时";
 "Song Options" = "歌曲选项";
+"Songs" = "歌曲";
 "Songs Played" = "已聆听歌曲";
 "Songs moved to Trash appear here until you restore or permanently delete them." = "移到回收站的歌曲会保留在这里，直到您恢复或永久删除。";
 "Sort by Song Title" = "按歌曲名排序";
+"Source file is missing. Relink its folder in Settings." = "源文件已丢失，请在设置中重新关联其文件夹。";
 "Split Collaborating Artists" = "拆分合作歌手";
 "Staged file verification failed" = "暂存文件校验失败";
 "Start with your first song" = "从第一首歌开始";
@@ -263,13 +277,18 @@
 "The name cannot be empty." = "名称不能为空。";
 "The online metadata service is temporarily unavailable. Please try again later." = "在线资料服务暂时不可用，请稍后重试。";
 "The pairing code is incorrect or too many attempts were made. Restart uploads in iMusic." = "配对码错误或尝试次数过多，请在 iMusic 中重新开启上传。";
+"The source file changed or was removed. Resume to reopen it, or relink its folder in Settings." = "源文件已更改或移除。请继续播放以重新打开文件，或在设置中重新关联文件夹。";
+"The source file changed. Scan Linked Folders in Settings before playing it again." = "源文件已更改。请在设置中扫描关联文件夹后重新播放。";
 "This file cannot be decoded. It may be damaged or in an unsupported format." = "无法解码此文件，文件可能损坏或格式不受支持。";
 "This file exceeds the upload size limit." = "此文件超过上传大小限制。";
 "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration." = "当前为本地构建。iCloud 需要配置开发者团队、CloudKit 容器并使用 Cloud 构建配置。";
+"This legacy folder imported copies. Relink to index originals; existing copies will be kept." = "此旧版关联文件夹已导入音频副本。重新关联可索引源文件，已有副本将保留。";
 "This record is too large to sync with iCloud. Your local information has been preserved." = "此记录过大，无法同步到 iCloud；本地内容已保留。";
+"This song uses an external source file." = "此歌曲使用外部源文件。";
 "This song was permanently deleted. Import it again to add a new copy." = "这首歌已永久删除。重新导入后才能添加新的副本。";
 "This version is not supported" = "不支持此版本";
 "Time Range" = "时间范围";
+"Timed out waiting for the source file. Retry when it is available." = "等待源文件超时，请在文件可用后重试。";
 "Title" = "标题";
 "Total Listening Time" = "累计聆听";
 "Transfer Music" = "传入音乐";
@@ -306,6 +325,7 @@
 "Vocals" = "人声";
 "Volume" = "音量";
 "Waiting" = "等待上传";
+"Waiting for source file…" = "正在等待源文件…";
 "Wi-Fi Transfer" = "Wi-Fi 传歌";
 "Wi-Fi Transfer…" = "Wi-Fi 传歌…";
 "Wi-Fi Upload resources are missing. Rebuild iMusic." = "Wi-Fi 传歌资源缺失，请重新构建 iMusic。";
@@ -314,6 +334,7 @@
 "Your music, always with you." = "你的音乐，随时在身边。";
 "format.backup.audio_checksum" = "%1$@ 的音频校验失败";
 "format.backup.download_required" = "%1$@ 尚未下载，完整备份前请先下载所有音乐。";
+"format.backup.sources" = "托管歌曲：%1$ld 首；关联引用：%2$ld 首。不包含关联音频和文件夹授权，恢复后需重新关联文件夹。请将备份保存到 iMusic 之外。";
 "format.backup.verification_error" = "备份校验失败：%1$@";
 "format.batch.instructions" = "编辑 %1$ld 首歌曲。仅应用勾选字段；空内容将清除此字段。其他标签和原始文件保持完整。";
 "format.disc_number" = "碟号：%1$ld";

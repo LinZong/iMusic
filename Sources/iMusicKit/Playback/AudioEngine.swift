@@ -32,6 +32,10 @@ public protocol PlaybackEngine: AnyObject {
     /// Preloads a file for the specified queue occurrence so the backend can advance without a new
     /// explicit play request; throws on decoder setup failure.
     func enqueue(url: URL, entryID: UUID) throws
+    /// Starts a source decoder already opened under file-provider coordination off the UI actor.
+    func play(prepared: PreparedSourceAudio, entryID: UUID, region: ClosedRange<Double>?) throws
+    /// Enqueues a prepared original-file decoder without reopening its path on the UI actor.
+    func enqueue(prepared: PreparedSourceAudio, entryID: UUID) throws
     /// Removes preloaded decoders without changing the currently selected occurrence.
     func clearUpcoming()
     /// Applies a playback speed multiplier; the production backend clamps it to the supported 0.5
@@ -51,6 +55,25 @@ public protocol PlaybackEngine: AnyObject {
     /// Stops rendering, detaches callbacks from the old player, and clears decoder identity and
     /// preload state.
     func stop()
+}
+
+extension PlaybackEngine {
+    /// Allows URL-only test backends to observe source selection without using audio hardware.
+    public func play(prepared: PreparedSourceAudio, entryID: UUID, region: ClosedRange<Double>?)
+        throws
+    {
+        try play(
+            url: prepared.url,
+            entryID: entryID,
+            position: prepared.position,
+            region: region,
+            sampleRate: prepared.sampleRate
+        )
+    }
+    /// Allows URL-only test backends to observe source preloading without decoding audio.
+    public func enqueue(prepared: PreparedSourceAudio, entryID: UUID) throws {
+        try enqueue(url: prepared.url, entryID: entryID)
+    }
 }
 
 @MainActor
@@ -137,22 +160,7 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
         sampleRate: Double = 0
     ) throws {
         // New player identity fences all callbacks belonging to the previous session.
-        let gains = equalizer.bands.map(\.gain)
-        let bypass = equalizer.bypass
-        let rate = timePitch.rate
-        player.delegate = nil
-        player.stop()
-        player = AudioPlayer()
-        equalizer = AVAudioUnitEQ(numberOfBands: 10)
-        timePitch = AVAudioUnitTimePitch()
-        identifiers = [:]
-        preloadedID = nil
-        currentDecoderID = nil
-        regionStart = region?.lowerBound ?? 0
-        regionLength = region.map { $0.upperBound - $0.lowerBound }
-        configurePlayer()
-        setEqualizer(gains, enabled: !bypass)
-        setRate(rate)
+        resetPlayer(region: region)
         let decoder: any PCMDecoding
         if let region, sampleRate > 0 {
             decoder = try AudioRegionDecoder(
@@ -170,6 +178,40 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
             try decoder.seek(to: Int64(position * sampleRate))
         }
         try player.play(decoder)
+    }
+    private func resetPlayer(region: ClosedRange<Double>?) {
+        let gains = equalizer.bands.map(\.gain)
+        let bypass = equalizer.bypass
+        let rate = timePitch.rate
+        player.delegate = nil
+        player.stop()
+        player = AudioPlayer()
+        equalizer = AVAudioUnitEQ(numberOfBands: 10)
+        timePitch = AVAudioUnitTimePitch()
+        identifiers = [:]
+        preloadedID = nil
+        currentDecoderID = nil
+        regionStart = region?.lowerBound ?? 0
+        regionLength = region.map { $0.upperBound - $0.lowerBound }
+        configurePlayer()
+        setEqualizer(gains, enabled: !bypass)
+        setRate(rate)
+    }
+    /// Starts a coordinated original-file decoder without blocking the UI on provider access.
+    public func play(prepared: PreparedSourceAudio, entryID: UUID, region: ClosedRange<Double>?)
+        throws
+    {
+        resetPlayer(region: region)
+        identifiers[ObjectIdentifier(prepared.decoder)] = entryID
+        try player.play(prepared.decoder)
+    }
+    /// Schedules an already opened original decoder for gapless advancement.
+    public func enqueue(prepared: PreparedSourceAudio, entryID: UUID) throws {
+        guard preloadedID != entryID else { return }
+        player.clearQueue()
+        identifiers[ObjectIdentifier(prepared.decoder)] = entryID
+        try player.enqueue(prepared.decoder)
+        preloadedID = entryID
     }
     /// Preloads a file for the specified queue occurrence so the backend can advance without a new
     /// explicit play request; throws on decoder setup failure.

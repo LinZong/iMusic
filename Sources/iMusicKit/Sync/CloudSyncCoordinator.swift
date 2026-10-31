@@ -138,7 +138,7 @@ private actor CloudSyncWorker: CKSyncEngineDelegate {
     /// CloudKit container whose private database stores the user's records and assets.
     private let container: CKContainer
     /// Custom record zone for versioned music metadata and listening records.
-    private let metadataZone = CKRecordZone.ID(zoneName: "iMusicMetadata")
+    private let metadataZone = CKRecordZone.ID(zoneName: "iMusicMetadataV2")
     /// Separate custom record zone for content-addressed audio and artwork assets.
     private let assetZone = CKRecordZone.ID(zoneName: "iMusicAssets")
     /// CloudKit synchronization engine; nil until the account is validated and the worker starts.
@@ -184,7 +184,15 @@ private actor CloudSyncWorker: CKSyncEngineDelegate {
             )
         }
         try store.setSetting(bindingKey, value: user.recordName)
-        namespace = "cloud.\(container.containerIdentifier ?? "").\(user.recordName)"
+        namespace = "cloud.v2.\(container.containerIdentifier ?? "").\(user.recordName)"
+        // Import the old zone once; original-file records are written only into the v2 zone.
+        if try store.setting(namespace + ".legacyImported", as: Bool.self) != true {
+            try await LegacyMetadataImporter.fetch(
+                store: store,
+                database: container.privateCloudDatabase
+            )
+            try store.setSetting(namespace + ".legacyImported", value: true)
+        }
         // An account change needs an explicit enable action; local data is retained.
         let state = try store.setting(
             namespace + ".state",
@@ -364,9 +372,9 @@ private actor CloudSyncWorker: CKSyncEngineDelegate {
         systemFields[record.recordID.recordName] = coder.encodedData
     }
     func upload(_ track: Track) async throws {
-        guard engine != nil else { return }
+        guard engine != nil, !track.isLinked, let hash = track.assetHash else { return }
         let db = container.privateCloudDatabase
-        let recordID = CKRecord.ID(recordName: track.assetHash, zoneID: assetZone)
+        let recordID = CKRecord.ID(recordName: hash, zoneID: assetZone)
         if try await exists(recordID) { return }
         _ = try await db.save(CKRecordZone(zoneID: assetZone))
         let source = try vault.url(for: track)
@@ -418,9 +426,11 @@ private actor CloudSyncWorker: CKSyncEngineDelegate {
         _ = try await db.save(record)
     }
     func download(_ track: Track) async throws {
-        guard engine != nil else { return }
+        guard engine != nil, !track.isLinked, let hash = track.assetHash else {
+            throw MusicError.unavailable(L10n.text("Authorize the linked folder in Settings."))
+        }
         let record = try await container.privateCloudDatabase.record(
-            for: CKRecord.ID(recordName: track.assetHash, zoneID: assetZone)
+            for: CKRecord.ID(recordName: hash, zoneID: assetZone)
         )
         guard let asset = record["audio"] as? CKAsset, let source = asset.fileURL,
             try MediaVault.digest(source) == track.assetHash

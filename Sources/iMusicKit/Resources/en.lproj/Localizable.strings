@@ -25,10 +25,12 @@
 "Artists" = "Artists";
 "At the End of This Song" = "At the End of This Song";
 "Audio Output" = "Audio Output";
+"Authorize the linked folder in Settings." = "Authorize the linked folder in Settings.";
 "Back 10 Seconds" = "Back 10 Seconds";
 "Backup Ready" = "Backup Ready";
 "Backup and Restore" = "Backup and Restore";
 "Backup restored." = "Backup restored.";
+"Backups include linked song metadata and artwork, not original audio or folder permissions. Relink folders after restoring on another device." = "Backups include linked song metadata and artwork, not original audio or folder permissions. Relink folders after restoring on another device.";
 "Bass Boost" = "Bass Boost";
 "Bright" = "Bright";
 "Bring Your Music In" = "Bring Your Music In";
@@ -51,6 +53,7 @@
 "Clear Upcoming" = "Clear Upcoming";
 "Cloud Changes Received" = "Cloud Changes Received";
 "Collapse Player" = "Collapse Player";
+"Confirm that this is the same music folder. The paths below will reconnect existing songs; missing files remain unavailable. No original files will be changed." = "Confirm that this is the same music folder. The paths below will reconnect existing songs; missing files remain unavailable. No original files will be changed.";
 "Connect your computer and this device to the same trusted local network, then open one of the addresses below in a browser." = "Connect your computer and this device to the same trusted local network, then open one of the addresses below in a browser.";
 "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again." = "Connection lost. Keep Wi-Fi Transfer open in iMusic and try again.";
 "Continue Listening" = "Continue Listening";
@@ -97,6 +100,7 @@
 "Find Duplicate Songs" = "Find Duplicate Songs";
 "Flat" = "Flat";
 "Folder access has expired. Select the folder again." = "Folder access has expired. Select the folder again.";
+"Folder scan cancelled. Completed songs have been saved." = "Folder scan cancelled. Completed songs have been saved.";
 "Format" = "Format";
 "Forward 10 Seconds" = "Forward 10 Seconds";
 "Genre" = "Genre";
@@ -131,8 +135,12 @@
 "Light" = "Light";
 "Link Folder" = "Link Folder";
 "Link Folder…" = "Link Folder…";
+"Linked Folder" = "Linked Folder";
+"Linked Folders" = "Linked Folders";
+"Linked folders play original files without copying audio into iMusic. Cloud files download through the system before metadata is read. Unlinking and deleting songs never deletes these originals." = "Linked folders play original files without copying audio into iMusic. Cloud files download through the system before metadata is read. Unlinking and deleting songs never deletes these originals.";
 "Listen to a song you love" = "Listen to a song you love";
 "Listening Statistics" = "Listening Statistics";
+"Locate File…" = "Locate File…";
 "Mini Player" = "Mini Player";
 "Minutes" = "Minutes";
 "Missing music file" = "Missing music file";
@@ -164,6 +172,7 @@
 "Online Artwork Matches" = "Online Artwork Matches";
 "Online Metadata (Optional)" = "Online Metadata (Optional)";
 "Only files with identical contents can be merged." = "Only files with identical contents can be merged.";
+"Only library entries and derived artwork will be deleted. Original files in linked folders will remain untouched." = "Only library entries and derived artwork will be deleted. Original files in linked folders will remain untouched.";
 "Only songs in Trash can be permanently deleted." = "Only songs in Trash can be permanently deleted.";
 "Original Filename" = "Original Filename";
 "Pair" = "Pair";
@@ -194,7 +203,9 @@
 "Received" = "Received";
 "Received. Importing now." = "Received. Importing now.";
 "Recently Added" = "Recently Added";
+"Reconnect" = "Reconnect";
 "Record identifiers do not match" = "Record identifiers do not match";
+"Relink Folder…" = "Relink Folder…";
 "Remove" = "Remove";
 "Remove from Favorites" = "Remove from Favorites";
 "Remove from Playlist" = "Remove from Playlist";
@@ -209,6 +220,7 @@
 "Restore Playlist" = "Restore Playlist";
 "Restore from Backup…" = "Restore from Backup…";
 "Restores merge information and preserve newer edits. Deleted music stays in Trash and is never automatically erased." = "Restores merge information and preserve newer edits. Deleted music stays in Trash and is never automatically erased.";
+"Retry failed files in Linked Folders." = "Retry failed files in Linked Folders.";
 "Reverse Order" = "Reverse Order";
 "Save" = "Save";
 "Save As…" = "Save As…";
@@ -235,9 +247,11 @@
 "Six-Digit Pairing Code" = "Six-Digit Pairing Code";
 "Sleep Timer" = "Sleep Timer";
 "Song Options" = "Song Options";
+"Songs" = "Songs";
 "Songs Played" = "Songs Played";
 "Songs moved to Trash appear here until you restore or permanently delete them." = "Songs moved to Trash appear here until you restore or permanently delete them.";
 "Sort by Song Title" = "Sort by Song Title";
+"Source file is missing. Relink its folder in Settings." = "Source file is missing. Relink its folder in Settings.";
 "Split Collaborating Artists" = "Split Collaborating Artists";
 "Staged file verification failed" = "Staged file verification failed";
 "Start with your first song" = "Start with your first song";
@@ -263,13 +277,18 @@
 "The name cannot be empty." = "The name cannot be empty.";
 "The online metadata service is temporarily unavailable. Please try again later." = "The online metadata service is temporarily unavailable. Please try again later.";
 "The pairing code is incorrect or too many attempts were made. Restart uploads in iMusic." = "The pairing code is incorrect or too many attempts were made. Restart uploads in iMusic.";
+"The source file changed or was removed. Resume to reopen it, or relink its folder in Settings." = "The source file changed or was removed. Resume to reopen it, or relink its folder in Settings.";
+"The source file changed. Scan Linked Folders in Settings before playing it again." = "The source file changed. Scan Linked Folders in Settings before playing it again.";
 "This file cannot be decoded. It may be damaged or in an unsupported format." = "This file cannot be decoded. It may be damaged or in an unsupported format.";
 "This file exceeds the upload size limit." = "This file exceeds the upload size limit.";
 "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration." = "This is a local build. iCloud requires a developer team, a CloudKit container, and a Cloud build configuration.";
+"This legacy folder imported copies. Relink to index originals; existing copies will be kept." = "This legacy folder imported copies. Relink to index originals; existing copies will be kept.";
 "This record is too large to sync with iCloud. Your local information has been preserved." = "This record is too large to sync with iCloud. Your local information has been preserved.";
+"This song uses an external source file." = "This song uses an external source file.";
 "This song was permanently deleted. Import it again to add a new copy." = "This song was permanently deleted. Import it again to add a new copy.";
 "This version is not supported" = "This version is not supported";
 "Time Range" = "Time Range";
+"Timed out waiting for the source file. Retry when it is available." = "Timed out waiting for the source file. Retry when it is available.";
 "Title" = "Title";
 "Total Listening Time" = "Total Listening Time";
 "Transfer Music" = "Transfer Music";
@@ -306,6 +325,7 @@
 "Vocals" = "Vocals";
 "Volume" = "Volume";
 "Waiting" = "Waiting";
+"Waiting for source file…" = "Waiting for source file…";
 "Wi-Fi Transfer" = "Wi-Fi Transfer";
 "Wi-Fi Transfer…" = "Wi-Fi Transfer…";
 "Wi-Fi Upload resources are missing. Rebuild iMusic." = "Wi-Fi Upload resources are missing. Rebuild iMusic.";
@@ -314,6 +334,7 @@
 "Your music, always with you." = "Your music, always with you.";
 "format.backup.audio_checksum" = "Audio checksum failed for %1$@";
 "format.backup.download_required" = "%1$@ is not downloaded. Download all music before creating a full backup.";
+"format.backup.sources" = "Managed songs: %1$ld. Linked references: %2$ld. Linked audio and folder permissions are excluded; relink folders after restoring. Save this archive outside iMusic.";
 "format.backup.verification_error" = "Backup verification failed: %1$@";
 "format.batch.instructions" = "Editing %1$ld songs. Only selected fields are applied; empty values clear those fields. Other tags and original files stay intact.";
 "format.disc_number" = "Disc Number: %1$ld";

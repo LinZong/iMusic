@@ -50,6 +50,14 @@ public final class PlaybackCoordinator {
     @ObservationIgnored private let store: LibraryStore
     /// Application-owned media layout used to resolve validated files and working directories.
     @ObservationIgnored private let vault: MediaVault
+    /// Source dispatch boundary shared by current-track and gapless preparation.
+    @ObservationIgnored private let sources: AudioSourceResolver
+    /// Foreground-only observer for the active original-file decoder.
+    @ObservationIgnored private var sourcePresenter: LinkedFilePresenter?
+    /// Identity of the active observation, rejecting delayed events after a gapless transition.
+    @ObservationIgnored private var sourceObservationToken = UUID()
+    /// Whether this scene may register file presenters with document providers.
+    @ObservationIgnored private var observeSources = true
     /// Playback backend; production uses SFBAudioEngine and tests can inject a hardware-free
     /// implementation.
     @ObservationIgnored private let engine: any PlaybackEngine
@@ -77,6 +85,16 @@ public final class PlaybackCoordinator {
     @ObservationIgnored private var loadToken = UUID()
     /// Whether the pending load came from automatic advancement and may skip a failed song.
     @ObservationIgnored private var loadingAutomatically = false
+    /// Cancellable original-file preparation; selection tokens reject late provider callbacks.
+    @ObservationIgnored private var sourceTask: Task<Void, Never>?
+    /// Cancellable preparation for the next original-file decoder.
+    @ObservationIgnored private var preloadTask: Task<Void, Never>?
+    /// Token invalidating preloads when repeat, queue order, or selection changes.
+    @ObservationIgnored private var preloadToken = UUID()
+    /// Current prepared source retained even by hardware-free test backends.
+    @ObservationIgnored private var currentSource: PreparedSourceAudio?
+    /// Next prepared source transferred when the backend advances gaplessly.
+    @ObservationIgnored private var upcomingSource: (id: UUID, audio: PreparedSourceAudio)?
     /// Whether the published playback state is currently playing.
     public var isPlaying: Bool { status == .playing }
     /// Whether the duration is valid and no A/B region currently prevents ordinary seeking.
@@ -92,6 +110,7 @@ public final class PlaybackCoordinator {
     ) {
         self.store = store
         self.vault = vault
+        sources = AudioSourceResolver(store: store, vault: vault)
         engine = injectedEngine ?? SFBPlaybackEngine()
         session = (try? store.setting("playback", as: PlaybackSession.self)) ?? PlaybackSession()
         if let current = session.current, let restored = try? store.track(id: current.trackID) {
@@ -138,6 +157,12 @@ public final class PlaybackCoordinator {
                 self?.tick()
             }
         }
+    }
+    deinit {
+        sourcePresenter?.unregister()
+        sourceTask?.cancel()
+        preloadTask?.cancel()
+        ticker?.cancel()
     }
     /// Replaces the queue with active songs, selects the requested start, applies shuffle mode,
     /// clears loop state, and begins playback.
@@ -276,6 +301,7 @@ public final class PlaybackCoordinator {
         session.remove(id)
         if wasCurrent {
             flushListening()
+            stopSourceWork()
             engine.stop()
             if let nextID, nextID != id {
                 session.select(nextID)
@@ -299,6 +325,7 @@ public final class PlaybackCoordinator {
             flushListening()
             loadToken = UUID()
             intentionalPause = true
+            stopSourceWork()
             engine.stop()
         }
         session.removeTracks(ids)
@@ -330,6 +357,7 @@ public final class PlaybackCoordinator {
     public func clearUpcoming() {
         session.entries.removeAll { $0.id != session.currentID }
         session.shuffleOrder = session.entries.map(\.id)
+        cancelSourcePreload()
         engine.clearUpcoming()
         persist()
     }
@@ -365,6 +393,7 @@ public final class PlaybackCoordinator {
             return
         }
         do {
+            cancelSourcePreload()
             engine.clearUpcoming()
             try engine.seek(to: target)
             timeline.update(elapsed: target, duration: duration)
@@ -479,9 +508,42 @@ public final class PlaybackCoordinator {
         }
         lastSaved = Date()
     }
+    /// Registers source observation only while scenes are active, as required by document
+    /// providers.
+    public func setSourceObservation(active: Bool) {
+        observeSources = active
+        updateSourcePresenter()
+    }
+
+    private func updateSourcePresenter() {
+        sourceObservationToken = UUID()
+        sourcePresenter?.unregister()
+        sourcePresenter = nil
+        guard observeSources, let currentSource else { return }
+        let token = sourceObservationToken
+        sourcePresenter = LinkedFilePresenter(source: currentSource) { [weak self] completion in
+            Task { @MainActor [weak self] in
+                defer { completion() }
+                guard let self, self.sourceObservationToken == token else { return }
+                self.stopSourceWork()
+                self.engine.stop()
+                self.status = .paused
+                self.error = L10n.text(
+                    """
+                    The source file changed or was removed. Resume to reopen it, or relink its \
+                    folder in Settings.
+                    """
+                )
+                self.persist()
+                self.onSnapshot?()
+            }
+        }
+    }
+
     private func startCurrent(position: Double = 0, clearLoop: Bool = true, automatic: Bool = false)
     {
         guard let entry = session.current else { return }
+        stopSourceWork()
         engine.stop()
         loadingAutomatically = automatic
         status = .preparing
@@ -497,10 +559,15 @@ public final class PlaybackCoordinator {
         do {
             guard let selected = try store.track(id: entry.trackID), selected.deletedAt == nil
             else { throw MusicError.missingFile }
-            let url = try vault.url(for: selected)
             track = selected
             timeline.update(elapsed: position, duration: selected.duration)
+            if selected.isLinked {
+                prepareSource(selected, entry: entry, position: position, automatic: automatic)
+                return
+            }
+            let url = try sources.managedURL(selected)
             if !FileManager.default.fileExists(atPath: url.path), let resolveMissing {
+                stopSourceWork()
                 engine.stop()
                 self.error = L10n.text("Downloading from iCloud…")
                 resolveMissing(selected, loadToken)
@@ -526,13 +593,82 @@ public final class PlaybackCoordinator {
             onSnapshot?()
         } catch { failed(error, skip: automatic) }
     }
+    private func prepareSource(
+        _ selected: Track,
+        entry: QueueEntry,
+        position: Double,
+        automatic: Bool
+    ) {
+        let token = loadToken
+        let region = loopA.flatMap { a in loopB.map { a...$0 } }
+        sourceTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let prepared = try await sources.prepare(
+                    selected,
+                    position: position,
+                    region: region
+                )
+                guard !Task.isCancelled, token == loadToken, session.currentID == entry.id,
+                    let current = try store.track(id: selected.id), current.deletedAt == nil,
+                    current.permanentlyDeletedAt == nil
+                else { return }
+                currentSource = prepared
+                updateSourcePresenter()
+                if intentionalPause {
+                    status = .paused
+                    return
+                }
+                session.position = position
+                listeningStarted = Date()
+                listened = 0
+                lastTick = ProcessInfo.processInfo.systemUptime
+                engine.setVolume(volume)
+                try engine.play(prepared: prepared, entryID: entry.id, region: region)
+                persist()
+                onSnapshot?()
+            } catch {
+                guard !Task.isCancelled, token == loadToken else { return }
+                failed(error, skip: automatic)
+            }
+        }
+    }
+
+    private func cancelSourcePreload() {
+        preloadToken = UUID()
+        preloadTask?.cancel()
+        preloadTask = nil
+        upcomingSource = nil
+    }
+
+    private func stopSourceWork() {
+        sourceObservationToken = UUID()
+        sourcePresenter?.unregister()
+        sourcePresenter = nil
+        loadToken = UUID()
+        sourceTask?.cancel()
+        sourceTask = nil
+        cancelSourcePreload()
+        currentSource = nil
+    }
+
     private func didBegin(_ id: UUID) {
         guard session.entries.contains(where: { $0.id == id }) else { return }
+        let changedOccurrence = session.currentID != id
         if startingEntryID != id {
             flushListening()
             session.select(id)
             timeline = PlaybackTimeline()
             seekFence = nil
+        }
+        if let upcomingSource, upcomingSource.id == id {
+            currentSource = upcomingSource.audio
+            self.upcomingSource = nil
+            updateSourcePresenter()
+        } else if changedOccurrence {
+            // A managed gapless successor must release the previous original-file observation.
+            currentSource = nil
+            updateSourcePresenter()
         }
         startingEntryID = nil
         if let entry = session.current { track = try? store.track(id: entry.trackID) }
@@ -551,14 +687,33 @@ public final class PlaybackCoordinator {
         onSnapshot?()
     }
     private func rebuildUpcoming() {
+        cancelSourcePreload()
         engine.clearUpcoming()
         // A restored paused session has no decoder. Enqueuing into an empty backend can start
         // that upcoming song instead of merely changing a playback mode.
         guard engine.elapsed != nil, loopB == nil, !sleepAtEnd,
             let id = session.nextID(automatic: true),
             let entry = session.entries.first(where: { $0.id == id }),
-            let selected = try? store.track(id: entry.trackID), selected.deletedAt == nil,
-            let url = try? vault.url(for: selected),
+            let selected = try? store.track(id: entry.trackID), selected.deletedAt == nil
+        else { return }
+        if selected.isLinked {
+            let token = preloadToken
+            preloadTask = Task { [weak self] in
+                guard let self else { return }
+                do {
+                    let prepared = try await sources.prepare(selected)
+                    guard !Task.isCancelled, token == preloadToken,
+                        let current = try store.track(id: selected.id), current.deletedAt == nil
+                    else { return }
+                    upcomingSource = (id, prepared)
+                    try engine.enqueue(prepared: prepared, entryID: id)
+                } catch {
+                    // Preparation failures are retried and surfaced if this occurrence is selected.
+                }
+            }
+            return
+        }
+        guard let url = try? sources.managedURL(selected),
             FileManager.default.fileExists(atPath: url.path)
         else { return }
         do { try engine.enqueue(url: url, entryID: id) } catch {
@@ -573,10 +728,18 @@ public final class PlaybackCoordinator {
         if sleepAtEnd {
             sleepAtEnd = false
             pause()
+            if track?.isLinked == true {
+                stopSourceWork()
+                engine.stop()
+            }
             status = .ended
             return
         }
         guard let id = session.nextID(automatic: true) else {
+            if track?.isLinked == true {
+                stopSourceWork()
+                engine.stop()
+            }
             status = .ended
             persist()
             onSnapshot?()
@@ -588,6 +751,7 @@ public final class PlaybackCoordinator {
     private func failed(_ error: Error, skip: Bool = true) {
         self.error = error.localizedDescription
         status = .failed
+        stopSourceWork()
         engine.stop()
         if let id = session.currentID { attempted.insert(id) }
         if skip, let nextID = session.nextID(automatic: false), !attempted.contains(nextID) {

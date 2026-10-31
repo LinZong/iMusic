@@ -51,7 +51,10 @@ public struct MediaVault: Sendable {
     /// Resolves a song to its validated content-addressed managed audio path; throws for an unsafe
     /// hash or extension.
     public func url(for track: Track) throws -> URL {
-        try url(hash: track.assetHash, extension: track.fileExtension)
+        guard !track.isLinked, let hash = track.assetHash else {
+            throw MusicError.unavailable(L10n.text("This song uses an external source file."))
+        }
+        return try url(hash: hash, extension: track.fileExtension)
     }
     /// Constructs a path inside Media only after validating the supplied lowercase SHA-256 digest
     /// and short alphanumeric extension.

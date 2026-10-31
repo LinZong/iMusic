@@ -4,9 +4,13 @@ public struct Track: Codable, Identifiable, Hashable, Sendable {
     /// Stable library identity; distinct from the content hash so an explicit reimport can create a
     /// new record.
     public var id: UUID
-    /// Lowercase SHA-256 digest of the audio bytes, used for deduplication and managed file names.
-    public var assetHash: String
-    /// Validated audio file extension used to locate the managed copy.
+    /// SHA-256 of managed audio for deduplication and file naming; nil for linked originals.
+    public var assetHash: String?
+    /// External source descriptor; absent in legacy and managed records.
+    public var linkedSource: LinkedAudioReference?
+    /// Whether this song references an external file instead of an application-owned copy.
+    public var isLinked: Bool { linkedSource != nil }
+    /// Validated audio file extension used to identify the decoder and managed copy.
     public var fileExtension: String
     /// Source file name retained for display and filename searches.
     public var originalFilename: String
@@ -50,7 +54,7 @@ public struct Track: Codable, Identifiable, Hashable, Sendable {
     /// remain separate from managed audio bytes; permanent deletion starts unset.
     public init(
         id: UUID = UUID(),
-        assetHash: String,
+        assetHash: String?,
         fileExtension: String,
         originalFilename: String,
         title: String,
@@ -68,10 +72,12 @@ public struct Track: Codable, Identifiable, Hashable, Sendable {
         addedAt: Date = Date(),
         modifiedAt: Date = Date(),
         deletedAt: Date? = nil,
-        originalMetadata: [String: String] = [:]
+        originalMetadata: [String: String] = [:],
+        linkedSource: LinkedAudioReference? = nil
     ) {
         self.id = id
         self.assetHash = assetHash
+        self.linkedSource = linkedSource
         self.fileExtension = fileExtension
         self.originalFilename = originalFilename
         self.title = title
@@ -389,6 +395,10 @@ public struct FolderSource: Codable, Identifiable, Sendable {
     public var lastScan: Date?
     /// Most recent scan or access error for this folder, if any.
     public var error: String?
+    /// Local authorization revision, changed on explicit relink to reject older scan commits.
+    public var bindingGeneration: UUID?
+    /// True for original-file links; absent on legacy folders that imported managed copies.
+    public var usesOriginalFiles: Bool?
 }
 
 public struct ListenEvent: Codable, Identifiable, Sendable {

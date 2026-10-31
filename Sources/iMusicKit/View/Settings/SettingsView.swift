@@ -64,37 +64,13 @@ struct SettingsView: View {
                 }
                 Button(L10n.text("Import Music Files…")) { model.imports.showImporter = true }
                 Button(L10n.text("Wi-Fi Transfer…")) { model.imports.showWiFi = true }
-                Button(L10n.text("Link Folder…")) { model.imports.showFolderPicker = true }
-                ForEach(model.library.folders) { folder in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Label(folder.name, systemImage: "folder")
-                            Spacer()
-                            Button(L10n.text("Unlink"), role: .destructive) {
-                                model.library.removeFolder(folder.id)
-                            }
-                        }
-                        if let error = folder.error {
-                            Text(error).font(.caption).foregroundStyle(.orange)
-                        }
-                        if let date = folder.lastScan {
-                            Text(
-                                L10n.text(
-                                    "format.folder.last_scan",
-                                    String(describing: date.formatted())
-                                )
-                            )
-                            .font(
-                                .caption
-                            )
-                            .foregroundStyle(.secondary)
-                        }
-                    }
+                Button(L10n.text("Link Folder…")) {
+                    model.imports.relinkFolderID = nil
+                    model.imports.showFolderPicker = true
                 }
-                Button(L10n.text("Scan Linked Folders")) {
-                    Task { await model.imports.scanFolders() }
+                NavigationLink(L10n.text("Linked Folders")) {
+                    LinkedFoldersView(model: model)
                 }
-                .disabled(model.library.activity.importing || model.library.folders.isEmpty)
                 Toggle(L10n.text("Split Collaborating Artists"), isOn: $preferences.splitArtists)
                 if model.preferences.splitArtists {
                     TextField(
@@ -105,15 +81,26 @@ struct SettingsView: View {
                 Text(
                     L10n.text(
                         """
-                        Music in linked folders is copied into the managed library. Unlinking \
-                        never deletes original files. iOS does not continuously monitor folders in \
-                        the background.
+                        Linked folders play original files without copying audio into iMusic. \
+                        Cloud \
+                        files download through the system before metadata is read. Unlinking and \
+                        deleting songs never deletes these originals.
                         """
                     )
                 )
                 .font(.caption).foregroundStyle(.secondary)
             }
             Section(L10n.text("Backup and Restore")) {
+                Text(
+                    L10n.text(
+                        """
+                        Backups include linked song metadata and artwork, not original audio \
+                        or folder permissions. Relink folders after restoring on another \
+                        device.
+                        """
+                    )
+                )
+                .font(.caption).foregroundStyle(.secondary)
                 Button(L10n.text("Export Full Backup (Including Music)")) {
                     model.imports.exportBackup(full: true)
                 }

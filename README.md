@@ -11,14 +11,18 @@ English · [简体中文](README.zh-CN.md)
 ## Features
 
 - Adaptive phone, tablet, and desktop layouts with a shared playback core.
-- Import from Files, linked folders, or a paired browser over your local Wi-Fi network.
-  Imports are copied into the app's managed library; source files remain untouched.
+- Import from Files or a paired browser into the app's managed library.
+- Link folders for in-place playback without an app-owned audio copy. Cloud-only songs may
+  download through the system to read metadata; missing or moved files can be relinked.
+  Source files remain untouched. See the [source architecture](Docs/LinkedFolderPlaybackPlan.md).
 - Songs, artists, albums, genres, favorites, playlists, and an editable playback queue.
 - MP3, AAC/M4A, ALAC, FLAC, WAV, AIFF, Ogg Vorbis, Opus, and other formats supported
   by the bundled decoder. Availability depends on the actual container and codec.
 - Shuffle, repeat, seeking, playback speed, equalizer, A/B repeat, and a sleep timer.
 - Artwork and metadata editing, optional manual cover lookup, ZIP backup and restore,
   and a recoverable Trash with explicit permanent deletion of managed copies.
+  Linked songs contribute metadata and artwork to backups; their original audio and folder
+  permissions are excluded, and restoring on another device requires relinking.
 - macOS playback controls include persistent app volume and mute settings.
 - English, Simplified Chinese, and Traditional Chinese. Appearance follows the system.
 - Local listening statistics without unsolicited reports or notification prompts.

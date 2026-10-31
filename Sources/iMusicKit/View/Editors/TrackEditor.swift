@@ -89,7 +89,8 @@ struct TrackEditor: View {
                         value: model.original.fileExtension.uppercased()
                     )
                     LabeledContent(L10n.text("Duration"), value: musicTime(model.original.duration))
-                    Text(model.original.assetHash).font(.caption2.monospaced())
+                    Text(model.original.assetHash ?? L10n.text("Linked Folder"))
+                        .font(.caption2.monospaced())
                         .textSelection(.enabled)
                 }
                 if let error = model.error { Text(error).foregroundStyle(.orange) }

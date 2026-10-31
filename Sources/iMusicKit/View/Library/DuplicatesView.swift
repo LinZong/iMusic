@@ -5,7 +5,8 @@ struct DuplicatesView: View {
     @Bindable var model: LibraryViewModel
     /// Renders groups of identical audio content and lets the user choose which record to keep.
     var body: some View {
-        let groups = Dictionary(grouping: model.tracks, by: \.assetHash).values
+        let groups = Dictionary(grouping: model.tracks.filter { !$0.isLinked }, by: \.assetHash)
+            .values
             .filter { $0.count > 1 }
         Group {
             if groups.isEmpty {

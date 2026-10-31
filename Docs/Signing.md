@@ -44,7 +44,7 @@ Release 编译配置与分发签名是两件事：以上方式安装的是开发
 
 私有数据库使用两个 zone：
 
-- `iMusicMetadata`：`LibraryRecord`，字段 `envelope` 为压缩 Data，`encoding` 为 String。
+- `iMusicMetadataV2`：`LibraryRecord`，字段 `envelope` 为压缩 Data，`encoding` 为 String。
 - `iMusicAssets`：`AudioAsset`（`audio`: Asset、`extension`: String），`ArtworkAsset`（`artwork`: Asset）。
 
 无需公开数据库或服务端账号。CKSyncEngine 使用后台数据通知，不请求 alert/badge/sound 授权。用户需在设置中主动启用资料库同步；音乐上传是单独开关。本地导入始终独立可用。
@@ -64,3 +64,5 @@ CarPlay scene 在专用 Info.plist 中声明，手机和平板的场景交给 Sw
 源码可以公开；签名产物、上架、TestFlight、Developer ID 公证属于后续发布操作。工程提供配置，未自动上传或发布。每位自行构建的开发者使用自己的 bundle ID、团队和容器。
 
 参考：[Apple CarPlay 权限](https://developer.apple.com/documentation/carplay/requesting-carplay-entitlements)、[CloudKit](https://developer.apple.com/documentation/cloudkit)。
+
+升级版从旧 `iMusicMetadata` 区域一次性读取历史记录，随后只向 `iMusicMetadataV2` 写入元数据；原 `iMusicAssets` 继续复用。关联歌曲的原音频、书签和本机路径不会上传到这些区域。
