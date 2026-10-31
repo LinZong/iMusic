@@ -7,16 +7,18 @@ struct SongListPlaybackActions<Model: PlayableSongList>: View {
 
     /// Starts ordinary or shuffled playback of the current search results.
     var body: some View {
-        Button {
-            model.play(row: model.state.ordered(model.rows).first)
-        } label: {
-            Label(L10n.text("Play"), systemImage: "play.fill")
-        }
-        .disabled(model.rows.isEmpty)
-        Button {
-            model.shuffle()
-        } label: {
-            Image(systemName: "shuffle").accessibilityLabel(L10n.text("Shuffle"))
+        HStack(spacing: 12) {
+            Button {
+                model.play(row: model.state.ordered(model.rows).first)
+            } label: {
+                Image(systemName: "play.fill")
+            }
+            .disabled(model.rows.isEmpty)
+            Button {
+                model.shuffle()
+            } label: {
+                Image(systemName: "shuffle").accessibilityLabel(L10n.text("Shuffle"))
+            }
         }
         .disabled(model.rows.isEmpty)
     }
