@@ -4,6 +4,8 @@ import SwiftUI
 struct CompactMiniPlayer: View {
     /// Shared playback state and presentation actions; resizing never creates a new session.
     let model: PlayerViewModel
+    /// Insets artwork within its existing slot without moving metadata or reducing touch targets.
+    var artworkInset: CGFloat = 0
 
     /// Keeps transport targets accessible while letting long metadata truncate naturally.
     var body: some View {
@@ -15,8 +17,9 @@ struct CompactMiniPlayer: View {
                     ArtworkView(
                         track: model.playback.track,
                         vault: model.library.vault,
-                        size: 42
+                        size: 42 - artworkInset * 2
                     )
+                    .padding(artworkInset)
                     VStack(alignment: .leading, spacing: 3) {
                         Text(model.playback.track?.title ?? "iMusic")
                             .font(.subheadline.weight(.semibold))

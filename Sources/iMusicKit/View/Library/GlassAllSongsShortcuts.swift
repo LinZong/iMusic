@@ -14,9 +14,9 @@ struct GlassAllSongsShortcuts<Links: View>: View {
                 HStack(spacing: 12) { links() }
                     .buttonStyle(.glass)
                     .buttonBorderShape(.capsule)
-                    .controlSize(.large)
+                    .controlSize(.regular)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 12)
             }
         }
         .scrollClipDisabled()

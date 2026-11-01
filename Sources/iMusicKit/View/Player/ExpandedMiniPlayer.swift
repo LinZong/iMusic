@@ -4,6 +4,8 @@ import SwiftUI
 struct ExpandedMiniPlayer: View {
     /// Shared library mutations, playback state, and presentation actions.
     let model: PlayerViewModel
+    /// Insets artwork within its existing slot without moving metadata or reducing touch targets.
+    var artworkInset: CGFloat = 0
     /// Fixed transport width keeps its center independent of metadata and volume widths.
     private let transportWidth: CGFloat = 244
 
@@ -28,7 +30,12 @@ struct ExpandedMiniPlayer: View {
                 model.presentation.showPlayer = true
             } label: {
                 HStack(spacing: 12) {
-                    ArtworkView(track: model.playback.track, vault: model.library.vault, size: 46)
+                    ArtworkView(
+                        track: model.playback.track,
+                        vault: model.library.vault,
+                        size: 46 - artworkInset * 2
+                    )
+                    .padding(artworkInset)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(model.playback.track?.title ?? "iMusic")
                             .font(.title3.weight(.semibold))

@@ -16,7 +16,7 @@ struct GlassLibrarySearchInput: View {
         LibrarySearchField(text: $text, prompt: prompt)
             .frame(height: fieldHeight)
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.top, 8)
             .zIndex(1)
     }
 }

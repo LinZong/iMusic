@@ -31,9 +31,9 @@ struct GlassMiniPlayer: View {
     private var controls: some View {
         VStack(spacing: 0) {
             ViewThatFits(in: .horizontal) {
-                ExpandedMiniPlayer(model: model)
+                ExpandedMiniPlayer(model: model, artworkInset: 4)
                     .frame(minWidth: expandedMinimumWidth, minHeight: 72, maxHeight: 72)
-                CompactMiniPlayer(model: model).padding(.vertical, 10)
+                CompactMiniPlayer(model: model, artworkInset: 4).padding(.vertical, 10)
             }
             PlaybackProgressLine(playback: model.playback)
                 .padding(.horizontal, 24)
@@ -44,9 +44,9 @@ struct GlassMiniPlayer: View {
     /// Fits the native accessory height and draws progress inside its glass boundary.
     private var accessoryControls: some View {
         ViewThatFits(in: .horizontal) {
-            ExpandedMiniPlayer(model: model)
+            ExpandedMiniPlayer(model: model, artworkInset: 4)
                 .frame(minWidth: expandedMinimumWidth, minHeight: 52, maxHeight: 52)
-            CompactMiniPlayer(model: model).padding(.vertical, 4)
+            CompactMiniPlayer(model: model, artworkInset: 4).padding(.vertical, 4)
         }
         .overlay(alignment: .bottom) {
             PlaybackProgressLine(playback: model.playback)
