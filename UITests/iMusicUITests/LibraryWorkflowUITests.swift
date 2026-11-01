@@ -113,6 +113,79 @@ import XCTest
     }
 
     #if os(iOS)
+    /// Legacy song pages keep summaries close to search with empty and populated collections.
+    func testLegacySongSummarySpacingWithoutFeatureHeader() throws {
+        if #available(iOS 26.0, *) { throw XCTSkip("Requires the legacy summary presentation.") }
+        defer { XCUIDevice.shared.orientation = .portrait }
+        for scenario in ["library", "song-scroll"] {
+            launch(scenario: scenario)
+            if app.frame.width > 680 {
+                // Keep the regular-width sidebar visible while selecting the tested collection.
+                XCUIDevice.shared.orientation = .landscapeLeft
+            }
+            navigate("Favorites")
+            XCTAssertEqual(app.staticTexts["library.songPageTitle"].label, "Favorites")
+            let summary = app.element("library.songSummary")
+            XCTAssertTrue(summary.waitForExistence(timeout: 5))
+            capture("Legacy Favorites summary spacing: " + scenario)
+            let gap = summary.frame.minY - app.searchFields["Search Songs"].frame.maxY
+            XCTAssertGreaterThanOrEqual(gap, 0)
+            XCTAssertLessThanOrEqual(
+                gap,
+                28,
+                "Legacy search and summary must not accumulate glass and summary padding."
+            )
+            let shuffle = app.buttons["Shuffle"]
+            XCTAssertGreaterThanOrEqual(shuffle.frame.height, 44)
+            XCTAssertGreaterThanOrEqual(shuffle.frame.width, 44)
+            if scenario == "library" {
+                XCTAssertTrue(app.element("library.emptyState").exists)
+            } else {
+                XCTAssertTrue(app.element("library.songList").cells.firstMatch.exists)
+            }
+            app.terminate()
+        }
+    }
+
+    /// Liquid Glass shortcuts float over scrolling songs while page controls retain their frames.
+    func testAllSongsShortcutsFloatAboveScrollingSongs() throws {
+        guard #available(iOS 26.0, *) else { throw XCTSkip("Requires Liquid Glass.") }
+        launch(scenario: "song-scroll")
+        navigate("All Songs")
+        let list = app.element("library.songList")
+        let shortcuts = app.element("allSongs.shortcuts")
+        let summary = app.element("library.songSummaryBar")
+        XCTAssertTrue(shortcuts.waitForExistence(timeout: 5))
+        capture("Floating shortcuts before scrolling")
+        XCTAssertLessThanOrEqual(
+            list.frame.minY,
+            shortcuts.frame.minY + 1,
+            "The song scroll viewport must extend beneath the floating shortcuts."
+        )
+        XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, summary.frame.maxY)
+        let fixed = [
+            app.staticTexts["library.songPageTitle"], app.searchFields["Search Songs"],
+            app.element("allSongs.artists"), app.element("library.songSummary"),
+        ]
+        let frames = fixed.map(\.frame)
+        let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.7, dy: 0.65))
+        let end = start.withOffset(CGVector(dx: 0, dy: -145))
+        start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 1)
+        for (element, frame) in zip(fixed, frames) {
+            XCTAssertEqual(element.frame.minY, frame.minY, accuracy: 1)
+            XCTAssertTrue(element.isHittable)
+        }
+        XCTAssertTrue(
+            list.cells.allElementsBoundByIndex.contains { $0.frame.intersects(shortcuts.frame) },
+            "Songs must scroll beneath the shortcut capsules."
+        )
+        capture("Songs scrolling beneath floating shortcuts")
+        library.openAllSongsShortcut("artists")
+        XCTAssertTrue(app.searchFields["Search Artists"].waitForExistence(timeout: 5))
+        library.backToAllSongs()
+        library.assertSongPageChromeStaysFixed("All Songs")
+    }
+
     /// Every song-collection scope shares fixed search without losing its navigation title.
     func testSongCollectionTitlesSurviveSearchEditing() {
         launch(scenario: "song-scroll")

@@ -31,6 +31,7 @@ def violations() -> list[str]:
     for name in (
         "View/Library/SongList/SongListView.swift",
         "View/Library/SongList/SongListPage.swift",
+        "View/Library/SongList/GlassSongListPageContent.swift",
         "View/Library/CollectionGrid.swift",
     ):
         path = SOURCE / name

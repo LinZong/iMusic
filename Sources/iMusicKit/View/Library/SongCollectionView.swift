@@ -5,14 +5,14 @@ struct SongCollectionView<Header: View>: View {
     /// Collection data and independent list mechanics.
     @State var model: SongCollectionViewModel
 
-    /// Feature-owned fixed controls displayed between the search field and the summary.
-    @ViewBuilder var header: () -> Header
+    /// Feature-owned fixed controls; absent for collections without shortcut navigation.
+    @ViewBuilder var header: () -> Header?
 
     /// Retains the collection model and composes optional fixed feature controls.
     init(
         model: SongCollectionViewModel,
-        @ViewBuilder header: @escaping () -> Header = {
-            EmptyView()
+        @ViewBuilder header: @escaping () -> Header? = {
+            Optional<EmptyView>.none
         }
     ) {
         _model = State(initialValue: model)

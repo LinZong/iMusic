@@ -8,8 +8,8 @@ struct SongListPage<Header: View, Content: View>: View {
     @Binding var search: String
     /// Localized description of the records searched on this page.
     let searchPrompt: String
-    /// Optional fixed feature controls between search and the song list.
-    @ViewBuilder var header: () -> Header
+    /// Fixed feature controls above songs; absent when the feature supplies no extra controls.
+    @ViewBuilder var header: () -> Header?
     /// Feature-composed song list, including its summary, rows, and actions.
     @ViewBuilder var content: () -> Content
 
@@ -18,7 +18,7 @@ struct SongListPage<Header: View, Content: View>: View {
         title: String,
         search: Binding<String>,
         searchPrompt: String,
-        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
+        @ViewBuilder header: @escaping () -> Header? = { Optional<EmptyView>.none },
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.title = title
@@ -42,8 +42,16 @@ struct SongListPage<Header: View, Content: View>: View {
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("library.songPageTitle")
                 LibrarySearchInput(text: $search, prompt: searchPrompt)
-                header()
-                content()
+                if #available(iOS 26.0, *) {
+                    if let header = header() {
+                        GlassSongListPageContent(header: { header }, content: content)
+                    } else {
+                        content()
+                    }
+                } else {
+                    header()
+                    content()
+                }
             }
             // Keep native navigation controls while the fixed content owns the large heading.
             .navigationBarTitleDisplayMode(.inline)

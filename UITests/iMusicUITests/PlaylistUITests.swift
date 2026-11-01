@@ -265,7 +265,7 @@ import XCTest
         XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
     }
 
-    /// A scroll surface must begin below the field's out-of-bounds native visual decoration.
+    /// Scroll surfaces clear out-of-bounds glass decoration only on systems that draw it.
     private func assertSearchDecorationHasRoom(list: XCUIElement) {
         let search = app.searchFields.matching(NSPredicate(format: "label == 'Search Songs'"))
             .allElementsBoundByIndex
@@ -274,9 +274,15 @@ import XCTest
             XCTFail("The active page must expose its own search field.")
             return
         }
+        let minimumClearance: CGFloat
+        if #available(iOS 26.0, *) {
+            minimumClearance = 12
+        } else {
+            minimumClearance = 0
+        }
         XCTAssertGreaterThanOrEqual(
             list.frame.minY - search.frame.maxY,
-            12,
+            minimumClearance,
             "List painting must leave room for the native search field's lower decoration."
         )
     }

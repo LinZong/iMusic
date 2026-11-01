@@ -199,7 +199,10 @@ Trash 两类子页复用同一输入组件，
 保留其分类绑定与 macOS 工具栏适配。组件生命周期跟随页面，查询仍由
 各页面 ViewModel 持有，没有共享查询或新的服务依赖。卡片集合页继续使用导航栏搜索。
 活跃歌曲列表及选歌弹窗不安装 UISearchController。`SongListPage` 在 iPhone／iPad
-用独立 VStack 按顺序固定大标题、搜索和 feature header，下方才是 SongListView。
+用独立 VStack 固定大标题与搜索。旧版 iOS 的 feature header 在 SongListView 上方独立
+占位；iOS 26 的 header 由 `GlassSongListPageContent` 通过系统 `safeAreaBar` 固定在
+歌曲滚动视口上层，初始歌曲避让控件，滚动后可以从玻璃胶囊下方经过。
+header builder 返回可选内容；没有额外控件的歌曲集合与歌单不注册空系统 bar。
 大标题使用系统 `.largeTitle.bold()`、动态字体和无障碍 heading，标题文字由
 SongCollectionViewModel 从现有 catalog 派生，PlaylistDetailViewModel 从当前歌单快照
 派生，重命名后随快照更新。系统导航栏保留返回、导入与 feature 提供的菜单、编辑
@@ -220,8 +223,10 @@ iOS／iPadOS 26 的固定控件使用原生 Liquid Glass：搜索继续由 `UISe
 玻璃表面。两类控件的旧版布局分别留在 `LegacyAllSongsShortcuts`、
 `LegacySongListSummary`，公共入口只做系统可用性分派。样式组件生命周期跟随页面，仅
 接收内容 builder，不持有模型、查询或播放状态。系统材质负责外观与辅助功能适配；
-歌曲内容行不使用玻璃。版本适配不会改变 SongListPage 固定大标题／搜索／header，
-以及 SongListView 只让歌曲行纵向滚动的布局契约。
+歌曲内容行不使用玻璃。`GlassSongListPageContent` 只接收 header／content builder，
+生命周期跟随 SongListPage，不持有模型、滚动 offset 或额外状态；它将固定 feature
+控件注册为系统 bar，并采用柔和的滚动边缘效果保证下穿内容时的可读性，不添加整块
+实色背景。大标题和搜索仍在滚动视口之外，header 与统计保持固定，只有歌曲行纵向滚动。
 
 ### 集合、Home、设置与编辑器
 

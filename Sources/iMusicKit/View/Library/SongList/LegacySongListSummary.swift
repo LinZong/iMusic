@@ -7,7 +7,7 @@ struct LegacySongListSummary<Summary: View, Actions: View>: View {
     /// Feature-owned controls remain separate native buttons.
     @ViewBuilder var actions: () -> Actions
 
-    /// Keeps the older opaque touch surface scoped to its own inset bounds.
+    /// Keeps touch spacing compact while preserving the controls' native hit areas.
     var body: some View {
         HStack {
             summary()
@@ -19,9 +19,12 @@ struct LegacySongListSummary<Summary: View, Actions: View>: View {
             Spacer()
             actions()
         }
-        .padding(16)
+        .padding(.horizontal, 16)
         #if os(iOS)
+        .padding(.vertical, 8)
         .background(.background, ignoresSafeAreaEdges: [])
+        #else
+        .padding(.vertical, 16)
         #endif
     }
 }

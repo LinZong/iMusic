@@ -123,14 +123,19 @@ struct LibrarySearchInput: View {
     /// Native input height follows the user's preferred body text size.
     @ScaledMetric(relativeTo: .body) private var fieldHeight: CGFloat = 36
 
+    /// Only Liquid Glass draws decoration beyond the native field's layout bounds.
+    private var decorationClearance: CGFloat {
+        if #available(iOS 26.0, *) { return 16 }
+        return 0
+    }
+
     /// Keeps the native field outside scrolling content and navigation search presentation.
     var body: some View {
         LibrarySearchField(text: $text, prompt: prompt)
             .frame(height: fieldHeight)
             .padding(.horizontal, 16)
             .padding(.top, 12)
-            // Native glass decoration extends beyond the text field's layout bounds.
-            .padding(.bottom, 16)
+            .padding(.bottom, decorationClearance)
             .zIndex(1)
     }
 }
