@@ -182,7 +182,7 @@ class MacExportTests(unittest.TestCase):
 
 
 class MacReleaseWorkflowTests(unittest.TestCase):
-    def test_dock_refresh_runs_only_after_successful_export(self):
+    def test_release_exports_only_after_build_and_validation(self):
         for failure in (None, "build", "validation", "export"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
                 runner = Mock()
@@ -190,13 +190,12 @@ class MacReleaseWorkflowTests(unittest.TestCase):
                 events = []
 
                 def complete(stage, value):
-                    """Record workflow order and inject failures before Dock is restarted."""
+                    """Record workflow order and stop at the selected failing stage."""
                     events.append(stage)
                     if failure == stage:
                         raise builder.BuildError(f"{stage} failed")
                     return value
 
-                runner.run.side_effect = lambda *args, **kwargs: events.append("dock")
                 with (
                     patch.object(builder.sys, "platform", "darwin"),
                     patch.object(builder, "Runner", return_value=runner),
@@ -206,37 +205,23 @@ class MacReleaseWorkflowTests(unittest.TestCase):
                                  complete("validation", {})),
                     patch.object(builder, "export_app", side_effect=lambda *args:
                                  complete("export", Path(temporary) / "export/iMusic.app")),
-                    patch("builtins.print"),
+                    patch("builtins.print") as output,
                 ):
                     if failure:
                         with self.assertRaisesRegex(builder.BuildError, f"{failure} failed"):
                             builder.main([])
-                        runner.run.assert_not_called()
+                        stages = ["build", "validation", "export"]
+                        self.assertEqual(events, stages[:stages.index(failure) + 1])
+                        output.assert_not_called()
                     else:
                         self.assertEqual(builder.main([]), 0)
-                        self.assertEqual(events, ["build", "validation", "export", "dock"])
-                        runner.run.assert_called_once_with(
-                            ["killall", "Dock"], "refresh-dock-icons", timeout=15,
+                        self.assertEqual(events, ["build", "validation", "export"])
+                        output.assert_called_once()
+                        self.assertIn(
+                            f"App: {Path(temporary) / 'export/iMusic.app'}",
+                            output.call_args.args[0],
                         )
-
-    def test_dock_refresh_failure_does_not_fail_an_exported_build(self):
-        runner = Mock()
-        runner.directory = Path("/tmp/imusic-release-test")
-        runner.run.side_effect = builder.BuildError("Dock is not running")
-        with (
-            patch.object(builder.sys, "platform", "darwin"),
-            patch.object(builder, "Runner", return_value=runner),
-            patch.object(builder, "build_release"),
-            patch.object(builder, "validate_app", return_value={}),
-            patch.object(builder, "export_app"),
-            patch("builtins.print") as output,
-        ):
-            self.assertEqual(builder.main([]), 0)
-        self.assertTrue(any(
-            "Dock could not be refreshed" in str(call.args[0])
-            and call.kwargs.get("file") is sys.stderr
-            for call in output.call_args_list
-        ))
+                    runner.run.assert_not_called()
 
 
 @unittest.skipUnless(sys.platform == "darwin", "Requires Apple's native signing and loader tools")
