@@ -12,9 +12,13 @@ final class ArtworkCache: @unchecked Sendable {
         let image: CGImage
         init(_ image: CGImage) { self.image = image }
     }
+    /// Returns a decoded thumbnail from memory without inspecting or decoding its source file.
+    func cachedImage(at url: URL, size: Int) -> CGImage? {
+        cache.object(forKey: key(for: url, size: size))?.image
+    }
+    /// Returns a cached thumbnail or reads and decodes its source; call off the main actor.
     func image(at url: URL, size: Int) -> CGImage? {
-        let key = "\(url.path)#\(size)" as NSString
-        if let image = cache.object(forKey: key) { return image.image }
+        if let image = cachedImage(at: url, size: size) { return image }
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
             let image = CGImageSourceCreateThumbnailAtIndex(
                 source,
@@ -42,7 +46,16 @@ final class ArtworkCache: @unchecked Sendable {
         else { return nil }
         context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
         guard let decoded = context.makeImage() else { return nil }
-        cache.setObject(ImageBox(decoded), forKey: key, cost: decoded.bytesPerRow * decoded.height)
+        cache.setObject(
+            ImageBox(decoded),
+            forKey: key(for: url, size: size),
+            cost: decoded.bytesPerRow * decoded.height
+        )
         return decoded
+    }
+
+    /// Uses the owning library path and thumbnail resolution for both cache access paths.
+    private func key(for url: URL, size: Int) -> NSString {
+        "\(url.path)#\(size)" as NSString
     }
 }

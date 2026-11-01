@@ -100,6 +100,64 @@ final class ArtworkCacheTests: XCTestCase {
         XCTAssertNil(cache.image(at: url, size: 630))
     }
 
+    /// A render-time lookup neither decodes an existing file nor rereads a cached source.
+    func testMemoryLookupDoesNotReadOrDecodeTheSource() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: url) }
+        try write(makeCover(), to: url)
+        let cache = ArtworkCache()
+        XCTAssertNil(cache.cachedImage(at: url, size: 68))
+        let decoded = try XCTUnwrap(cache.image(at: url, size: 68))
+        XCTAssertTrue(cache.cachedImage(at: url, size: 68) === decoded)
+        XCTAssertNil(cache.cachedImage(at: url, size: 76))
+        try FileManager.default.removeItem(at: url)
+        XCTAssertTrue(cache.cachedImage(at: url, size: 68) === decoded)
+    }
+
+    /// Identically named covers in different libraries and different resolutions remain separate.
+    func testMemoryLookupSeparatesLibrariesAndThumbnailSizes() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let first = root.appendingPathComponent("first/cover.image")
+        let second = root.appendingPathComponent("second/cover.image")
+        for url in [first, second] {
+            try FileManager.default.createDirectory(
+                at: url.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            try write(makeCover(), to: url)
+        }
+        let cache = ArtworkCache()
+        let small = try XCTUnwrap(cache.image(at: first, size: 68))
+        XCTAssertNil(cache.cachedImage(at: second, size: 68))
+        XCTAssertNil(cache.cachedImage(at: first, size: 76))
+        let large = try XCTUnwrap(cache.image(at: first, size: 76))
+        let other = try XCTUnwrap(cache.image(at: second, size: 68))
+        XCTAssertTrue(cache.cachedImage(at: first, size: 68) === small)
+        XCTAssertTrue(cache.cachedImage(at: first, size: 76) === large)
+        XCTAssertTrue(cache.cachedImage(at: second, size: 68) === other)
+        XCTAssertFalse(small === large)
+        XCTAssertFalse(small === other)
+    }
+
+    /// Generates a small opaque cover for memory-only cache contract checks.
+    private func makeCover() throws -> CGImage {
+        let context = try XCTUnwrap(
+            CGContext(
+                data: nil,
+                width: 128,
+                height: 128,
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )
+        )
+        context.setFillColor(gray: 0.75, alpha: 1)
+        context.fill(CGRect(x: 0, y: 0, width: 128, height: 128))
+        return try XCTUnwrap(context.makeImage())
+    }
+
     /// Writes an original generated cover with optional EXIF orientation and no filename type hint.
     private func write(_ image: CGImage, to url: URL, orientation: Int = 1) throws {
         let destination = try XCTUnwrap(

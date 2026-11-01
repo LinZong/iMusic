@@ -31,7 +31,7 @@ import XCTest
 
     /// The desktop bar must expose working previous, next, repeat, shuffle, and favorite controls.
     func testDesktopTransportAndFavoriteControls() {
-        launch()
+        launch(scenario: "artwork")
         navigate("All Songs")
         library.play("UI Alpha")
         let repeatMode = app.element("miniPlayer.repeat")

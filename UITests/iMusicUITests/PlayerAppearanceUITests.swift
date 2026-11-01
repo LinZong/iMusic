@@ -14,6 +14,78 @@ import XCTest
         checkPlayerAppearance("Light", dark: false)
     }
 
+    /// Exercises recreated tab accessories and changes between distinct or absent cover images.
+    func testMiniPlayerArtworkAcrossTabsAndTrackChanges() {
+        launch(scenario: "artwork")
+        navigate("All Songs")
+        library.play("UI Alpha")
+        assertMiniPlayerArtwork("red")
+        for _ in 0..<2 {
+            for destination in ["Home", "All Songs", "Playlists", "Settings"] {
+                navigate(destination)
+                assertMiniPlayerArtwork("red")
+            }
+        }
+        navigate("All Songs")
+        for (title, color) in [
+            ("UI Beta", "blue"), ("UI No Artwork", "placeholder"), ("UI Alpha", "red"),
+        ] {
+            library.play(title)
+            assertMiniPlayerArtwork(color)
+        }
+        capture("Mini player artwork after tab and track changes")
+    }
+
+    /// Samples inside the cover's leading edge, away from metadata and the placeholder note.
+    private func assertMiniPlayerArtwork(_ color: String) {
+        let expand = app.element("miniPlayer.expand")
+        XCTAssertTrue(expand.waitForExistence(timeout: 5))
+        let frame = expand.frame
+        let screenshot = app.screenshot().image
+        let scale = screenshot.scale
+        let rect = CGRect(
+            x: (frame.minX + 10) * scale,
+            y: (frame.midY - 1) * scale,
+            width: 2 * scale,
+            height: 2 * scale
+        )
+        guard let patch = screenshot.cgImage?.cropping(to: rect) else {
+            XCTFail("The mini-player cover must be inside the screenshot.")
+            return
+        }
+        var pixel = [UInt8](repeating: 0, count: 4)
+        pixel.withUnsafeMutableBytes { bytes in
+            let context = CGContext(
+                data: bytes.baseAddress,
+                width: 1,
+                height: 1,
+                bitsPerComponent: 8,
+                bytesPerRow: 4,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )!
+            context.draw(patch, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+        let red = Double(pixel[0]) / 255
+        let green = Double(pixel[1]) / 255
+        let blue = Double(pixel[2]) / 255
+        switch color {
+        case "red":
+            XCTAssertGreaterThan(red, 0.85)
+            XCTAssertLessThan(green, 0.15)
+            XCTAssertLessThan(blue, 0.15)
+        case "blue":
+            XCTAssertGreaterThan(blue, 0.85)
+            XCTAssertLessThan(red, 0.15)
+            XCTAssertLessThan(green, 0.15)
+        default:
+            XCTAssertGreaterThan(red, 0.05)
+            XCTAssertGreaterThan(green, 0.02)
+            XCTAssertGreaterThan(blue - red, 0.08)
+            XCTAssertGreaterThan(blue - green, 0.08)
+        }
+    }
+
     /// Selects the saved appearance and checks pixels inside the sheet's unobstructed margin.
     private func checkPlayerAppearance(_ appearance: String, dark: Bool) {
         launch()

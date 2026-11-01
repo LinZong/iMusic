@@ -1,5 +1,7 @@
 import AVFAudio
 import Foundation
+import ImageIO
+import UniformTypeIdentifiers
 import iMusicKit
 
 /// Available only in the separate UI-test host target, never in shipping app targets.
@@ -27,7 +29,7 @@ import iMusicKit
     /// Imports generated silent WAVs through the production importer once per test run.
     static func prepare(_ model: AppModel) async throws {
         guard let scenario = ProcessInfo.processInfo.environment["IMUSIC_UI_TEST_SCENARIO"],
-            ["library", "playlist-scroll", "song-scroll"].contains(scenario),
+            ["library", "playlist-scroll", "song-scroll", "artwork"].contains(scenario),
             try model.store.setting("uiTestSeeded", as: Bool.self) != true
         else { return }
         let vault = try MediaVault(
@@ -45,7 +47,9 @@ import iMusicKit
         buffer.frameLength = buffer.frameCapacity
         buffer.floatChannelData![0].update(repeating: 0, count: Int(buffer.frameLength))
         var files: [URL] = []
-        for (index, title) in ["UI Alpha", "UI Beta", "UI Trashed"].enumerated() {
+        var titles = ["UI Alpha", "UI Beta", "UI Trashed"]
+        if scenario == "artwork" { titles.append("UI No Artwork") }
+        for (index, title) in titles.enumerated() {
             let url = source.appendingPathComponent(title + ".wav")
             // Distinct durations prevent the managed importer from deduplicating silent fixtures.
             do {
@@ -63,10 +67,12 @@ import iMusicKit
                 userInfo: [NSLocalizedDescriptionKey: result.errors.joined(separator: "\n")]
             )
         }
+        let artwork = scenario == "artwork" ? try makeArtwork(in: vault) : [:]
         for var track in try model.store.tracks() {
             track.artist = "UI Test Artist"
             track.album = "UI Test Album"
             track.genre = "UI Test Genre"
+            track.artworkName = artwork[track.title]
             if track.title == "UI Trashed" { track.deletedAt = Date() }
             try model.store.save(track)
         }
@@ -93,5 +99,41 @@ import iMusicKit
         }
         try model.store.setSetting("uiTestSeeded", value: true)
         await model.library.refresh()
+    }
+
+    /// Stores distinct generated covers so tests can detect stale images and placeholders.
+    private static func makeArtwork(in vault: MediaVault) throws -> [String: String] {
+        var names: [String: String] = [:]
+        for (title, red, blue) in [("UI Alpha", 1.0, 0.0), ("UI Beta", 0.0, 1.0)] {
+            let name = title + ".png"
+            guard
+                let context = CGContext(
+                    data: nil,
+                    width: 256,
+                    height: 256,
+                    bitsPerComponent: 8,
+                    bytesPerRow: 0,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                ),
+                let destination = CGImageDestinationCreateWithURL(
+                    vault.artwork.appendingPathComponent(name) as CFURL,
+                    UTType.png.identifier as CFString,
+                    1,
+                    nil
+                )
+            else { throw NSError(domain: "iMusic.UITesting", code: 3) }
+            context.setFillColor(red: red, green: 0, blue: blue, alpha: 1)
+            context.fill(CGRect(x: 0, y: 0, width: 256, height: 256))
+            guard let image = context.makeImage() else {
+                throw NSError(domain: "iMusic.UITesting", code: 3)
+            }
+            CGImageDestinationAddImage(destination, image, nil)
+            guard CGImageDestinationFinalize(destination) else {
+                throw NSError(domain: "iMusic.UITesting", code: 3)
+            }
+            names[title] = name
+        }
+        return names
     }
 }

@@ -166,6 +166,34 @@ project. Test hosts and UI tests remain outside SwiftPM's library and unit-test 
 Apple references: [XCUIAutomation](https://developer.apple.com/documentation/xcuiautomation),
 [running tests](https://developer.apple.com/documentation/xcode/running-tests-and-interpreting-results).
 
+## Mini-player artwork across navigation
+
+`testMiniPlayerArtworkAcrossTabsAndTrackChanges` uses the `artwork` scenario: generated red and
+blue covers plus an active song without artwork. It checks cover pixels through two cycles of the
+four compact tabs, or corresponding sidebar destinations on iPad, then switches between the two
+covers and the placeholder. The Mac transport regression uses the same generated covers and opens
+the full player. These settled assertions verify request changes; they do not certify animation
+frames.
+
+`ArtworkCacheTests` verifies memory-only lookup, library-path and resolution isolation.
+`ArtworkViewTests` checks a recreated view's first-frame image decision before a task starts,
+retention on reappearance, request matching, A-to-B-to-A generations, and cancelled completions.
+Native iOS 26 tab accessories can recreate cover state on each selection; the rendering path must
+resolve warm memory images before the lifecycle task runs. The task must not clear matching images
+when older per-tab views reappear.
+
+Acceptance on 2026-11-01 passed 3 player appearance/artwork scenarios on iPhone 17 Pro / iOS 26.3.1,
+the artwork scenario on iPhone 15 Pro / iOS 17.4 and iPad Pro 11-inch (M5) / iPadOS 26.3.1, and the
+native macOS 15.7.4 transport scenario: 6 UI passes in total. Full Swift tests passed with 127 passes,
+7 opt-in skips, and no failures. Formatting, architecture, localization, and whitespace checks passed.
+
+Recordings of the actual fixed app also sampled an 8-by-8-pixel patch inside the cover throughout
+the warm navigation loops. All 1,307 iOS 26 iPhone samples, 194 iOS 17 samples, and 787 iPad samples
+retained the generated red cover. The sampled interval ends before changing to the initially
+uncached blue-cover song, where a normal loading placeholder is allowed. No production lifecycle
+probes or artificial loading delays are involved. These simulator recordings and the silent desktop
+host do not certify physical-device rendering or real audio output.
+
 ## Verified regressions (2026-10-31)
 
 | Destination | System | Result |
