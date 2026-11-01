@@ -29,9 +29,8 @@ extension View {
     @ViewBuilder func contentSearch(text: Binding<String>, prompt: String) -> some View {
         #if os(iOS)
         safeAreaInset(edge: .top, spacing: 0) {
-            // A safe-area-filling background can paint over the navigation bar's large title.
+            // Preserve the scroll surface behind the native field and its own decoration.
             LibrarySearchInput(text: text, prompt: prompt)
-                .background(.background, ignoresSafeAreaEdges: [])
         }
         #else
         librarySearch(text: text, prompt: prompt)

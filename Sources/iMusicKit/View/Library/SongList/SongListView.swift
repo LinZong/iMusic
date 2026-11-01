@@ -38,7 +38,7 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
         TouchSongList(rows: rows, rowContent: rowContent, move: move)
             .overlay { if rows.isEmpty { placeholder } }
             .safeAreaInset(edge: .top, spacing: 0) {
-                summary.background(.background, ignoresSafeAreaEdges: [])
+                summary
             }
         #endif
     }

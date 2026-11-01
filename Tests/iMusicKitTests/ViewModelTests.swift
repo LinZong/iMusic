@@ -176,10 +176,12 @@ import XCTest
         page.sortByTitle()
         await waitForLibrary { page.rows.first?.track.id == alpha.id }
         XCTAssertEqual(page.rows.map(\.title), ["Alpha", "Beta"])
+        XCTAssertEqual(page.title, "Occurrences")
         page.newName = "Renamed"
         page.saveName()
         await waitForLibrary { page.playlist?.name == "Renamed" }
         XCTAssertEqual(page.playlist?.name, "Renamed")
+        XCTAssertEqual(page.title, "Renamed")
     }
 
     /// Shared playback uses visible table order and keeps duplicate entry IDs during shuffle.

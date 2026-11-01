@@ -73,7 +73,16 @@ import XCTest
         library.assertContentSearchKeepsTitle("All Songs")
         let rowY = app.element("allSongs.artists").frame.midY
         for identifier in ["artists", "albums", "genres", "favorites"] {
-            XCTAssertEqual(app.element("allSongs." + identifier).frame.midY, rowY, accuracy: 2)
+            let shortcut = app.element("allSongs." + identifier)
+            XCTAssertEqual(shortcut.frame.midY, rowY, accuracy: 2)
+            if #available(iOS 26.0, *) {
+                XCTAssertGreaterThanOrEqual(shortcut.frame.height, 44)
+                XCTAssertGreaterThanOrEqual(shortcut.frame.width, 44)
+            }
+        }
+        library.assertSearchDecorationIsContinuous()
+        if #available(iOS 26.0, *) {
+            library.assertShortcutDecorationIsContinuous()
         }
         #endif
         capture("All Songs shortcuts")
@@ -111,7 +120,7 @@ import XCTest
         library.assertContentSearchKeepsTitle("All Songs")
         let search = app.searchFields["Search Songs"]
         let shortcutGap = app.element("allSongs.artists").frame.minY - search.frame.maxY
-        library.assertSongHeaderStaysFixedWhileScrolling()
+        library.assertSongPageChromeStaysFixed("All Songs")
         XCTAssertTrue(app.element("allSongs.artists").isHittable)
         XCTAssertEqual(
             app.element("allSongs.artists").frame.minY - search.frame.maxY,
@@ -128,13 +137,13 @@ import XCTest
             XCTAssertTrue(card.waitForExistence(timeout: 5))
             card.interact()
             library.assertContentSearchKeepsTitle(title)
-            library.assertSongHeaderStaysFixedWhileScrolling()
+            library.assertSongPageChromeStaysFixed(title)
             app.navigationBars.buttons.element(boundBy: 0).interact()
             library.backToAllSongs()
         }
         library.openAllSongsShortcut("favorites")
         library.assertContentSearchKeepsTitle("Favorites")
-        library.assertSongHeaderStaysFixedWhileScrolling()
+        library.assertSongPageChromeStaysFixed("Favorites")
         library.backToAllSongs()
         openTrash()
         library.assertContentSearchKeepsTitle("Trash", prompt: "Search Trashed Songs")
@@ -151,6 +160,17 @@ import XCTest
         XCTAssertTrue(app.element("library.songSummary").isHittable)
         XCTAssertTrue(app.element("library.emptyState").exists)
         capture("Empty All Songs after search editing")
+    }
+
+    /// Pulling blank list space cannot move collection titles or any fixed header controls.
+    func testSongCollectionChromeStaysFixedWhenDraggingBlankSpace() {
+        for scenario in ["empty", "library"] {
+            launch(scenario: scenario)
+            navigate("All Songs")
+            library.assertSongPageChromeStaysFixed("All Songs")
+            capture("Fixed collection chrome with " + scenario + " songs")
+            app.terminate()
+        }
     }
     #endif
 

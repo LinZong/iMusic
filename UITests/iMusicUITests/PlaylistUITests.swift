@@ -232,7 +232,56 @@ import XCTest
     #endif
 
     #if os(iOS)
-    /// Search and summary stay fixed while only playlist occurrences scroll and rebound.
+    /// Native search decoration must have room before the song list paints its fixed summary.
+    func testSongPageSearchDecorationHasRoomToFade() {
+        launch(scenario: "playlist-scroll")
+        navigate("Playlists")
+        app.element("playlist.open.UI Scroll Playlist").interact()
+        capture("Song-page search decoration before scrolling")
+        assertSearchDecorationHasRoom(list: app.element("library.songList"))
+        library.assertSearchDecorationIsContinuous()
+        library.assertSongPageChromeStaysFixed("UI Scroll Playlist")
+        library.assertContentSearchKeepsTitle("UI Scroll Playlist")
+        library.assertSearchDecorationIsContinuous()
+        capture("Song-page search decoration after scrolling and search")
+    }
+
+    /// Picker search decoration fades against the native list surface without an opaque band.
+    func testSongPickerSearchDecorationHasRoomToFade() {
+        launch(scenario: "playlist-scroll")
+        navigate("Playlists")
+        app.element("playlist.open.UI Scroll Playlist").interact()
+        app.element("playlist.actions").interact()
+        app.element("playlist.addSongs").interact()
+        let list = app.element("playlistPicker.songList")
+        XCTAssertTrue(list.waitForExistence(timeout: 5))
+        capture("Song-picker search decoration before filtering")
+        library.assertSearchDecorationIsContinuous()
+        library.assertContentSearchKeepsTitle("Add to “UI Scroll Playlist”")
+        library.assertSearchDecorationIsContinuous()
+        capture("Song-picker search decoration after filtering")
+        app.element("playlistPicker.toggle.UI Alpha.wav").interact()
+        app.element("playlistPicker.commit").interact()
+        XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
+    }
+
+    /// A scroll surface must begin below the field's out-of-bounds native visual decoration.
+    private func assertSearchDecorationHasRoom(list: XCUIElement) {
+        let search = app.searchFields.matching(NSPredicate(format: "label == 'Search Songs'"))
+            .allElementsBoundByIndex
+            .last(where: { $0.isHittable })
+        guard let search else {
+            XCTFail("The active page must expose its own search field.")
+            return
+        }
+        XCTAssertGreaterThanOrEqual(
+            list.frame.minY - search.frame.maxY,
+            12,
+            "List painting must leave room for the native search field's lower decoration."
+        )
+    }
+
+    /// The shared page fixes its large heading, search, and summary while occurrences scroll.
     func testPlaylistSearchAndSummaryStayFixedWhileSongsScroll() {
         launch(scenario: "playlist-scroll")
         navigate("Playlists")
@@ -242,6 +291,11 @@ import XCTest
         let search = app.searchFields["Search Songs"]
         XCTAssertTrue(summary.waitForExistence(timeout: 5))
         let navigation = app.navigationBars.element(boundBy: app.navigationBars.count - 1)
+        let heading = app.staticTexts["library.songPageTitle"]
+        XCTAssertEqual(heading.label, "UI Scroll Playlist")
+        XCTAssertGreaterThan(heading.frame.height, 35)
+        let fixed = [heading, search, summary]
+        let fixedFrames = fixed.map(\.frame)
         let summaryGap = summary.frame.minY - search.frame.maxY
         XCTAssertFalse(
             list.cells.containing(.staticText, identifier: "library.songSummary")
@@ -250,6 +304,10 @@ import XCTest
         let firstRowID = list.cells.firstMatch.identifier
         let firstRowY = list.cells.firstMatch.frame.minY
         list.swipeUp()
+        for (element, frame) in zip(fixed, fixedFrames) {
+            XCTAssertEqual(element.frame.minY, frame.minY, accuracy: 1)
+            XCTAssertEqual(element.frame.height, frame.height, accuracy: 1)
+        }
         XCTAssertTrue(summary.isHittable)
         XCTAssertTrue(search.isHittable)
         XCTAssertEqual(summary.frame.minY - search.frame.maxY, summaryGap, accuracy: 1)
@@ -265,6 +323,10 @@ import XCTest
         let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
         let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
         start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 1)
+        for (element, frame) in zip(fixed, fixedFrames) {
+            XCTAssertEqual(element.frame.minY, frame.minY, accuracy: 1)
+            XCTAssertEqual(element.frame.height, frame.height, accuracy: 1)
+        }
         XCTAssertEqual(summary.frame.minY - search.frame.maxY, summaryGap, accuracy: 1)
         // iPad accessibility may exclude the expanded large-title region from the bar frame.
         XCTAssertGreaterThanOrEqual(search.frame.minY, navigation.frame.maxY)
@@ -279,6 +341,14 @@ import XCTest
         editor.create("Summary Controls")
         app.element("playlist.open.Summary Controls").interact()
         assertSongPlaceholderBelowFixedSummary()
+        let summaryRow = app.element("library.songSummaryBar")
+        for title in ["Play", "Shuffle"] {
+            let action = summaryRow.buttons[title]
+            XCTAssertFalse(action.isEnabled)
+            XCTAssertGreaterThanOrEqual(action.frame.width.rounded(), 44)
+            XCTAssertGreaterThanOrEqual(action.frame.height.rounded(), 44)
+        }
+        library.assertSongPageChromeStaysFixed("Summary Controls")
         app.element("playlist.actions").interact()
         app.element("playlist.addSongs").interact()
         library.assertContentSearchKeepsTitle("Add to “Summary Controls”")
@@ -286,15 +356,7 @@ import XCTest
         app.element("playlistPicker.toggle.UI Beta.wav").interact()
         app.element("playlistPicker.commit").interact()
         XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
-        let list = app.element("library.songList")
-        let whitespace = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6))
-        let pulled = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85))
-        whitespace.press(
-            forDuration: 0.1,
-            thenDragTo: pulled,
-            withVelocity: .slow,
-            thenHoldForDuration: 1
-        )
+        library.assertSongPageChromeStaysFixed("Summary Controls")
         capture("Short playlist restored after whitespace pull-down")
         let search = app.searchFields["Search Songs"]
         search.interact()
@@ -316,7 +378,6 @@ import XCTest
             library.track("UI Alpha").frame.midY,
             library.track("UI Beta").frame.midY
         )
-        let summaryRow = app.element("library.songSummaryBar")
         summaryRow.buttons["Play"].interact()
         // The compact root footer is accessed from a root tab, outside the pushed detail page.
         navigate("All Songs")

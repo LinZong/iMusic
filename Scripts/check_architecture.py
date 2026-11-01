@@ -28,7 +28,11 @@ def violations() -> list[str]:
                 if layer == "View" and re.search(r"\.(store|database)\b", code):
                     errors.append(f"{path.relative_to(ROOT)}:{line_number}: "
                                   "Views must invoke feature commands instead of persistence")
-    for name in ("View/Library/SongList/SongListView.swift", "View/Library/CollectionGrid.swift"):
+    for name in (
+        "View/Library/SongList/SongListView.swift",
+        "View/Library/SongList/SongListPage.swift",
+        "View/Library/CollectionGrid.swift",
+    ):
         path = SOURCE / name
         if re.search(r"\b(LibraryDestination|CollectionKind)\b", path.read_text()):
             errors.append(f"{path.relative_to(ROOT)}: generic layout must not dispatch feature routes")

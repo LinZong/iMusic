@@ -9,28 +9,33 @@ struct SongListSummary<Actions: View>: View {
     /// Feature-supplied trailing controls, such as ordinary and shuffled playback.
     @ViewBuilder var actions: () -> Actions
 
-    /// Preserves consistent summary padding and exposes controls as independent actions.
+    /// Selects only presentation; counts, duration, and feature actions retain one data flow.
     var body: some View {
-        HStack {
-            Text(
-                L10n.text(
-                    "format.song_count.duration",
-                    songCount,
-                    String(describing: musicTime(duration))
-                )
-            )
-            #if os(macOS)
-            .font(.body)
+        Group {
+            #if os(iOS)
+            if #available(iOS 26.0, *) {
+                GlassSongListSummary(summary: { label }, actions: actions)
+            } else {
+                LegacySongListSummary(summary: { label }, actions: actions)
+            }
             #else
-            .font(.caption)
+            LegacySongListSummary(summary: { label }, actions: actions)
             #endif
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("library.songSummary")
-            Spacer()
-            actions()
         }
-        .padding(16)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("library.songSummaryBar")
+    }
+
+    /// Accessible localized statistics shared by every system presentation.
+    private var label: some View {
+        Text(
+            L10n.text(
+                "format.song_count.duration",
+                songCount,
+                String(describing: musicTime(duration))
+            )
+        )
+        .foregroundStyle(.secondary)
+        .accessibilityIdentifier("library.songSummary")
     }
 }

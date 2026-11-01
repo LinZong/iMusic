@@ -9,38 +9,45 @@ struct PlaylistDetailView: View {
     var body: some View {
         @Bindable var model = model
         @Bindable var state = model.state
-        SongListView(
-            state: model.state,
-            rows: model.rows,
-            library: model.library,
-            rowContent: { row in
-                TrackRow(model: model.player, track: row.track) { model.play(row: row) }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
-                    .swipeActions(edge: .trailing) {
-                        Button(L10n.text("Remove from Playlist"), role: .destructive) {
-                            model.remove([row.id])
+        SongListPage(
+            title: model.title,
+            search: $state.search,
+            searchPrompt: L10n.text("Search Songs")
+        ) {
+            SongListView(
+                state: model.state,
+                rows: model.rows,
+                library: model.library,
+                rowContent: { row in
+                    TrackRow(model: model.player, track: row.track) { model.play(row: row) }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
+                        .swipeActions(edge: .trailing) {
+                            Button(L10n.text("Remove from Playlist"), role: .destructive) {
+                                model.remove([row.id])
+                            }
                         }
+                },
+                actions: { SongListPlaybackActions(model: model) },
+                emptyContent: {
+                    ContentUnavailableView(
+                        L10n.text("No Music Here Yet"),
+                        systemImage: "music.note.list",
+                        description: Text(
+                            L10n.text("Import music to start organizing your library.")
+                        )
+                    )
+                },
+                contextActions: { selection in
+                    TrackActions(model: model.player, tracks: selection.map(\.track))
+                    Button(L10n.text("Remove from Playlist"), role: .destructive) {
+                        model.remove(Set(selection.map(\.id)))
                     }
-            },
-            actions: { SongListPlaybackActions(model: model) },
-            emptyContent: {
-                ContentUnavailableView(
-                    L10n.text("No Music Here Yet"),
-                    systemImage: "music.note.list",
-                    description: Text(L10n.text("Import music to start organizing your library."))
-                )
-            },
-            contextActions: { selection in
-                TrackActions(model: model.player, tracks: selection.map(\.track))
-                Button(L10n.text("Remove from Playlist"), role: .destructive) {
-                    model.remove(Set(selection.map(\.id)))
-                }
-                Button(L10n.text("Play Selected Songs")) { model.play(row: selection.first) }
-            },
-            move: model.canReorder ? { model.move(from: $0, to: $1) } : nil,
-            primaryAction: { model.play(row: $0.first) }
-        )
-        .contentSearch(text: $state.search, prompt: L10n.text("Search Songs"))
+                    Button(L10n.text("Play Selected Songs")) { model.play(row: selection.first) }
+                },
+                move: model.canReorder ? { model.move(from: $0, to: $1) } : nil,
+                primaryAction: { model.play(row: $0.first) }
+            )
+        }
         .toolbar {
             if let playlist = model.playlist {
                 ToolbarItem {

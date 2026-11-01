@@ -34,6 +34,8 @@ final class SongCollectionViewModel: PlayableSongList {
     let scope: SongCollectionScope
     /// Search, table ordering, and selection local to this page.
     let state = SongListState()
+    /// Localized collection heading, including the selected album's current display name.
+    var title: String { library.catalog.title(for: scope.destination) }
     /// Matching active tracks represented by stable song identities.
     var rows: [SongRowData] {
         state.filter(

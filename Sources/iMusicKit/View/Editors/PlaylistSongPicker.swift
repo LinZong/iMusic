@@ -30,6 +30,7 @@ struct PlaylistSongPicker: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("playlistPicker.toggle.\(track.originalFilename)")
             }
+            .accessibilityIdentifier("playlistPicker.songList")
             .overlay {
                 if model.visibleTracks.isEmpty {
                     if LibrarySearch.isEmpty(model.search) {
@@ -49,6 +50,10 @@ struct PlaylistSongPicker: View {
             .navigationTitle(
                 L10n.text("format.playlist.add_to", String(describing: model.playlist.name))
             )
+            #if os(iOS)
+            // The sheet owns its title mode independently of the presenting song page.
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.text("Cancel")) { dismiss() }

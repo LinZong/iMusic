@@ -45,8 +45,12 @@ import UIKit
         let shortcut = app.element("allSongs." + identifier)
         XCTAssertTrue(shortcut.waitForExistence(timeout: 5), app.debugDescription)
         #if os(iOS)
-        for _ in 0..<3 where !shortcut.isHittable {
-            app.element("allSongs.shortcuts").swipeLeft()
+        let shortcuts = app.element("allSongs.shortcuts")
+        // Fully offscreen glass buttons can have no accessibility activation point.
+        // Reveal their center before asking the system to resolve native hit testing.
+        for _ in 0..<3
+        where !shortcuts.frame.contains(CGPoint(x: shortcut.frame.midX, y: shortcut.frame.midY)) {
+            shortcuts.swipeLeft()
         }
         #endif
         XCTAssertTrue(shortcut.isHittable, app.debugDescription)
@@ -225,6 +229,144 @@ import UIKit
     }
 
     #if os(iOS)
+    /// Glass shadows must fade across the shortcut scroller's lower drawing boundary.
+    func assertShortcutDecorationIsContinuous() {
+        let shortcuts = app.element("allSongs.shortcuts")
+        let screenshot = app.screenshot().image
+        guard let image = screenshot.cgImage else {
+            XCTFail("Shortcut decoration must be present in the rendered window.")
+            return
+        }
+        let edge = shortcuts.frame.maxY - app.frame.minY
+        for identifier in ["artists", "albums"] {
+            let x = app.element("allSongs." + identifier).frame.midX - app.frame.minX
+            let above = meanRenderedColor(
+                image,
+                rect: CGRect(x: x - 1, y: edge - 1, width: 2, height: 1),
+                scale: screenshot.scale
+            )
+            let below = meanRenderedColor(
+                image,
+                rect: CGRect(x: x - 1, y: edge + 1, width: 2, height: 1),
+                scale: screenshot.scale
+            )
+            for (upper, lower) in zip(above, below) {
+                XCTAssertLessThanOrEqual(
+                    abs(upper - lower),
+                    3,
+                    "Shortcut shadows must not end at a rectangular scroll-view clip."
+                )
+            }
+        }
+    }
+
+    /// Native shadow pixels must fade across both lower corners without a rectangular paint edge.
+    func assertSearchDecorationIsContinuous() {
+        let search = app.searchFields.matching(NSPredicate(format: "label == 'Search Songs'"))
+            .allElementsBoundByIndex.last(where: { $0.isHittable })
+        guard let search else {
+            XCTFail("The active page must expose its own search field.")
+            return
+        }
+        let screenshot = app.screenshot().image
+        guard let image = screenshot.cgImage else {
+            XCTFail("Search decoration must be present in the rendered window.")
+            return
+        }
+        let frame = search.frame.offsetBy(dx: -app.frame.minX, dy: -app.frame.minY)
+        for x in [frame.minX + 1, frame.maxX - 3] {
+            let above = meanRenderedColor(
+                image,
+                rect: CGRect(x: x, y: frame.maxY - 2, width: 2, height: 1),
+                scale: screenshot.scale
+            )
+            let below = meanRenderedColor(
+                image,
+                rect: CGRect(x: x, y: frame.maxY + 1, width: 2, height: 1),
+                scale: screenshot.scale
+            )
+            for (upper, lower) in zip(above, below) {
+                XCTAssertLessThanOrEqual(
+                    abs(upper - lower),
+                    5,
+                    "Search decoration must fade smoothly across its lower corners."
+                )
+            }
+        }
+    }
+
+    /// Samples a small rendered patch in window coordinates without relying on a fixed theme.
+    private func meanRenderedColor(_ image: CGImage, rect: CGRect, scale: CGFloat) -> [Double] {
+        let sample = CGRect(
+            x: rect.minX * scale,
+            y: rect.minY * scale,
+            width: rect.width * scale,
+            height: rect.height * scale
+        )
+        guard let patch = image.cropping(to: sample) else {
+            XCTFail("Search decoration samples must lie inside the rendered window.")
+            return []
+        }
+        var pixels = [UInt8](repeating: 0, count: patch.width * patch.height * 4)
+        return pixels.withUnsafeMutableBytes { bytes in
+            guard
+                let context = CGContext(
+                    data: bytes.baseAddress,
+                    width: patch.width,
+                    height: patch.height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: patch.width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                )
+            else {
+                XCTFail("Search decoration samples must be readable.")
+                return []
+            }
+            context.draw(patch, in: CGRect(x: 0, y: 0, width: patch.width, height: patch.height))
+            let count = Double(patch.width * patch.height)
+            return (0..<3)
+                .map { channel in
+                    stride(from: channel, to: bytes.count, by: 4)
+                        .reduce(0.0) { $0 + Double(bytes[$1]) } / count
+                }
+        }
+    }
+
+    /// Song-page titles and fixed controls keep absolute frames through scrolling and rebound.
+    func assertSongPageChromeStaysFixed(_ title: String) {
+        let list = app.element("library.songList")
+        let heading = app.staticTexts["library.songPageTitle"]
+        let search = app.searchFields["Search Songs"]
+        let summary = app.element("library.songSummary")
+        XCTAssertTrue(list.waitForExistence(timeout: 5))
+        var fixed = [heading, search, summary]
+        let shortcuts = app.element("allSongs.artists")
+        if shortcuts.exists { fixed.append(shortcuts) }
+        let frames = fixed.map(\.frame)
+        XCTAssertTrue(heading.isHittable)
+        XCTAssertEqual(heading.label, title)
+        XCTAssertGreaterThan(heading.frame.height, 35, "Keep the large song-page heading.")
+        XCTAssertLessThanOrEqual(heading.frame.maxY, search.frame.minY)
+        for direction in ["up", "down", "blank pull"] {
+            switch direction {
+            case "up": list.swipeUp()
+            case "down": list.swipeDown()
+            default:
+                let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.65))
+                let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
+                start.press(forDuration: 0.05, thenDragTo: end)
+            }
+            for (element, frame) in zip(fixed, frames) {
+                XCTAssertTrue(element.isHittable)
+                XCTAssertEqual(element.frame.minY, frame.minY, accuracy: 1, direction)
+                XCTAssertEqual(element.frame.height, frame.height, accuracy: 1, direction)
+            }
+            XCTAssertLessThanOrEqual(heading.frame.maxY, search.frame.minY)
+            assertTitleIsPainted(heading)
+        }
+    }
+
     /// Only actual song rows may scroll beneath the fixed content search and summary.
     func assertSongHeaderStaysFixedWhileScrolling(prompt: String = "Search Songs") {
         let list = app.element("library.songList")
@@ -251,7 +393,11 @@ import UIKit
             XCTFail("No visible content search field: " + prompt)
             return
         }
-        let heading = app.navigationBars.staticTexts[title].firstMatch
+        let pageHeading = app.staticTexts.matching(identifier: "library.songPageTitle")
+            .matching(NSPredicate(format: "label == %@", title)).firstMatch
+        let heading =
+            pageHeading.exists
+            ? pageHeading : app.navigationBars.staticTexts[title].firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         XCTAssertTrue(heading.isHittable, app.debugDescription)
         assertTitleIsPainted(heading)

@@ -60,6 +60,7 @@ struct LibrarySearchField: UIViewRepresentable {
 
     /// Creates a system search text field supporting native clear, keyboard, and accessibility UI.
     func makeUIView(context: Context) -> UISearchTextField {
+        // The system supplies Liquid Glass on iOS 26; an extra material would stack two surfaces.
         let field = UISearchTextField()
         field.accessibilityIdentifier = "library.contentSearch"
         field.delegate = context.coordinator
@@ -128,6 +129,9 @@ struct LibrarySearchInput: View {
             .frame(height: fieldHeight)
             .padding(.horizontal, 16)
             .padding(.top, 12)
+            // Native glass decoration extends beyond the text field's layout bounds.
+            .padding(.bottom, 16)
+            .zIndex(1)
     }
 }
 #endif

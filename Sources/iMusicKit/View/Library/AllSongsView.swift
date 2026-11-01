@@ -12,14 +12,7 @@ struct AllSongsView: View {
 
     /// Single-row shortcuts stay fixed above the songs and scroll horizontally when needed.
     private var shortcuts: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack { links }
-                .buttonStyle(.bordered)
-                .padding(.horizontal)
-        }
-        // Keep native buttons inside their scroll document's pointer-hit bounds.
-        .padding(.top, 12)
-        .accessibilityIdentifier("allSongs.shortcuts")
+        AllSongsShortcuts { links }
     }
 
     /// Feature-owned destinations shared by desktop and touch shortcut layouts.

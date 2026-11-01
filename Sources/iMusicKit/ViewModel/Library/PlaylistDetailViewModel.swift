@@ -22,6 +22,8 @@ final class PlaylistDetailViewModel: PlayableSongList {
     var editingPlaylist = false
     /// Latest active playlist snapshot; never stores a stale editable copy.
     var playlist: Playlist? { library.playlists.first { $0.id == playlistID } }
+    /// Live playlist heading, including a rename committed while this page remains open.
+    var title: String { playlist?.name ?? L10n.text("Playlists") }
     /// Matching entries retain their own identities even when a song occurs multiple times.
     var rows: [SongRowData] {
         let tracks = Dictionary(uniqueKeysWithValues: library.tracks.map { ($0.id, $0) })
