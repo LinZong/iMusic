@@ -43,10 +43,12 @@ public final class SystemMediaBridge {
             Task { @MainActor in playback?.toggle() }
             return .success
         }
+        center.nextTrackCommand.isEnabled = true
         center.nextTrackCommand.addTarget { [weak playback] _ in
             Task { @MainActor in playback?.next() }
             return .success
         }
+        center.previousTrackCommand.isEnabled = true
         center.previousTrackCommand.addTarget { [weak playback] _ in
             Task { @MainActor in playback?.previous() }
             return .success
@@ -59,16 +61,8 @@ public final class SystemMediaBridge {
             Task { @MainActor in playback?.seek(to: time) }
             return .success
         }
-        center.skipForwardCommand.preferredIntervals = [10]
-        center.skipBackwardCommand.preferredIntervals = [10]
-        center.skipForwardCommand.addTarget { [weak playback] _ in
-            Task { @MainActor in playback?.skip(seconds: 10) }
-            return .success
-        }
-        center.skipBackwardCommand.addTarget { [weak playback] _ in
-            Task { @MainActor in playback?.skip(seconds: -10) }
-            return .success
-        }
+        center.skipForwardCommand.isEnabled = false
+        center.skipBackwardCommand.isEnabled = false
         playback.onSnapshot = { [weak self] in self?.publish() }
         #if os(iOS)
         observers.append(
