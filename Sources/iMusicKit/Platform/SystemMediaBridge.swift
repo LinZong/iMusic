@@ -25,8 +25,8 @@ public final class SystemMediaBridge {
     private var artworkHash: String?
     /// Decoded system Now Playing cover reused until its cache key changes.
     private var cachedArtwork: MPMediaItemArtwork?
-    /// Registers remote playback commands and audio lifecycle observers, configures the iOS
-    /// playback session, and publishes the initial Now Playing snapshot.
+    /// Registers remote playback commands and audio lifecycle observers, then publishes the
+    /// initial Now Playing snapshot. The playback backend owns audio-session activation.
     public init(playback: PlaybackCoordinator, vault: MediaVault) {
         self.playback = playback
         self.vault = vault
@@ -71,10 +71,6 @@ public final class SystemMediaBridge {
         }
         playback.onSnapshot = { [weak self] in self?.publish() }
         #if os(iOS)
-        do {
-            try AVAudioSession.sharedInstance()
-                .setCategory(.playback, mode: .default, policy: .longFormAudio)
-        } catch { playback.report(error) }
         observers.append(
             NotificationCenter.default.addObserver(
                 forName: AVAudioSession.interruptionNotification,
@@ -134,10 +130,6 @@ public final class SystemMediaBridge {
             ) { [weak self] _ in
                 Task { @MainActor in
                     guard let self else { return }
-                    do {
-                        try AVAudioSession.sharedInstance()
-                            .setCategory(.playback, mode: .default, policy: .longFormAudio)
-                    } catch { self.playback.report(error) }
                     self.playback.recoverAudioService()
                 }
             }

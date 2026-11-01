@@ -271,6 +271,19 @@ PlaybackCoordinator 持有唯一队列。队列条目与歌曲分别有 UUID，�
 
 PlaybackCoordinator 依赖 PlaybackEngine 协议，App 默认注入 SFBPlaybackEngine。自动化逻辑测试显式注入不创建声卡或 AVAudioEngine 的测试实现；真实音频引擎的集成测试仅在 `IMUSIC_AUDIO_TESTS=1` 时运行，全部生成素材为静音 PCM。普通测试和编译不播放测试音。
 
+SFBAudioEngine 固定到 `8455c970de34a63422857c4b4d6fffc85b822b47`，包含上游
+[#1017](https://github.com/sbooth/SFBAudioEngine/pull/1017) 与
+[#1018](https://github.com/sbooth/SFBAudioEngine/pull/1018)。暂停保留解码器、队列与媒体位置，
+由 SFB 在已输出音频播放完毕后暂停底层 AVAudioEngine；恢复使用公开 `play()`，不直接操作
+库所持有的引擎，也不以 stop／重新打开解码器模拟暂停。后续正式版本须重新验证后替换固定提交。
+
+iOS 的 SFBPlaybackEngine 在每次实际开始或恢复前配置 playback／longFormAudio 音频会话并
+显式激活；激活失败沿现有引擎错误路径报告。SystemMediaBridge 保留远程命令、系统信息发布及
+中断／路由／媒体服务重置观察。SFB 中断 delegate 在开始时通过公开 pause 取消库的自动恢复，
+由唯一 PlaybackCoordinator 结合系统 shouldResume 与用户暂停意图决定恢复。协调器保留后端
+先报告 paused 时的中断前播放资格，避免通知顺序导致漏恢复；显式暂停取消该资格。延迟状态回调
+仅在播放器身份和当前实际状态仍匹配时发布，避免快速切换后旧暂停回调覆盖新的播放状态。
+
 每次显式加载更换底层 AudioPlayer 身份，旧回调通过身份检查丢弃。预加载解码器的对象身份映射保留到真正切换，避免首曲回调误删下一首。自动失败尝试有上界；手动失败显示原因。
 
 UI 时长未知时为 `--:--`，进度为零并禁用 seek。实际位置来自解码器媒体时间，不用计时器累加。滑块预览与实际时钟分离；提交 seek 后有短期确认门，避免旧位置回弹。位置及比例始终有限且有界。暂停、下载、路由和媒体服务重置遵守用户播放意图。立即暂停优先于已经排队的开始回调；显式选择下一曲会建立新的播放意图，下载后继续播放，中断后可按系统许可恢复。

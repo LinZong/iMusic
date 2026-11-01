@@ -69,6 +69,9 @@ public final class PlaybackCoordinator {
     @ObservationIgnored private var seekFence: (target: Double, started: TimeInterval)?
     /// Explicit pause intent that takes precedence over late engine or download callbacks.
     @ObservationIgnored private var intentionalPause = false
+    /// Resume eligibility preserved when the backend reports paused before the system delivers
+    /// its interruption notification; explicit pause and interruption handling consume it.
+    @ObservationIgnored private var wasPlayingBeforeBackendPause = false
     /// Occurrence expected to start, used to distinguish explicit loading from gapless advancement.
     @ObservationIgnored private var startingEntryID: UUID?
     /// Identity of the current load attempt; changing it invalidates pending download callbacks.
@@ -117,6 +120,9 @@ public final class PlaybackCoordinator {
         engine.onTrack = { [weak self] id in self?.didBegin(id) }
         engine.onState = { [weak self] state in
             guard let self else { return }
+            self.wasPlayingBeforeBackendPause =
+                state == .paused && !self.intentionalPause
+                && (self.isPlaying || self.wasPlayingBeforeBackendPause)
             // End-of-audio is authoritative; the stopped callback can precede its final decoder
             // callback.
             if state != .ended {
@@ -191,6 +197,7 @@ public final class PlaybackCoordinator {
     public func pause() {
         intentionalPause = true
         engine.pause()
+        wasPlayingBeforeBackendPause = false
         status = .paused
         persist()
         onSnapshot?()
@@ -411,8 +418,12 @@ public final class PlaybackCoordinator {
     /// Pauses for a system interruption without recording user pause intent, persists the position,
     /// and returns whether playback had been active.
     public func saveAndPauseForInterruption() -> Bool {
-        let shouldResume = isPlaying
+        let shouldResume =
+            !intentionalPause
+            && (isPlaying
+                || (status == .paused && wasPlayingBeforeBackendPause && engine.elapsed != nil))
         engine.pause()
+        wasPlayingBeforeBackendPause = false
         status = .paused
         persist()
         onSnapshot?()

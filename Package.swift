@@ -8,7 +8,12 @@ let package = Package(
     products: [.library(name: "iMusicKit", targets: ["iMusicKit"])],
     dependencies: [
         .package(url: "https://github.com/groue/GRDB.swift.git", from: "7.0.0"),
-        .package(url: "https://github.com/sbooth/SFBAudioEngine.git", exact: "0.14.0"),
+        // Includes upstream #1017/#1018: retain decoders while suspending paused audio I/O.
+        // Keep an immutable pin until a release containing these fixes is verified.
+        .package(
+            url: "https://github.com/sbooth/SFBAudioEngine.git",
+            revision: "8455c970de34a63422857c4b4d6fffc85b822b47"
+        ),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
         // NIO 2.104.0 traps during HTTP pipeline setup on the iOS 17 runtime.
         // Keep this pin until an upstream fix is released and verified on iOS 17.

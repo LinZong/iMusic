@@ -1,3 +1,5 @@
+import AVFAudio
+import SFBAudioEngine
 import XCTest
 
 @testable import iMusicKit
@@ -6,6 +8,79 @@ import XCTest
 @MainActor final class AudioIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         try AudioTestSupport.requireHardwareAudio()
+    }
+    func testUpstreamPauseSuspendsIOAndRetainsDecoderAcrossRapidResume() async throws {
+        let library = try TestLibrary()
+        let url = try library.fixture(seconds: 8)
+        let player = AudioPlayer()
+        defer { player.stop() }
+        #if os(iOS)
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback)
+        try session.setActive(true)
+        #endif
+        try player.play(url)
+        try await Task.sleep(for: .milliseconds(350))
+        let decoder = try XCTUnwrap(player.currentDecoder)
+        let identity = ObjectIdentifier(decoder)
+        try player.enqueue(url)
+        XCTAssertFalse(player.queueIsEmpty)
+
+        for _ in 0..<12 {
+            player.pause()
+            try player.play()
+        }
+        player.pause()
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
+        while player.engineIsRunning && ProcessInfo.processInfo.systemUptime < deadline {
+            try await Task.sleep(for: .milliseconds(20))
+        }
+
+        XCTAssertFalse(player.engineIsRunning)
+        XCTAssertTrue(player.isPaused)
+        XCTAssertFalse(player.queueIsEmpty)
+        XCTAssertEqual(player.currentDecoder.map(ObjectIdentifier.init), identity)
+        let pausedPosition = try XCTUnwrap(player.currentTime)
+        try await Task.sleep(for: .milliseconds(150))
+        XCTAssertEqual(try XCTUnwrap(player.currentTime), pausedPosition, accuracy: 0.02)
+
+        try player.play()
+        try await Task.sleep(for: .milliseconds(350))
+        XCTAssertTrue(player.engineIsRunning)
+        XCTAssertTrue(player.isPlaying)
+        XCTAssertEqual(player.currentDecoder.map(ObjectIdentifier.init), identity)
+        XCTAssertGreaterThan(try XCTUnwrap(player.currentTime), pausedPosition + 0.1)
+    }
+    func testRegionPauseResumePreservesLoopAndOccurrence() async throws {
+        let library = try TestLibrary()
+        let url = try library.fixture(seconds: 4)
+        let engine = SFBPlaybackEngine()
+        let occurrence = UUID()
+        var announced: [UUID] = []
+        var failure: Error?
+        engine.onTrack = { announced.append($0) }
+        engine.onError = { failure = $0 }
+        defer { engine.stop() }
+        try engine.play(
+            url: url,
+            entryID: occurrence,
+            region: 1...2,
+            sampleRate: 48_000
+        )
+        try await Task.sleep(for: .milliseconds(350))
+        engine.pause()
+        try await Task.sleep(for: .milliseconds(200))
+        let position = try XCTUnwrap(engine.elapsed)
+        try await Task.sleep(for: .milliseconds(150))
+        XCTAssertEqual(try XCTUnwrap(engine.elapsed), position, accuracy: 0.02)
+
+        try engine.resume()
+        try await Task.sleep(for: .milliseconds(850))
+        let resumed = try XCTUnwrap(engine.elapsed)
+        XCTAssertTrue((1...2).contains(resumed))
+        XCTAssertTrue(engine.isPlaying)
+        XCTAssertEqual(announced, [occurrence])
+        XCTAssertNil(failure)
     }
     func testEngineClockPauseSeekAndRate() async throws {
         let library = try TestLibrary()

@@ -177,7 +177,15 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
         if position > 0, region == nil, sampleRate > 0 {
             try decoder.seek(to: Int64(position * sampleRate))
         }
+        try activateAudioSession()
         try player.play(decoder)
+    }
+    private func activateAudioSession() throws {
+        #if os(iOS)
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .default, policy: .longFormAudio)
+        try session.setActive(true)
+        #endif
     }
     private func resetPlayer(region: ClosedRange<Double>?) {
         let gains = equalizer.bands.map(\.gain)
@@ -203,6 +211,7 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
     {
         resetPlayer(region: region)
         identifiers[ObjectIdentifier(prepared.decoder)] = entryID
+        try activateAudioSession()
         try player.play(prepared.decoder)
     }
     /// Schedules an already opened original decoder for gapless advancement.
@@ -228,10 +237,13 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
         player.clearQueue()
         preloadedID = nil
     }
-    /// Pauses rendering while retaining the current decoder and playback position.
-    public func pause() { _ = player.pause() }
+    /// Pauses playback and lets SFB suspend audio I/O while retaining decoders and position.
+    public func pause() { player.pause() }
     /// Resumes the current decoder and throws if the audio backend cannot start rendering.
-    public func resume() throws { try player.play() }
+    public func resume() throws {
+        try activateAudioSession()
+        try player.play()
+    }
     /// Stops rendering, detaches callbacks from the old player, and clears decoder identity and
     /// preload state.
     public func stop() {
@@ -292,10 +304,26 @@ public final class SFBPlaybackEngine: NSObject, PlaybackEngine, AudioPlayer.Dele
         let status: PlaybackStatus =
             playbackState == .playing ? .playing : playbackState == .paused ? .paused : .ended
         Task { @MainActor [weak self] in
-            guard let self, self.player === audioPlayer else { return }
+            guard let self, self.player === audioPlayer,
+                audioPlayer.playbackState == playbackState
+            else { return }
             self.onState?(status)
         }
     }
+    #if os(iOS)
+    /// Disables SFB's automatic interruption resume so the coordinator owns user intent and
+    /// explicitly reactivates the audio session before resuming through this adapter.
+    nonisolated public func audioPlayer(
+        _ audioPlayer: AudioPlayer,
+        audioSessionInterruption userInfo: [AnyHashable: Any]?
+    ) {
+        if userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+            == AVAudioSession.InterruptionType.began.rawValue
+        {
+            audioPlayer.pause()
+        }
+    }
+    #endif
     /// Forwards end-of-audio to the coordinator on the main actor only if the callback belongs to
     /// the current player instance.
     nonisolated public func audioPlayerEndOfAudio(_ audioPlayer: AudioPlayer) {
