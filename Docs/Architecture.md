@@ -142,8 +142,8 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
 - 常规宽度的 iPad 与 macOS 使用 NavigationSplitView；iPad 紧凑分屏可切换为 TabView。macOS 歌曲主体为原生 Table，触屏为 List；
   右键菜单、滑动操作、窗口与系统文件选择器留在 View／平台适配层。
 - `SongListSummary` 共用计数、时长和操作，由独立呈现组件管理系统版本对应的样式与间距。
-  所有平台均由 `SongListView` 在歌曲
-  滚动容器顶部固定展示：macOS 为 Table 上方的独立布局，触屏为 List 的顶部安全区 inset。
+  `SongListView` 选择固定位置：macOS 为 Table 上方的独立布局，旧版 iOS 为 List 的
+  顶部安全区 inset；iOS／iPadOS 26 为歌曲视口底部的玻璃浮层。
   macOS 歌曲表格使用系统 `.title3`（15 pt），歌曲及回收站歌单统计栏使用 `.body`（13 pt），
   避免将常读内容缩为 caption；字体调整不覆盖工具栏或触屏样式。
   iPhone／iPad `TouchSongList` 的行只包含实际歌曲，空态与搜索无结果为剩余内容区的居中
@@ -169,7 +169,8 @@ macOS Table、iPhone／iPad List、选择与排序绑定。它通过 ViewBuilder
 
 `SongListSummary` 只接收数量、总时长及操作 builder，不生成虚假歌曲。
 `TouchSongList` 只管理触屏歌曲 List，重排只绑定歌曲 ForEach。汇总栏和其播放按钮由
-`SongListView` 放在 List 的顶部安全区 inset 中，不属于列表行，保持常驻和独立操作；
+`SongListView` 放在固定安全区中，不属于列表行，保持常驻和独立操作；
+旧版触屏放在顶部，新版触屏由 `GlassSongListContent` 注册为底部系统 bar。
 空态也由它在剩余内容区呈现。
 不嵌套纵向滚动容器，也不通过监听 offset 手动模拟导航栏动画。
 
@@ -188,10 +189,10 @@ macOS Table、iPhone／iPad List、选择与排序绑定。它通过 ViewBuilder
 
 `View/Shared/LibrarySearchField` 复用原 Trash 的原生输入适配：iPhone／iPad 使用
 `UISearchTextField`，macOS 使用 `NSSearchField`；仅用户编辑和清除事件写入绑定，不在
-销毁时清空查询。`LibrarySearchInput` 负责触屏字体缩放、尺寸和间距，并为原生输入框
-边界外的阴影保留底部绘制空间、提高绘制层级，避免相邻列表／统计栏盖住阴影。
-`contentSearch` 在
-触屏通过顶部安全区 inset 固定输入框，在 macOS 保留右上角系统 `.searchable`。
+销毁时清空查询。`LibrarySearchInput` 只分派外观；`GlassLibrarySearchInput` 与
+`LegacyLibrarySearchInput` 分文件管理尺寸和间距。新版为原生输入框边界外的阴影保留
+绘制空间，不重复添加玻璃或实色背景。`contentSearch` 在 iOS 26 通过顶部
+`safeAreaBar` 让输入框悬浮在列表上，旧版保留顶部 inset；macOS 保留系统 `.searchable`。
 All Songs、收藏、元数据歌曲页、歌单详情和选歌弹窗复用上述搜索组件；歌曲集合与歌单
 详情通过 SongListPage 统一组合固定搜索布局，选歌弹窗使用 `contentSearch`。
 选歌弹窗显式使用自己的 inline 导航标题，避免继承呈现页的标题模式并在搜索时改变栏高。
@@ -199,18 +200,18 @@ Trash 两类子页复用同一输入组件，
 保留其分类绑定与 macOS 工具栏适配。组件生命周期跟随页面，查询仍由
 各页面 ViewModel 持有，没有共享查询或新的服务依赖。卡片集合页继续使用导航栏搜索。
 活跃歌曲列表及选歌弹窗不安装 UISearchController。`SongListPage` 在 iPhone／iPad
-用独立 VStack 固定大标题与搜索。旧版 iOS 的 feature header 在 SongListView 上方独立
-占位；iOS 26 的 header 由 `GlassSongListPageContent` 通过系统 `safeAreaBar` 固定在
-歌曲滚动视口上层，初始歌曲避让控件，滚动后可以从玻璃胶囊下方经过。
-header builder 返回可选内容；没有额外控件的歌曲集合与歌单不注册空系统 bar。
+用独立 VStack 固定大标题。旧版 iOS 的搜索与 feature header 在 SongListView 上方独立
+占位；iOS 26 的搜索与可选 header 由 `GlassSongListPageContent` 组合到同一个顶部
+`safeAreaBar`，初始歌曲避让控件，滚动后可以从搜索和快捷胶囊下方经过。
+header builder 返回可选内容；没有额外控件时仍有搜索，不注册空系统 bar。
 大标题使用系统 `.largeTitle.bold()`、动态字体和无障碍 heading，标题文字由
 SongCollectionViewModel 从现有 catalog 派生，PlaylistDetailViewModel 从当前歌单快照
 派生，重命名后随快照更新。系统导航栏保留返回、导入与 feature 提供的菜单、编辑
 按钮，关闭其随 List 联动的大标题并用空 principal 项避免重复标题；实际显示的大标题
 属于固定内容布局，不随歌曲滚动折叠、拉伸或回弹。所有歌曲、收藏、歌手／专辑／流派
 歌曲页、歌单详情及其空态、短列表共享这一约束；快捷栏只在空间不足时独立横向滚动。
-统计栏仍为 SongListView 的固定顶部安全区 inset。其他使用 contentSearch 的页面继续
-使用固定搜索 inset。搜索 inset 不叠加实色背景，保留原生列表表面及搜索框自身的阴影，
+统计栏由 SongListView 固定展示，新版在底部、旧版在顶部。其他使用 contentSearch 的页面
+共享对应系统的搜索浮栏或 inset。搜索容器不叠加实色背景，保留列表表面及搜索框自身阴影，
 避免分组列表上出现矩形色带。旧版统计栏背景显式设置 `ignoresSafeAreaEdges: []`；
 空态保留原生纵向 List，只有歌曲行纵向滚动。不遍历或修改 UIKit 私有标题视图。
 macOS 保留系统工具栏标题与搜索。
@@ -226,7 +227,21 @@ iOS／iPadOS 26 的固定控件使用原生 Liquid Glass：搜索继续由 `UISe
 歌曲内容行不使用玻璃。`GlassSongListPageContent` 只接收 header／content builder，
 生命周期跟随 SongListPage，不持有模型、滚动 offset 或额外状态；它将固定 feature
 控件注册为系统 bar，并采用柔和的滚动边缘效果保证下穿内容时的可读性，不添加整块
-实色背景。大标题和搜索仍在滚动视口之外，header 与统计保持固定，只有歌曲行纵向滚动。
+实色背景。大标题在滚动视口之外，搜索、header 与统计保持固定，只有歌曲行纵向滚动。
+
+`GlassSongListContent` 负责 iOS／iPadOS 26 的统计栏摆放，通过底部 `safeAreaBar` 与柔和
+滚动边缘效果让歌曲从玻璃统计栏下方滚过，同时为列表末尾和居中空态预留内容空间。
+该布局只接收 content／summary builder，生命周期跟随 SongListView，不持有播放器状态、
+MiniPlayer 引用或滚动 offset。RootView／LibraryFooter 继续负责播放器占用的空间；
+内层统计栏使用继承的安全区，自然停在 MiniPlayer（如有）与底部系统导航栏上方。
+iOS 26 的紧凑 Tab 使用 `GlassTabFooter` 注册原生 `tabViewBottomAccessory`，由系统
+管理玻璃表面及滚动内容避让，所有 Tab 与其详情页共用同一个播放器附件。导入进度
+及播放错误由 `LibraryOperationStatus` 在 Tab 根页面独立呈现并预留高度；不把可变高度
+的操作状态塞入系统播放器附件。LibraryFooter 组合相同状态与播放器供其他布局复用。26.1 起通过
+`isEnabled` 控制附件显示，26.0 则通过空内容隐藏；两者不替换 TabView 或导航栈身份。
+分栏布局实际预留 LibraryFooter 的高度，播放器使用四周留白的玻璃浮层，保证内层
+Summary 停在它上方。避免在分栏外部再注册同边的 safeAreaBar，使两个浮层相互覆盖。
+旧版紧凑布局保留底部 inset，分栏与 macOS 保留 VStack。
 
 ### 集合、Home、设置与编辑器
 
@@ -352,9 +367,19 @@ CloudNotificationReceiver 连接应用生命周期，不要求当前显示某个
 ## 自适应 MiniPlayer
 
 `MiniPlayer` 按实际可用横向空间选择布局，不依据设备型号或横竖屏标签。
-macOS 始终使用 `ExpandedMiniPlayer`；iOS／iPadOS 使用 ViewThatFits，宽度达到随字体
+macOS 始终使用展开控件；iOS／iPadOS 使用 ViewThatFits，宽度达到随字体
 缩放的 680 pt 预算时复用同一组件，否则回退到 `CompactMiniPlayer`。因此 iPad 分屏变窄时
 自动收紧，iPhone 横屏有足够宽度时可显示完整控制。
+
+`CompactMiniPlayer`／`ExpandedMiniPlayer` 只提供共享歌曲信息和控制行为。
+`LegacyMiniPlayer` 保留旧版及 macOS 的整条系统 bar 材质和进度位置；iOS 26 的
+`GlassMiniPlayer` 将相同控件放在单一 `.regular` 玻璃圆角浮层中，四周保留间距，
+不叠加矩形背景或手工阴影。处于原生 Tab 附件时读取系统 accessory placement，
+只提供控件内容，复用附件自身的玻璃，避免双层材质。进度仍由独立 PlaybackProgressLine
+观察原有时间轴，
+不会使玻璃容器订阅频繁进度更新。样式组件跟随 MiniPlayer 生命周期，只依赖现有
+PlayerViewModel；RootView 管理浮层位置与显示条件，LibraryFooter 组合状态与播放器；
+LibraryOperationStatus 只转发既有导入取消与播放错误清除操作，不新增业务状态。
 
 展开栏共用收藏、循环、上一曲、播放／暂停、下一曲、随机播放及队列操作；歌曲区与输出区
 平衡布局，主控制保持居中。应用音量滑块仅在 macOS 呈现。紧凑栏保留封面、歌曲信息、

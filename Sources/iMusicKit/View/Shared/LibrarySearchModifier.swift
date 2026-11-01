@@ -28,9 +28,15 @@ extension View {
     /// Fixes song-page search above content on touch platforms; retains desktop toolbar search.
     @ViewBuilder func contentSearch(text: Binding<String>, prompt: String) -> some View {
         #if os(iOS)
-        safeAreaInset(edge: .top, spacing: 0) {
-            // Preserve the scroll surface behind the native field and its own decoration.
-            LibrarySearchInput(text: text, prompt: prompt)
+        if #available(iOS 26.0, *) {
+            safeAreaBar(edge: .top, spacing: 0) {
+                LibrarySearchInput(text: text, prompt: prompt)
+            }
+            .scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            safeAreaInset(edge: .top, spacing: 0) {
+                LibrarySearchInput(text: text, prompt: prompt)
+            }
         }
         #else
         librarySearch(text: text, prompt: prompt)

@@ -14,7 +14,8 @@ import UIKit
         #if os(iOS)
         let tab = app.tabBars.buttons[title]
         if tab.exists {
-            tab.interact()
+            // Glass tabs can expose an invalid native activation point despite a visible frame.
+            tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             return
         }
         #endif
@@ -295,6 +296,31 @@ import UIKit
         }
     }
 
+    /// A paused half-track progress line remains painted inside the floating player's glass.
+    func assertMiniPlayerProgressIsPainted() {
+        let bar = app.element("miniPlayer.bar")
+        let frame = bar.frame.offsetBy(dx: -app.frame.minX, dy: -app.frame.minY)
+        let screenshot = app.screenshot().image
+        guard let image = screenshot.cgImage else {
+            XCTFail("The mini player must be present in the rendered window.")
+            return
+        }
+        let x = frame.minX + frame.width * 0.25
+        let hasProgress = (1...12)
+            .contains { offset in
+                let color = meanRenderedColor(
+                    image,
+                    rect: CGRect(x: x, y: frame.maxY - CGFloat(offset), width: 2, height: 1),
+                    scale: screenshot.scale
+                )
+                return color.count == 3 && color[2] - color[0] > 50 && color[2] - color[1] > 40
+            }
+        XCTAssertTrue(
+            hasProgress,
+            "Progress must not be clipped outside the native glass accessory."
+        )
+    }
+
     /// Samples a small rendered patch in window coordinates without relying on a fixed theme.
     private func meanRenderedColor(_ image: CGImage, rect: CGRect, scale: CGFloat) -> [Double] {
         let sample = CGRect(
@@ -375,7 +401,11 @@ import UIKit
         XCTAssertTrue(list.waitForExistence(timeout: 5))
         let navigation = app.navigationBars.element(boundBy: app.navigationBars.count - 1)
         let summaryGap = summary.frame.minY - search.frame.maxY
-        XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, summary.frame.maxY)
+        if #available(iOS 26.0, *) {
+            XCTAssertLessThan(list.cells.firstMatch.frame.minY, summary.frame.minY)
+        } else {
+            XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, summary.frame.maxY)
+        }
         list.swipeUp()
         list.swipeUp()
         XCTAssertTrue(summary.isHittable)

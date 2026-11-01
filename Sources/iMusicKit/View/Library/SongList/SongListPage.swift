@@ -41,14 +41,13 @@ struct SongListPage<Header: View, Content: View>: View {
                     .padding(.bottom, 8)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("library.songPageTitle")
-                LibrarySearchInput(text: $search, prompt: searchPrompt)
                 if #available(iOS 26.0, *) {
-                    if let header = header() {
-                        GlassSongListPageContent(header: { header }, content: content)
-                    } else {
-                        content()
+                    GlassSongListPageContent(content: content) {
+                        LibrarySearchInput(text: $search, prompt: searchPrompt)
+                        header()
                     }
                 } else {
+                    LibrarySearchInput(text: $search, prompt: searchPrompt)
                     header()
                     content()
                 }

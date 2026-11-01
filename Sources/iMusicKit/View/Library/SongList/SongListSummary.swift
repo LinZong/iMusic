@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Shared count, duration, and controls fixed above the song scroller on every platform.
+/// Shared count, duration, and controls whose fixed placement belongs to the song-list layout.
 struct SongListSummary<Actions: View>: View {
     /// Number of currently visible song occurrences, including playlist duplicates.
     let songCount: Int

@@ -113,6 +113,61 @@ import XCTest
     }
 
     #if os(iOS)
+    /// Bottom glass statistics clear both the last song and the optional scene mini player.
+    func testGlassSummaryFloatsAboveMiniPlayerAndKeepsLastSongReachable() throws {
+        guard #available(iOS 26.0, *) else { throw XCTSkip("Requires Liquid Glass.") }
+        launch(scenario: "song-scroll")
+        navigate("All Songs")
+        let list = app.element("library.songList")
+        let summary = app.element("library.songSummaryBar")
+        let miniPlayer = app.element("miniPlayer.bar")
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertFalse(miniPlayer.exists)
+        XCTAssertGreaterThan(summary.frame.minY, list.frame.midY)
+        if app.tabBars.firstMatch.exists {
+            XCTAssertLessThanOrEqual(summary.frame.maxY, app.tabBars.firstMatch.frame.minY)
+        }
+        let withoutPlayerY = summary.frame.minY
+        let heading = app.staticTexts["library.songPageTitle"]
+        let headingY = heading.frame.minY
+        capture("Bottom glass summary without mini player")
+        for _ in 0..<8 { list.swipeUp() }
+        let last = library.track("UI Scroll 39")
+        XCTAssertTrue(last.waitForExistence(timeout: 5))
+        XCTAssertTrue(last.isHittable)
+        XCTAssertLessThanOrEqual(last.frame.maxY, summary.frame.minY)
+        XCTAssertEqual(summary.frame.minY, withoutPlayerY, accuracy: 1)
+        capture("Last song clears the bottom glass summary")
+        last.interact()
+        XCTAssertTrue(miniPlayer.waitForExistence(timeout: 5))
+        XCTAssertGreaterThanOrEqual(miniPlayer.frame.minX - app.frame.minX, 16)
+        XCTAssertGreaterThanOrEqual(app.frame.maxX - miniPlayer.frame.maxX, 16)
+        let clearsPlayer = NSPredicate { _, _ in summary.frame.maxY <= miniPlayer.frame.minY }
+        XCTAssertEqual(
+            XCTWaiter.wait(
+                for: [XCTNSPredicateExpectation(predicate: clearsPlayer, object: summary)],
+                timeout: 5
+            ),
+            .completed
+        )
+        XCTAssertGreaterThan(summary.frame.minY, list.frame.midY)
+        XCTAssertLessThan(summary.frame.minY, withoutPlayerY)
+        XCTAssertEqual(heading.frame.minY, headingY, accuracy: 1)
+        list.swipeUp()
+        XCTAssertTrue(last.isHittable)
+        XCTAssertLessThanOrEqual(last.frame.maxY, summary.frame.minY)
+        library.assertSongPageChromeStaysFixed("All Songs")
+        capture("Bottom glass summary above the mini player")
+        let search = app.searchFields["Search Songs"]
+        search.interact()
+        search.typeText("Missing song\n")
+        let placeholder = app.element("library.emptyState")
+        XCTAssertTrue(placeholder.waitForExistence(timeout: 5))
+        XCTAssertLessThanOrEqual(placeholder.frame.maxY, summary.frame.minY)
+        XCTAssertLessThanOrEqual(summary.frame.maxY, miniPlayer.frame.minY)
+        capture("Empty search content above summary and mini player")
+    }
+
     /// Legacy song pages keep summaries close to search with empty and populated collections.
     func testLegacySongSummarySpacingWithoutFeatureHeader() throws {
         if #available(iOS 26.0, *) { throw XCTSkip("Requires the legacy summary presentation.") }
@@ -155,6 +210,7 @@ import XCTest
         let list = app.element("library.songList")
         let shortcuts = app.element("allSongs.shortcuts")
         let summary = app.element("library.songSummaryBar")
+        let search = app.searchFields["Search Songs"]
         XCTAssertTrue(shortcuts.waitForExistence(timeout: 5))
         capture("Floating shortcuts before scrolling")
         XCTAssertLessThanOrEqual(
@@ -162,7 +218,9 @@ import XCTest
             shortcuts.frame.minY + 1,
             "The song scroll viewport must extend beneath the floating shortcuts."
         )
-        XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, summary.frame.maxY)
+        XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, shortcuts.frame.maxY)
+        XCTAssertLessThanOrEqual(list.frame.minY, search.frame.minY)
+        XCTAssertGreaterThan(summary.frame.minY, list.frame.midY)
         let fixed = [
             app.staticTexts["library.songPageTitle"], app.searchFields["Search Songs"],
             app.element("allSongs.artists"), app.element("library.songSummary"),
@@ -178,6 +236,10 @@ import XCTest
         XCTAssertTrue(
             list.cells.allElementsBoundByIndex.contains { $0.frame.intersects(shortcuts.frame) },
             "Songs must scroll beneath the shortcut capsules."
+        )
+        XCTAssertTrue(
+            list.cells.allElementsBoundByIndex.contains { $0.frame.intersects(search.frame) },
+            "Songs must scroll beneath the floating native search field."
         )
         capture("Songs scrolling beneath floating shortcuts")
         library.openAllSongsShortcut("artists")
@@ -275,6 +337,13 @@ import XCTest
         XCTAssertTrue(toggle.waitForExistence(timeout: 5))
         toggle.interact()
         XCTAssertEqual(toggle.label, "Play")
+        if #available(iOS 26.0, *) {
+            player.open()
+            app.sliders["player.seek"].setFraction(0.5)
+            app.buttons["Collapse Player"].interact()
+            XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+            library.assertMiniPlayerProgressIsPainted()
+        }
         let compactPortrait = app.frame.width < 680
         if compactPortrait {
             XCTAssertFalse(app.element("miniPlayer.previous").exists)

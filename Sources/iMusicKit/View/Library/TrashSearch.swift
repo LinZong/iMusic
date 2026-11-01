@@ -1,8 +1,8 @@
 import SwiftUI
 
 extension View {
-    /// Uses a native toolbar search field for Trash on macOS and leaves touch layout to the page.
-    @ViewBuilder func trashToolbarSearch(text: Binding<String>?, prompt: String) -> some View {
+    /// Keeps desktop Trash search in its toolbar and shares native content search on touch systems.
+    @ViewBuilder func trashSearch(text: Binding<String>?, prompt: String) -> some View {
         #if os(macOS)
         toolbar {
             if let text {
@@ -13,7 +13,11 @@ extension View {
             }
         }
         #else
-        self
+        if let text {
+            contentSearch(text: text, prompt: prompt)
+        } else {
+            self
+        }
         #endif
     }
 }

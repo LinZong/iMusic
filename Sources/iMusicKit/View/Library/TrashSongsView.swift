@@ -11,9 +11,6 @@ struct TrashSongsView: View {
     var body: some View {
         @Bindable var model = model
         VStack(spacing: 0) {
-            #if os(iOS)
-            LibrarySearchInput(text: searchBinding, prompt: L10n.text("Search Trashed Songs"))
-            #endif
             SongListView(
                 state: model.state,
                 rows: model.rows,
@@ -51,7 +48,7 @@ struct TrashSongsView: View {
                 move: nil
             )
         }
-        .trashToolbarSearch(text: searchBinding, prompt: L10n.text("Search Trashed Songs"))
+        .trashSearch(text: searchBinding, prompt: L10n.text("Search Trashed Songs"))
         .alert(
             L10n.text("Permanently Delete Music?"),
             isPresented: Binding(

@@ -22,6 +22,14 @@ import XCTest
         app.buttons[appearance].interact()
         navigate("All Songs")
         library.play("UI Alpha")
+        if #available(iOS 26.0, *) {
+            let miniPlayer = app.element("miniPlayer.bar")
+            XCTAssertTrue(miniPlayer.waitForExistence(timeout: 5))
+            XCTAssertGreaterThanOrEqual(miniPlayer.frame.minX - app.frame.minX, 16)
+            XCTAssertTrue(app.element("miniPlayer.toggle").isHittable)
+            library.assertSearchDecorationIsContinuous()
+            capture(appearance + " floating search and mini player")
+        }
         for index in 0..<3 {
             player.open()
             assertBackground(dark: dark)

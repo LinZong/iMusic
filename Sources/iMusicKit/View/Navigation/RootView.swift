@@ -38,11 +38,15 @@ public struct RootView: View {
     @ViewBuilder private var content: some View {
         #if os(iOS)
         if sizeClass == .compact {
-            TabView {
-                tab(.home)
-                tab(.songs)
-                tab(.playlists)
-                tab(.settings)
+            if #available(iOS 26.0, *) {
+                tabs.modifier(
+                    GlassTabFooter(
+                        isPresented: model.player.playback.track != nil,
+                        footer: { MiniPlayer(model: model.player) }
+                    )
+                )
+            } else {
+                tabs
             }
         } else {
             splitView
@@ -52,20 +56,42 @@ public struct RootView: View {
         #endif
     }
     #if os(iOS)
+    /// Keeps tab identity stable while the system accessory appears or disappears.
+    private var tabs: some View {
+        TabView {
+            tab(.home)
+            tab(.songs)
+            tab(.playlists)
+            tab(.settings)
+        }
+    }
+    /// Modern tabs share one native accessory; older pages retain their bottom inset.
     private func tab(_ destination: LibraryDestination) -> some View {
         NavigationStack {
-            DestinationView(
-                model: DestinationViewModel(
-                    library: model.library,
-                    player: model.player,
-                    preferences: model.preferences,
-                    imports: model.imports,
-                    destination: destination
-                )
-            )
-            .safeAreaInset(edge: .bottom, spacing: 0) { LibraryFooter(model: model) }
+            if #available(iOS 26.0, *) {
+                VStack(spacing: 0) {
+                    tabDestination(destination)
+                    LibraryOperationStatus(model: model)
+                }
+            } else {
+                tabDestination(destination)
+                    .safeAreaInset(edge: .bottom, spacing: 0) { LibraryFooter(model: model) }
+            }
         }
         .tabItem { Label(destination.title, systemImage: destination.symbol) }
+    }
+
+    /// Creates the same feature-owned destination for either native footer layout.
+    private func tabDestination(_ destination: LibraryDestination) -> some View {
+        DestinationView(
+            model: DestinationViewModel(
+                library: model.library,
+                player: model.player,
+                preferences: model.preferences,
+                imports: model.imports,
+                destination: destination
+            )
+        )
     }
     #endif
     /// Reserves footer height so tablet and desktop pages center above the mini player.

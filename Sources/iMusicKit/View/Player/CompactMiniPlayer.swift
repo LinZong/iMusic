@@ -7,56 +7,52 @@ struct CompactMiniPlayer: View {
 
     /// Keeps transport targets accessible while letting long metadata truncate naturally.
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Button {
-                    model.presentation.showPlayer = true
-                } label: {
-                    HStack(spacing: 12) {
-                        ArtworkView(
-                            track: model.playback.track,
-                            vault: model.library.vault,
-                            size: 42
-                        )
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(model.playback.track?.title ?? "iMusic")
-                                .font(.subheadline.weight(.semibold))
-                                .lineLimit(1)
-                            Text(model.playback.track?.displayArtist ?? "").font(.caption)
-                                .foregroundStyle(
-                                    .secondary
-                                )
-                                .lineLimit(1)
-                        }
-                        Spacer(minLength: 0)
+        HStack(spacing: 12) {
+            Button {
+                model.presentation.showPlayer = true
+            } label: {
+                HStack(spacing: 12) {
+                    ArtworkView(
+                        track: model.playback.track,
+                        vault: model.library.vault,
+                        size: 42
+                    )
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(model.playback.track?.title ?? "iMusic")
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        Text(model.playback.track?.displayArtist ?? "").font(.caption)
+                            .foregroundStyle(
+                                .secondary
+                            )
+                            .lineLimit(1)
                     }
-                    .contentShape(Rectangle())
+                    Spacer(minLength: 0)
                 }
-                .buttonStyle(.plain).accessibilityLabel(L10n.text("Expand Now Playing"))
-                .accessibilityIdentifier("miniPlayer.expand")
-                .accessibilityValue(model.playback.track?.title ?? "iMusic")
-                PlayerControlButton(
-                    symbol: model.playback.isPlaying ? "pause.fill" : "play.fill",
-                    label: model.playback.isPlaying ? L10n.text("Pause") : L10n.text("Play"),
-                    isProminent: true
-                ) {
-                    model.playback.toggle()
-                }
-                .accessibilityIdentifier("miniPlayer.toggle")
-                PlayerControlButton(
-                    symbol: "forward.end.fill",
-                    label: L10n.text("Next Track"),
-                    isProminent: true
-                ) { model.playback.next() }
-                .accessibilityIdentifier("miniPlayer.next")
-                PlayerControlButton(symbol: "list.bullet", label: L10n.text("Play Queue")) {
-                    model.presentation.showQueue = true
-                }
-                .accessibilityIdentifier("miniPlayer.queue")
+                .contentShape(Rectangle())
             }
-            .padding(.horizontal, 16).padding(.vertical, 10)
-            PlaybackProgressLine(playback: model.playback)
+            .buttonStyle(.plain).accessibilityLabel(L10n.text("Expand Now Playing"))
+            .accessibilityIdentifier("miniPlayer.expand")
+            .accessibilityValue(model.playback.track?.title ?? "iMusic")
+            PlayerControlButton(
+                symbol: model.playback.isPlaying ? "pause.fill" : "play.fill",
+                label: model.playback.isPlaying ? L10n.text("Pause") : L10n.text("Play"),
+                isProminent: true
+            ) {
+                model.playback.toggle()
+            }
+            .accessibilityIdentifier("miniPlayer.toggle")
+            PlayerControlButton(
+                symbol: "forward.end.fill",
+                label: L10n.text("Next Track"),
+                isProminent: true
+            ) { model.playback.next() }
+            .accessibilityIdentifier("miniPlayer.next")
+            PlayerControlButton(symbol: "list.bullet", label: L10n.text("Play Queue")) {
+                model.presentation.showQueue = true
+            }
+            .accessibilityIdentifier("miniPlayer.queue")
         }
-        .background(.bar)
+        .padding(.horizontal, 16)
     }
 }

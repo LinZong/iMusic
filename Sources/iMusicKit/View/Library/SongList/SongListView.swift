@@ -34,14 +34,21 @@ struct SongListView<Row: View, Actions: View, Empty: View, Context: View>: View 
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         #else
-        // Preserve the native vertical scroll host even for empty and filtered-out collections.
-        TouchSongList(rows: rows, rowContent: rowContent, move: move)
-            .overlay { if rows.isEmpty { placeholder } }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                summary
-            }
+        if #available(iOS 26.0, *) {
+            GlassSongListContent(content: { touchContent }, summary: { summary })
+        } else {
+            touchContent.safeAreaInset(edge: .top, spacing: 0) { summary }
+        }
         #endif
     }
+
+    #if os(iOS)
+    /// Preserves one native song scroller and content-centered empty states on every touch system.
+    private var touchContent: some View {
+        TouchSongList(rows: rows, rowContent: rowContent, move: move)
+            .overlay { if rows.isEmpty { placeholder } }
+    }
+    #endif
 
     /// Shared count, duration, and caller-supplied actions without platform scrolling policy.
     private var summary: some View {

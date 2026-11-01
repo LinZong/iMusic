@@ -1,21 +1,20 @@
 import SwiftUI
 
-/// Chooses the playback bar from available width rather than device identity or orientation.
+/// Selects platform presentation while retaining a single shared playback session.
 struct MiniPlayer: View {
-    /// Shared feature state retained when the bar changes between compact and expanded layouts.
+    /// Feature state retained when the bar changes appearance or available width.
     let model: PlayerViewModel
-    /// Scales the expanded layout's width budget with the metadata's preferred text size.
-    @ScaledMetric(relativeTo: .subheadline) private var expandedMinimumWidth: CGFloat = 680
 
-    /// Uses desktop controls on wide touch layouts and preserves the compact bar on narrow ones.
-    var body: some View {
-        #if os(macOS)
-        ExpandedMiniPlayer(model: model)
-        #else
-        ViewThatFits(in: .horizontal) {
-            ExpandedMiniPlayer(model: model).frame(minWidth: expandedMinimumWidth)
-            CompactMiniPlayer(model: model)
+    /// Dispatches presentation without changing the shared playback controls or timeline.
+    @ViewBuilder var body: some View {
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            GlassMiniPlayer(model: model)
+        } else {
+            LegacyMiniPlayer(model: model)
         }
+        #else
+        LegacyMiniPlayer(model: model)
         #endif
     }
 }

@@ -265,7 +265,7 @@ import XCTest
         XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
     }
 
-    /// Scroll surfaces clear out-of-bounds glass decoration only on systems that draw it.
+    /// Glass search floats inside the viewport while older systems keep the search above it.
     private func assertSearchDecorationHasRoom(list: XCUIElement) {
         let search = app.searchFields.matching(NSPredicate(format: "label == 'Search Songs'"))
             .allElementsBoundByIndex
@@ -274,17 +274,12 @@ import XCTest
             XCTFail("The active page must expose its own search field.")
             return
         }
-        let minimumClearance: CGFloat
         if #available(iOS 26.0, *) {
-            minimumClearance = 12
+            XCTAssertLessThanOrEqual(list.frame.minY, search.frame.minY)
+            XCTAssertGreaterThanOrEqual(list.cells.firstMatch.frame.minY, search.frame.maxY + 12)
         } else {
-            minimumClearance = 0
+            XCTAssertGreaterThanOrEqual(list.frame.minY, search.frame.maxY)
         }
-        XCTAssertGreaterThanOrEqual(
-            list.frame.minY - search.frame.maxY,
-            minimumClearance,
-            "List painting must leave room for the native search field's lower decoration."
-        )
     }
 
     /// The shared page fixes its large heading, search, and summary while occurrences scroll.
@@ -346,7 +341,7 @@ import XCTest
         navigate("Playlists")
         editor.create("Summary Controls")
         app.element("playlist.open.Summary Controls").interact()
-        assertSongPlaceholderBelowFixedSummary()
+        assertSongPlaceholderClearOfFixedSummary()
         let summaryRow = app.element("library.songSummaryBar")
         for title in ["Play", "Shuffle"] {
             let action = summaryRow.buttons[title]
@@ -368,7 +363,7 @@ import XCTest
         search.interact()
         search.typeText("Missing song")
         XCTAssertTrue(library.track("UI Alpha").waitForNonExistence(timeout: 5))
-        assertSongPlaceholderBelowFixedSummary()
+        assertSongPlaceholderClearOfFixedSummary()
         library.clearSearch(search)
         XCTAssertTrue(library.track("UI Alpha").waitForExistence(timeout: 5))
         app.buttons["Edit"].interact()
@@ -401,15 +396,19 @@ import XCTest
         capture("Playlist summary controls preserve occurrence editing and independent actions")
     }
 
-    /// Empty and unmatched messages occupy the remaining area below the fixed summary.
-    private func assertSongPlaceholderBelowFixedSummary() {
+    /// Empty and unmatched messages occupy content space clear of either fixed summary position.
+    private func assertSongPlaceholderClearOfFixedSummary() {
         let placeholder = app.element("library.emptyState")
         XCTAssertTrue(placeholder.waitForExistence(timeout: 5))
         let summary = app.element("library.songSummary")
-        XCTAssertGreaterThan(placeholder.frame.minY, summary.frame.maxY)
+        if #available(iOS 26.0, *) {
+            XCTAssertLessThanOrEqual(placeholder.frame.maxY, summary.frame.minY)
+        } else {
+            XCTAssertGreaterThan(placeholder.frame.minY, summary.frame.maxY)
+        }
         XCTAssertEqual(app.element("library.songList").cells.count, 0)
         XCTAssertTrue(summary.isHittable)
-        capture("Song placeholder in content area below the fixed summary")
+        capture("Song placeholder in content area clear of the fixed summary")
     }
     #endif
 

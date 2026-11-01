@@ -9,21 +9,16 @@ struct ExpandedMiniPlayer: View {
 
     /// Balances metadata and output regions around the shared transport controls.
     var body: some View {
-        VStack(spacing: 0) {
-            PlaybackProgressLine(playback: model.playback)
-            GeometryReader { geometry in
-                let sideWidth = max(0, (geometry.size.width - transportWidth - 56) / 2)
-                HStack(spacing: 12) {
-                    songInformation.frame(width: sideWidth, alignment: .leading)
-                    transport.frame(width: transportWidth)
-                    outputControls.frame(width: sideWidth, alignment: .trailing)
-                }
-                .padding(.horizontal, 16)
-                .frame(height: geometry.size.height)
+        GeometryReader { geometry in
+            let sideWidth = max(0, (geometry.size.width - transportWidth - 56) / 2)
+            HStack(spacing: 12) {
+                songInformation.frame(width: sideWidth, alignment: .leading)
+                transport.frame(width: transportWidth)
+                outputControls.frame(width: sideWidth, alignment: .trailing)
             }
-            .frame(height: 72)
+            .padding(.horizontal, 16)
+            .frame(height: geometry.size.height)
         }
-        .background(.bar)
     }
 
     /// Artwork and truncated metadata open the full player; the adjacent heart acts independently.
