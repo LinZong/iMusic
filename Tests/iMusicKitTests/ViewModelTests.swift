@@ -315,8 +315,8 @@ import XCTest
         )
         let songs = SongCollectionViewModel(library: app.library, player: app.player, scope: .all)
         songs.state.search = "keep me"
-        app.preferences.vinyl = true
-        XCTAssertEqual(try app.store.setting("vinyl", as: Bool.self), true)
+        app.preferences.appearance = "light"
+        XCTAssertEqual(try app.store.setting("appearance", as: String.self), "light")
         try app.store.setSetting("appearance", value: "dark")
         app.preferences.reload()
         XCTAssertEqual(app.preferences.appearance, "dark")

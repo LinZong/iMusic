@@ -13,8 +13,6 @@ public final class PreferencesViewModel {
     public var appearance: String {
         didSet { try? store.setSetting("appearance", value: appearance) }
     }
-    /// Persisted preference for rendering artwork with the vinyl-record appearance.
-    public var vinyl: Bool { didSet { try? store.setSetting("vinyl", value: vinyl) } }
     /// Persisted order and visibility of the configurable Home sections.
     public var homeSections: [HomeSectionOption] {
         didSet { try? store.setSetting("homeSections", value: homeSections) }
@@ -34,7 +32,6 @@ public final class PreferencesViewModel {
         appearance = PreferencesCompatibility.canonicalID(
             (try? store.setting("appearance", as: String.self)) ?? "system"
         )
-        vinyl = (try? store.setting("vinyl", as: Bool.self)) ?? false
         homeSections =
             ((try? store.setting("homeSections", as: [HomeSectionOption].self))
             ?? HomeSectionOption.defaults)
@@ -48,7 +45,6 @@ public final class PreferencesViewModel {
         appearance = PreferencesCompatibility.canonicalID(
             (try? store.setting("appearance", as: String.self)) ?? appearance
         )
-        vinyl = (try? store.setting("vinyl", as: Bool.self)) ?? vinyl
         homeSections =
             ((try? store.setting("homeSections", as: [HomeSectionOption].self)) ?? homeSections)
             .map {

@@ -5,7 +5,7 @@ public final class LibraryStore: @unchecked Sendable {
     /// Preference keys allowed in backups; excludes local paths, account state, and device
     /// authorization.
     public static let portableSettings: Set<String> = [
-        "audio", "appearance", "vinyl", "homeSections", "splitArtists",
+        "audio", "appearance", "homeSections", "splitArtists",
         "artistSeparators",
     ]
     /// Concurrent SQLite pool that serializes writes and keeps record changes atomic with their

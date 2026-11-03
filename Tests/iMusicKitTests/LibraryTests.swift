@@ -234,6 +234,20 @@ final class ImportBackupTests: XCTestCase {
         XCTAssertNil(try destination.store.setting("cloudEnabled", as: Bool.self))
         XCTAssertEqual(try MediaVault.digest(destination.vault.url(for: track)), track.assetHash)
     }
+    func testRetiredArtworkPreferenceIsExcludedFromBackupSettings() throws {
+        let source = try TestLibrary()
+        try source.store.setSetting("vinyl", value: true)
+        try source.store.setSetting("appearance", value: "dark")
+        let settings = try source.store.exportSettings()
+        XCTAssertNil(settings["vinyl"])
+
+        let destination = try TestLibrary()
+        var legacySettings = settings
+        legacySettings["vinyl"] = try JSONEncoder().encode(true)
+        try destination.store.restore([], settings: legacySettings)
+        XCTAssertNil(try destination.store.setting("vinyl", as: Bool.self))
+        XCTAssertEqual(try destination.store.setting("appearance", as: String.self), "dark")
+    }
     func testCompletedWiFiUploadRecoversAfterProcessInterruption() async throws {
         let library = try TestLibrary()
         let fixture = try library.fixture()
