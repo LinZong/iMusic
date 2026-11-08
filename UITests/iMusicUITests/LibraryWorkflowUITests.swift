@@ -151,7 +151,7 @@ import XCTest
         capture("All Songs after matching native search dismissal")
     }
 
-    /// Keeps the shared native mid-scroll search-dismissal defect visible as its own regression.
+    /// Repeated native search dismissal restores titles without moving either collection's rows.
     func testScrolledCollectionSearchDismissalKeepsTitles() {
         launch(scenario: "navigation-scroll")
         for (title, prompt) in [("Playlists", "Search Playlists"), ("All Songs", "Search Songs")] {
@@ -160,22 +160,42 @@ import XCTest
                 title == "All Songs"
                 ? app.scrollViews["library.songList"] : app.scrollViews.firstMatch
             scroller.swipeUp()
-            _ = library.navigationSearchFrames(prompt: prompt)
             let heading = app.navigationBars.staticTexts[title].firstMatch
-            XCTAssertTrue(heading.exists)
-            if #available(iOS 26.0, *), app.frame.width < 600 {
-                // An expected assertion must not abort before checking the second collection type.
-                continueAfterFailure = true
-                XCTExpectFailure(
-                    "iOS 26 native search dismissal loses both scrolled collection titles."
-                ) {
-                    XCTAssertTrue(heading.isHittable)
+            let titleFrame = heading.frame
+            let prefix = title == "All Songs" ? "track.play." : "playlist.open."
+            let anchor = scroller.buttons
+                .matching(
+                    NSPredicate(format: "identifier BEGINSWITH %@", prefix)
+                )
+                .allElementsBoundByIndex
+                .first {
+                    $0.isHittable && $0.frame.minY > app.searchFields[prompt].frame.maxY
                 }
-                continueAfterFailure = false
-            } else {
-                XCTAssertTrue(heading.isHittable)
+            XCTAssertNotNil(anchor)
+            let rowFrame = anchor?.frame ?? .zero
+            for _ in 0..<3 {
+                let search = library.navigationSearchFrames(prompt: prompt)
+                if app.frame.width < 600 {
+                    XCTAssertLessThan(search.focused.minY, search.idle.minY - 20)
+                    XCTAssertEqual(anchor?.frame.minY ?? 0, rowFrame.minY, accuracy: 2)
+                }
+                library.assertNavigationTitleRestored(title, frame: titleFrame)
             }
             capture(title + " after search dismissal while scrolled")
+        }
+    }
+
+    /// Blank and no-match queries restore native titles even when search starts mid-scroll.
+    func testScrolledCollectionSearchFilteringKeepsTitles() {
+        launch(scenario: "navigation-scroll")
+        for (title, prompt) in [("Playlists", "Search Playlists"), ("All Songs", "Search Songs")] {
+            navigate(title)
+            let scroller =
+                title == "All Songs"
+                ? app.scrollViews["library.songList"] : app.scrollViews.firstMatch
+            scroller.swipeUp()
+            library.assertSystemCollectionSearchKeepsTitle(title, prompt: prompt)
+            capture(title + " after mid-scroll search filtering")
         }
     }
 

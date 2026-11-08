@@ -256,8 +256,8 @@ import AppKit
     #endif
 
     /// Requires the native collection drawer without a compensating pull-to-reveal gesture.
-    func collectionSearch() -> XCUIElement {
-        let search = app.searchFields["Search Songs"].firstMatch
+    func collectionSearch(prompt: String = "Search Songs") -> XCUIElement {
+        let search = app.searchFields[prompt].firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         XCTAssertTrue(search.isHittable)
         return search
@@ -497,6 +497,24 @@ import AppKit
         return (idle, focused)
     }
 
+    /// Requires both restored native title geometry and painted pixels after search transitions.
+    func assertNavigationTitleRestored(_ title: String, frame: CGRect) {
+        let heading = app.navigationBars.staticTexts[title].firstMatch
+        let restored = NSPredicate { _, _ in
+            heading.exists && heading.isHittable
+                && abs(heading.frame.minY - frame.minY) < 2
+                && abs(heading.frame.height - frame.height) < 2
+        }
+        XCTAssertEqual(
+            XCTWaiter.wait(
+                for: [XCTNSPredicateExpectation(predicate: restored, object: heading)],
+                timeout: 4
+            ),
+            .completed
+        )
+        assertTitleIsPainted(heading)
+    }
+
     /// System collection titles collapse with their List and expand again at the top boundary.
     func assertSystemSongCollectionNavigation(_ title: String, canCollapse: Bool = true) {
         let list = app.element("library.songList")
@@ -599,14 +617,14 @@ import AppKit
     }
 
     /// Native collection search edits retain the system title and never install a fixed heading.
-    func assertSystemCollectionSearchKeepsTitle(_ title: String) {
+    func assertSystemCollectionSearchKeepsTitle(_ title: String, prompt: String = "Search Songs") {
         let customHeading = app.staticTexts.matching(identifier: "library.songPageTitle")
         XCTAssertFalse(customHeading.firstMatch.exists)
         let heading = app.navigationBars.staticTexts[title].firstMatch
         XCTAssertTrue(heading.isHittable, app.debugDescription)
         assertTitleIsPainted(heading)
         for query in ["", "Missing song"] {
-            let search = collectionSearch()
+            let search = collectionSearch(prompt: prompt)
             search.interact()
             if !query.isEmpty { search.typeText(query) }
             XCTAssertTrue(search.isHittable)

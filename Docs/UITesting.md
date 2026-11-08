@@ -398,16 +398,68 @@ the header padding against the neighboring native summary surface: the iOS-only 
 must not paint a separate white strip on macOS. The regular-size/12-point-spacing follow-up passed
 the four-destination shortcut regression on both iPhone and iPad iOS 26.3.1 simulators.
 
-Known native-search limitation, deferred separately with approval on 2026-11-08: on iPhone/iOS
-26.3.1, scrolling a long playlist grid or song collection, activating a blank search, then pressing
-Close leaves the large-title label offscreen. Actual screenshots confirm the missing title on both
-pages, not just inaccessible automation geometry. This is not fixed by the navigation alignment.
-The dedicated mid-scroll dismissal test retains a narrow `XCTExpectFailure` around title hit testing
-on compact iOS 26, for both pages; fixture setup, search interaction, and title existence still must
-pass normally. An unexpected pass fails the test so the expectation can be retired when fixed.
-The accepted alignment retains default search presentation instead of reintroducing
-`.avoidHidingContent` or moving the list after dismissal. Initial/top-of-list empty-query and
-no-match dismissal regressions remain ordinary assertions.
+The iOS 26 mid-scroll search-dismissal follow-up isolates a native title-layout defect: a minimal
+NavigationStack/ScrollView/searchable page also loses its inline title after Close. Removing tabs,
+the accessory, feature headers, or outer stacks does not prevent it. Waiting four seconds does not
+restore it either. The native scroll host, content offset, adjusted insets, and navigation bar frame
+remain unchanged; requesting navigation layout restores the title without moving content.
+
+Deeper root-cause diagnostics on 2026-11-08 reproduced the same failure in a separately compiled
+UIKit-only app with its own UIApplicationDelegate/window, UINavigationController, UIScrollView,
+and UISearchController. It imports neither SwiftUI nor iMusicKit. The same simulator binary fails
+on iOS 26.3.1 and restores the inline title normally on iOS 17.4 (Xcode 26.3, SDK 26.2).
+Read-only view/layer snapshots show the mechanism: before search, the inline title's ancestor has
+alpha 1 and the offscreen large-title container has alpha 0; after dismissal these become 0 and 1.
+The inline label itself still has its original text, alpha 1, and isHidden false. Its wrapper also
+moves down 15 points, while the large title remains outside the viewport. After settling, both model
+and presentation opacity agree and there are no remaining layer animations, excluding a merely
+unfinished animation or an accessibility-only failure. Public title/display mode and pre/post
+scroll offsets/insets remain unchanged. Owned UIKit search-delegate callbacks locate the mismatch
+at didDismissSearchController; diagnostics do not replace any SwiftUI-owned delegate.
+
+Single-variable controls on iOS 26 distinguish the trigger and recovery:
+
+- Dismiss at the top, disable large titles, or set hidesNavigationBarDuringPresentation false:
+  title remains visible. These are diagnostic controls, not product UX changes.
+- Explicitly register the content scroll view: the title still disappears.
+- Call layoutIfNeeded without invalidation: the title remains missing.
+- Invalidate and lay out only the navigation bar: inline/large-title visibility returns to 1/0,
+  inline geometry is restored, and scrolling does not move. Invalidating the navigation root also
+  recovers it. This supports a UIKit collapse-state/layout-invalidation defect, not a lost query,
+  removed title, missing scroll host, shortcut overlap, or a SwiftUI-only integration problem.
+
+This establishes the observable framework failure and its boundary, not the exact missing call
+inside Apple's closed-source implementation. The compatibility adapter remains a workaround for
+that defect. Diagnostic harnesses deliberately record the broken state rather than count it as a
+passing product assertion. Local evidence is retained under `.build-ui-tests/Results/`:
+`20261108T060202Z-55f33d52` (SwiftUI/UIKit ancestry), `20261108T060429Z-3ed0c239` (iOS 26 controls),
+`20261108T060512Z-85fab849` (iOS 17 controls), `20261108T060701Z-58470c8c` (standalone UIKit iOS 26),
+and `20261108T060741Z-57cc59c9` (the same standalone app on iOS 17). The local standalone source is
+`.build-ui-tests/Diagnostics/SearchTitleRootCause/NativeProbe.swift`; diagnostic code is excluded
+from app and regression-test sources.
+
+`NavigationSearchLayoutRecovery` observes the native searching environment only at compact width
+on iOS 26. It requests layout once the search transition completes, with generation, visibility,
+and page-identity guards; it does not replace delegates, inspect private types, register a scroll
+host, reset view identity, or write offsets. The no-coordinator path defers to the next main-thread
+turn, not an arbitrary timed retry. Temporary diagnostic hosts and timers are not shipped.
+`testScrolledCollectionSearchDismissalKeepsTitles` now requires three consecutive dismissals on
+each page to restore painted title pixels and original title geometry. Compact-width runs also
+check that search still moves upward and the same visible song/card keeps its vertical coordinate.
+There is no expected-failure exemption. Initial/top-of-list empty-query and no-match dismissal
+regressions remain ordinary assertions, and default native search presentation is retained.
+`testScrolledCollectionSearchFilteringKeepsTitles` additionally checks blank/no-result editing and
+clearing from mid-scroll on both the playlist grid and song collection.
+
+Recovery validation on 2026-11-08 passed seven focused iPhone 17 Pro / iOS 26.3.1 cases across two
+runs: repeated mid-scroll dismissal, mid-scroll filtering, reference search geometry, empty songs,
+all shortcuts/stack return, repeated slow title transitions, and unchanged fixed playlist details.
+iPhone 15 Pro / iOS 17.4 passed two cases (repeated dismissal and reference geometry); iPad Pro
+11-inch (M5) / iPadOS 26.3.1 passed those two plus empty-library search. No expected failures remain
+in these runs. Native macOS 15.7.4 passed search/persistence and fixed playlist summary/toolbar
+search, including actual song-table scrolling. SwiftPM passed 141 tests with 9 opt-in skips;
+all 35 Python tests and Swift style,
+architecture, localization, and whitespace checks passed.
 
 The Playlists-alignment follow-up on 2026-11-08 validated the actual reference grid's initial title
 height and idle/focused search positions against All Songs on iPhone 15 Pro / iOS 17.4, iPhone
@@ -420,8 +472,8 @@ shortcut scrolling, empty search, and glass summary/MiniPlayer separation. These
 not an uninterrupted full-platform suite.
 The final iPhone 26 slow-drag rerun passed all three collapse/expand cycles on both All Songs and
 Favorites at 40 points/second; recorded frames showed continuous title/search/row movement without
-the earlier startup jump. Its separate mid-scroll search-dismissal case recorded two explicit
-expected title-visibility failures, one for each page, as documented above.
+the earlier startup jump. Its then-separate mid-scroll search-dismissal case recorded two explicit
+expected title-visibility failures, one for each page, before the recovery described above.
 Native macOS 15.7.4 passed shortcut/background/navigation, search/persistence, and fixed playlist
 summary/toolbar search. Log review exposed the older table test scrolling the sidebar instead;
 the strengthened test then passed a separate rerun with the song outline targeted and actual row

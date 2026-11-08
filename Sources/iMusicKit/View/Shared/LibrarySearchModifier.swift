@@ -10,11 +10,12 @@ extension View {
     ) -> some View {
         if enabled {
             #if os(iOS)
-            searchable(
-                text: text,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Text(prompt)
-            )
+            nativeSearchLayout
+                .searchable(
+                    text: text,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: Text(prompt)
+                )
             #else
             searchable(text: text, prompt: Text(prompt))
             #endif
@@ -22,6 +23,19 @@ extension View {
             self
         }
     }
+
+    #if os(iOS)
+    /// Keeps recovery inside searchable's environment and leaves older navigation untouched.
+    @ViewBuilder private var nativeSearchLayout: some View {
+        if #available(iOS 26.0, *) {
+            background {
+                NavigationSearchLayoutRecovery().frame(width: 0, height: 0)
+            }
+        } else {
+            self
+        }
+    }
+    #endif
 }
 
 extension View {

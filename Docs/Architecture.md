@@ -210,9 +210,22 @@ iOS 26.3 的 List＋底部 safeAreaBar 在慢拖起步出现标题／内容突�
 和新版底部 inset；默认固定页面继续使用原生 List、零垂直内容边距和原有统计栏位置。
 它不改变任何 UIScrollView 的物理属性，也不承载查询、选择或播放状态。
 Trash、歌单详情和选歌弹窗的滚动配置保持不变。
-已知共同缺陷：iPhone／iOS 26.3.1 的 Playlists 与歌曲集合均可在列表中段关闭空查询搜索后
-丢失导航标题；经确认该问题另行处理，不以改变搜索上移动画或写回滚动位置作为本次补偿。
-独立 UI 回归保留两页的复现与明确的预期失败，不能将交互对齐的通过结果表述为此问题已修复。
+iOS 26.3.1 在列表中段关闭搜索后存在原生标题折叠状态恢复缺陷：小标题自身仍存在，
+但其父容器 alpha 停在 0；滚出视口的大标题容器 alpha 却从 0 恢复为 1。
+进入搜索前与退出搜索后的 title、largeTitleDisplayMode、滚动 offset／inset 与导航栏 frame 一致，
+标题可见性却不再匹配当前滚动位置。独立的纯 UIKit App（UINavigationController、
+UIScrollView、UISearchController，无 SwiftUI／iMusic 依赖）也复现，同一二进制在 iOS 17.4 正常。
+列表顶部、禁用大标题或不让搜索接管导航栏的单变量对照不触发；显式注册滚动宿主不能消除。
+仅 layoutIfNeeded 不恢复，导航栏 setNeedsLayout＋layoutIfNeeded 可重新协调大小标题显隐，
+不改变滚动位置。定位边界是 UIKit 搜索退出后的折叠状态／布局失效处理，不能据此声称已知
+Apple 闭源实现中具体遗漏的内部调用。恢复适配器是系统兼容补偿，不是集合页面布局策略。
+`librarySearch` 在 iOS 26 的内容背景中组合 `NavigationSearchLayoutRecovery`，读取 searchable
+下发的 `isSearching`，仅在紧凑布局的搜索结束时等待原生转场完成，再请求一次所属导航栏布局。
+适配器生命周期跟随搜索页面，仅依赖公开 UIKit 父控制器与转场接口；代次、页面身份和可见性检查
+阻止已拆除页面或过期搜索的回调影响新页面。它不保存查询、不观察或写回滚动位置、不注册滚动宿主，
+不更换 delegate、不改变标题模式，也没有计时器、固定等待时间或全局 appearance。
+无转场协调器的非动画路径延至下一主线程调度执行。macOS、旧版 iOS 和常规宽度不执行恢复布局。
+UI 回归检查两页重复关闭搜索后的标题像素、原有位置以及歌曲／卡片坐标，不再使用预期失败豁免。
 
 `View/Shared/LibrarySearchField` 继续为固定搜索场景提供原生输入适配：iPhone／iPad 使用
 `UISearchTextField`，macOS 使用 `NSSearchField`；仅用户编辑和清除事件写入绑定，不在
