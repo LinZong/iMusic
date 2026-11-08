@@ -39,6 +39,17 @@
 不需要打开 Xcode 界面，但编译仍需要已安装的完整 Xcode 工具链。使用 Python 3.10+；
 详细参数、前置配置和排错见 [命令行安装指南](Docs/InstallRelease.md)。
 
+### 为 SideStore 编译 unsigned IPA
+
+```sh
+./Scripts/build_sidestore_ipa.py
+```
+
+默认输出 `build/SideStore/iMusic-unsigned.ipa`。脚本使用 iOS 真机 Release 目标，
+不需要开发团队、证书、描述文件或连接设备，并会校验 unsigned App 与标准
+`Payload/iMusic.app` 归档结构。IPA 必须由 SideStore 重签后才能运行；缓存、输出路径及
+`--skip-build` 用法见 [SideStore IPA 编译指南](Docs/BuildSideStoreIPA.md)。
+
 ### 不打开 Xcode 编译 macOS Release
 
 ```sh

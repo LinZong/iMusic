@@ -494,8 +494,10 @@ OnlineMetadataProviding、CloudSettingsService、UploadTransport 等。
 Swift 测试，以及原生 macOS、通用 iOS 和可选云／CarPlay 源码构建。三端 UI 回归由本地
 runner 执行，当前 CI 没有自动运行；完整命令、测试隔离与验收边界见 [UITesting.md](UITesting.md)。
 
-发布构建不依赖 Xcode 界面：iOS 使用 `Scripts/install_ios_release.py`，macOS 使用
+发布构建不依赖 Xcode 界面：iOS 开发签名直装使用 `Scripts/install_ios_release.py`，
+SideStore 重签输入使用 `Scripts/build_sidestore_ipa.py`，macOS 使用
 `Scripts/build_macos_release.py`。签名、安装参数及产物说明分别见
-[InstallRelease.md](InstallRelease.md)、[BuildMacRelease.md](BuildMacRelease.md) 和
-[Signing.md](Signing.md)。播放听感验收使用脱离 LLDB 的 iMusic Playback Scheme；真实解码、
+[InstallRelease.md](InstallRelease.md)、[BuildSideStoreIPA.md](BuildSideStoreIPA.md)、
+[BuildMacRelease.md](BuildMacRelease.md) 和 [Signing.md](Signing.md)。播放听感验收使用脱离
+LLDB 的 iMusic Playback Scheme；真实解码、
 路由、中断及 iCloud 云端样本的验收独立于静音 UI 回归。

@@ -70,6 +70,18 @@ signing and device eligibility before installing. It uses `devicectl`, with an
 optional `ideviceinstaller` fallback for missing developer images. The full Xcode
 toolchain is still required to compile. See [the terminal installation guide](Docs/InstallRelease.md).
 
+### Build an unsigned IPA for SideStore
+
+```sh
+./Scripts/build_sidestore_ipa.py
+```
+
+The script produces `build/SideStore/iMusic-unsigned.ipa` using the physical-device
+Release target without a development team, certificate, or provisioning profile.
+It verifies the unsigned app and standard `Payload/iMusic.app` archive before
+publication. SideStore must re-sign the IPA before it can run. See the
+[SideStore IPA build guide](Docs/BuildSideStoreIPA.md) for cache, output, and reuse options.
+
 ### Build a macOS Release app without opening Xcode
 
 ```sh

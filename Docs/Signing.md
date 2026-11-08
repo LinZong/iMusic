@@ -27,6 +27,14 @@ Release 编译配置与分发签名是两件事：以上方式安装的是开发
 通过 `--skip-build` 复用已有签名产物，缺少新机型支持镜像时可使用 `ideviceinstaller` 备用安装通道。
 前置条件、参数与错误排查见 [命令行安装指南](InstallRelease.md)。
 
+### SideStore unsigned IPA
+
+执行 `./Scripts/build_sidestore_ipa.py` 可使用普通 iMusic scheme 编译真机 Release，
+但在本次构建中关闭代码签名与描述文件，并输出
+`build/SideStore/iMusic-unsigned.ipa`。此流程不需要开发团队或连接真机，也不会修改本地
+签名配置；产物不能直接安装，必须交给 SideStore 重签。参数、校验与日志位置见
+[SideStore IPA 编译指南](BuildSideStoreIPA.md)。
+
 ### macOS Release 构建
 
 执行 `./Scripts/build_macos_release.py` 可不打开 Xcode，编译并导出 macOS Release。
