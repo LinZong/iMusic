@@ -139,15 +139,16 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
 
 - 紧凑宽度（通常为 iPhone）根导航为四个 Tab；Home／Settings 不附加常驻搜索。All Songs 与 Playlists
   以及导航进入的可搜索子页，分别绑定自己的查询和准确的搜索提示。
-- 常规宽度的 iPad 与 macOS 使用 NavigationSplitView；iPad 紧凑分屏可切换为 TabView。macOS 歌曲主体为原生 Table，触屏为 List；
+- 常规宽度的 iPad 与 macOS 使用 NavigationSplitView；iPad 紧凑分屏可切换为 TabView。macOS 歌曲主体为原生 Table；
+  触屏歌曲集合使用 ScrollView＋LazyVStack，固定标题／可编辑页面保留 List；
   右键菜单、滑动操作、窗口与系统文件选择器留在 View／平台适配层。
 - `SongListSummary` 共用计数、时长和操作，由独立呈现组件管理系统版本对应的样式与间距。
-  `SongListView` 选择固定位置：macOS 为 Table 上方的独立布局，旧版 iOS 为 List 的
-  顶部安全区 inset；iOS／iPadOS 26 为歌曲视口底部的玻璃浮层。
+  `SongListView` 选择呈现位置：macOS 为 Table 上方的独立布局；旧版 iOS 集合页为滚动文档
+  内随歌曲滚动的非歌曲内容，固定标题页面保留顶部安全区 inset；iOS／iPadOS 26 为歌曲视口底部的玻璃浮层。
   macOS 歌曲表格使用系统 `.title3`（15 pt），歌曲及回收站歌单统计栏使用 `.body`（13 pt），
   避免将常读内容缩为 caption；字体调整不覆盖工具栏或触屏样式。
-  iPhone／iPad `TouchSongList` 的行只包含实际歌曲，空态与搜索无结果为剩余内容区的居中
-  overlay，不创建虚假列表行，也不移除作为主滚动宿主的 List。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
+  iPhone／iPad 的歌曲滚动组件将可选非歌曲 header 与歌曲 ForEach 分开，空态与搜索无结果为剩余内容区的居中
+  overlay，不创建虚假歌曲，也不移除主滚动宿主。`CollectionGrid` 为空时填充页面，Home 等滚动页面使用
   `PageScrollView` 为短内容提供视口高度，`EqualTileRow` 统一卡片尺寸。
 - 其他页面的占位必须相对实际内容区布局，保留安全区、工具栏、页签与底部播放栏所占空间；
   不能将统计栏与空态作为一个整体垂直居中，也不能给动态字体文案固定高度。
@@ -157,27 +158,30 @@ RootView 按尺寸类别选择紧凑宽度的 TabView 或常规宽度／Mac 的 
 ### 歌曲列表基础能力与功能扩展
 
 SwiftUI 的 View 是值类型，列表使用泛型组合与能力协议，不使用 UIViewController 式的
-视图基类继承。`View/Library/SongList/SongListPage` 是歌曲页面的通用布局容器，由
-SongCollectionView 与 PlaylistDetailView 分别组合。容器只接收标题文字、页面搜索绑定、
-搜索提示和 header／content builder，不持有 feature ViewModel、资料库或播放器，不解释
-路由，也不管理菜单、弹窗或编辑操作。生命周期跟随所属页面，不新增可变页面状态。
-各功能 ViewModel 提供当前标题和独立查询，feature View 提供 SongListView 及自己的操作。
+视图基类继承。`SongCollectionView` 组合所有歌曲、收藏及歌手／专辑／流派歌曲集合，直接
+拥有系统导航标题、页面搜索和可选 header 的呈现策略；`SongListPage` 保留歌单详情所需的
+固定标题与内容搜索布局。两者都组合相同的 `SongListView`，不把路由、feature 开关或业务
+弹窗下沉到基础列表。各功能 ViewModel 提供当前标题和独立查询，feature View 提供行与操作。
 同目录的 `SongListView` 只负责统计、居中空态、
-macOS Table、iPhone／iPad List、选择与排序绑定。它通过 ViewBuilder 接收行、统计栏操作、
+macOS Table、触屏滚动布局、选择与排序绑定。它通过 ViewBuilder 接收可选 header、行、统计栏操作、
 空态与上下文菜单，并通过可选闭包接收重排与激活操作；不接收 LibraryDestination，
 也不判断是否为回收站或歌单。
 
 `SongListSummary` 只接收数量、总时长及操作 builder，不生成虚假歌曲。
-`TouchSongList` 只管理触屏歌曲 List，重排只绑定歌曲 ForEach。汇总栏和其播放按钮由
-`SongListView` 放在固定安全区中，不属于列表行，保持常驻和独立操作；
-旧版触屏放在顶部，新版触屏由 `GlassSongListContent` 注册为底部系统 bar。
-空态也由它在剩余内容区呈现。
+`TouchSongList` 保留固定页面的原生 List、滑动操作与重排，重排只绑定歌曲 ForEach。
+`TouchSongScrollView` 只接收行与 header builder，以 ScrollView＋LazyVStack 承载不需要重排的系统导航集合，
+不暴露编辑能力。两者的可选 header 均位于歌曲 ForEach 之前，不进入歌曲数据、选择或重排索引。
+汇总栏和其独立播放按钮由 `SongListView` 布局：旧版触屏集合页放在快捷入口之后随歌曲滚动；
+固定标题页面仍使用顶部 inset；新版触屏由 `GlassSongListContent` 呈现底部玻璃统计栏，
+系统导航集合使用 safeAreaInset，固定页面保留 safeAreaBar。空态在剩余内容区呈现。
+只有空态需要时才测量滚动 header 的高度，为 overlay 留出顶部空间；不测量或回写滚动位置。
 不嵌套纵向滚动容器，也不通过监听 offset 手动模拟导航栏动画。
 
-- `AllSongsView`：拥有分类快捷入口，通过 `SongCollectionView` 的 header builder 注入固定
-  控件，位于搜索框和统计栏之间；其他歌曲集合使用空 header。快捷栏在所有平台保持单行，
-  空间不足时横向滚动，独立于下方歌曲的纵向滚动。
-- `SongCollectionView`／`SongCollectionViewModel`：所有歌曲、收藏及歌手／专辑／流派筛选。
+- `AllSongsView`：拥有分类快捷入口，通过 `SongCollectionView` 的 header builder 注入
+  非歌曲内容；其他歌曲集合使用空 header。触屏快捷栏位于同一滚动文档内，随歌曲纵向滚动离开视口，
+  回到顶部时重新出现；macOS 保留 Table 上方布局。所有平台保持单行，空间不足时可横向滚动。
+- `SongCollectionView`／`SongCollectionViewModel`：所有歌曲、收藏及歌手／专辑／流派筛选；
+  触屏使用系统自适应导航标题和 navigation drawer 搜索，紧凑宽度大标题随原生 ScrollView 折叠／展开。
 - `PlaylistDetailView`／`PlaylistDetailViewModel`：歌单条目移除、重排、排序、重命名和编辑器。
 - `TrashSongsView`／`TrashSongsViewModel`：恢复、永久删除和确认弹窗，不依赖播放器。
 - `ViewModel/Library/SongList/SongListState`：每页各自持有搜索、排序和选择；共享过滤、
@@ -187,50 +191,61 @@ macOS Table、iPhone／iPad List、选择与排序绑定。它通过 ViewBuilder
 分支或业务弹窗。歌单使用 QueueEntry.id 标识每个出现位置；移除和播放不得退化为 Track.id。
 过滤、排序或存在隐藏失效条目时禁用按索引重排，避免修改不对应的条目。
 
-`View/Shared/LibrarySearchField` 复用原 Trash 的原生输入适配：iPhone／iPad 使用
-`UISearchTextField`，macOS 使用 `NSSearchField`；仅用户编辑和清除事件写入绑定，不在
-销毁时清空查询。`LibrarySearchInput` 只分派外观；`GlassLibrarySearchInput` 与
-`LegacyLibrarySearchInput` 分文件管理尺寸和间距。新版为原生输入框边界外的阴影保留
-绘制空间，不重复添加玻璃或实色背景。`contentSearch` 在 iOS 26 通过顶部
-`safeAreaBar` 让输入框悬浮在列表上，旧版保留顶部 inset；macOS 保留系统 `.searchable`。
-All Songs、收藏、元数据歌曲页、歌单详情和选歌弹窗复用上述搜索组件；歌曲集合与歌单
-详情通过 SongListPage 统一组合固定搜索布局，选歌弹窗使用 `contentSearch`。
-选歌弹窗显式使用自己的 inline 导航标题，避免继承呈现页的标题模式并在搜索时改变栏高。
-Trash 两类子页复用同一输入组件，
-保留其分类绑定与 macOS 工具栏适配。组件生命周期跟随页面，查询仍由
-各页面 ViewModel 持有，没有共享查询或新的服务依赖。卡片集合页继续使用导航栏搜索。
-活跃歌曲列表及选歌弹窗不安装 UISearchController。`SongListPage` 在 iPhone／iPad
-用独立 VStack 固定大标题。旧版 iOS 的搜索与 feature header 在 SongListView 上方独立
-占位；iOS 26 的搜索与可选 header 由 `GlassSongListPageContent` 组合到同一个顶部
-`safeAreaBar`，初始歌曲避让控件，滚动后可以从搜索和快捷胶囊下方经过。
-header builder 返回可选内容；没有额外控件时仍有搜索，不注册空系统 bar。
-大标题使用系统 `.largeTitle.bold()`、动态字体和无障碍 heading，标题文字由
-SongCollectionViewModel 从现有 catalog 派生，PlaylistDetailViewModel 从当前歌单快照
-派生，重命名后随快照更新。系统导航栏保留返回、导入与 feature 提供的菜单、编辑
-按钮，关闭其随 List 联动的大标题并用空 principal 项避免重复标题；实际显示的大标题
-属于固定内容布局，不随歌曲滚动折叠、拉伸或回弹。所有歌曲、收藏、歌手／专辑／流派
-歌曲页、歌单详情及其空态、短列表共享这一约束；快捷栏只在空间不足时独立横向滚动。
-统计栏由 SongListView 固定展示，新版在底部、旧版在顶部。其他使用 contentSearch 的页面
-共享对应系统的搜索浮栏或 inset。搜索容器不叠加实色背景，保留列表表面及搜索框自身阴影，
-避免分组列表上出现矩形色带。旧版统计栏背景显式设置 `ignoresSafeAreaEdges: []`；
-空态保留原生纵向 List，只有歌曲行纵向滚动。不遍历或修改 UIKit 私有标题视图。
-macOS 保留系统工具栏标题与搜索。
+`SongCollectionView` 与 Playlists 等分类网格共用 `librarySearch`：所有触屏系统均使用
+`.navigationBarDrawer(displayMode: .always)` 和默认搜索工具栏呈现，不添加
+`.searchPresentationToolbarBehavior(.avoidHidingContent)`，也不强制 `.large` 标题模式。
+紧凑宽度首屏同时呈现大标题和搜索框，搜索激活时由系统将输入框上移；常规宽度沿用
+Playlists 的原生 inline 标题与工具栏搜索适配。查询仍由各自的 `SongListState` 持有。
+原生 ScrollView 是集合页唯一纵向滚动宿主，负责驱动系统大标题缩入导航栏并在回到顶部时展开。
+集合页保留系统原生回弹，让导航栏完整管理顶部 inset 与大标题展开。
+不观察或写回 `contentOffset`，也不关闭 `bounces`：
+滚动过程中的 offset 钳制会与 iOS 26 导航栏动态 inset 相互干扰；关闭回弹也会阻止
+大标题重新展开。所有触屏系统都使用原生滚动容器的导航宿主推断，不安装 UIKit 宿主注册适配器，
+不替换 delegate、不访问私有类型，也不在搜索结束时重建列表或强制滚动到首行。
+iOS 17.4 的 List＋`.always` 首屏收起大标题，但 ScrollView＋`.always` 能同时呈现两者；
+因此不再通过 `.automatic` 隐藏搜索来补偿 List 的初始布局。
+iOS 26.3 的 List＋底部 safeAreaBar 在慢拖起步出现标题／内容突跳；相同玻璃外观和边缘效果
+改用 safeAreaInset 后，最小对照恢复连续过渡。集合布局避免这一组合，保留底部统计栏与 MiniPlayer 避让。
+`TouchSongListScrollBehavior` 仅为内部布局能力：系统导航集合选择非编辑 lazy 滚动内容、旧版滚动统计栏
+和新版底部 inset；默认固定页面继续使用原生 List、零垂直内容边距和原有统计栏位置。
+它不改变任何 UIScrollView 的物理属性，也不承载查询、选择或播放状态。
+Trash、歌单详情和选歌弹窗的滚动配置保持不变。
+已知共同缺陷：iPhone／iOS 26.3.1 的 Playlists 与歌曲集合均可在列表中段关闭空查询搜索后
+丢失导航标题；经确认该问题另行处理，不以改变搜索上移动画或写回滚动位置作为本次补偿。
+独立 UI 回归保留两页的复现与明确的预期失败，不能将交互对齐的通过结果表述为此问题已修复。
 
-iOS／iPadOS 26 的固定控件使用原生 Liquid Glass：搜索继续由 `UISearchTextField` 自动
-适配，不额外叠加玻璃、实色背景或手工阴影；`GlassAllSongsShortcuts` 使用系统 `.glass`
-按钮和 `GlassEffectContainer`，在横向滚动文档内部预留阴影空间，并关闭滚动视图的绘制
+`View/Shared/LibrarySearchField` 继续为固定搜索场景提供原生输入适配：iPhone／iPad 使用
+`UISearchTextField`，macOS 使用 `NSSearchField`；仅用户编辑和清除事件写入绑定，不在
+销毁时清空查询。`LibrarySearchInput` 分派 `GlassLibrarySearchInput` 与
+`LegacyLibrarySearchInput`，`contentSearch` 在 iOS 26 使用顶部 `safeAreaBar`，旧版使用
+顶部 inset。`SongListPage` 用这套固定大标题和内容搜索组合歌单详情；Trash 两类子页及
+选歌弹窗也继续复用输入组件。选歌弹窗显式使用 inline 导航标题。macOS 的歌曲集合、歌单、
+Trash 与 picker 均保留系统工具栏搜索。所有搜索查询仍属于页面 ViewModel，没有共享状态。
+
+All Songs 的可选 header 通过 `SongCollectionView` 传给 `SongListView`，触屏交给 `TouchSongScrollView`
+作为首部内容；不再注册顶部 `safeAreaBar`／`safeAreaInset`，也不额外叠加固定容器。
+旧版 iOS 快捷入口在整个行（含 padding）后绘制随浅深模式变化的不透明系统 `.background`，不硬编码白／黑色；
+macOS 不添加这层行背景，继续透出原生窗口表面，避免出现与周围不一致的白色横条。
+没有 header 的集合页不会生成空快捷行。空态保留原生纵向滚动容器和可操作的 header；
+列表、系统导航标题与系统搜索共同使用系统滚动行为，不监听 offset 手工模拟标题动画。
+
+iOS／iPadOS 26 的控件使用原生 Liquid Glass：集合搜索由系统 navigation drawer
+呈现，固定搜索场景继续由 `UISearchTextField` 自动适配；两者都不叠加额外玻璃或实色背景。
+`GlassAllSongsShortcuts` 使用系统 `.glass`
+常规尺寸按钮（`.controlSize(.regular)`）和 `GlassEffectContainer`，在横向滚动文档内部预留足够的
+上下阴影空间，避免滚动内容边界裁切玻璃装饰，并关闭横向滚动视图的绘制
 裁剪以完整呈现玻璃的外部装饰；`GlassSongListSummary`
 将统计与独立播放操作放在单一 `.regular` 玻璃胶囊中，不给整栏添加点击行为，也不嵌套
 玻璃表面。两类控件的旧版布局分别留在 `LegacyAllSongsShortcuts`、
 `LegacySongListSummary`，公共入口只做系统可用性分派。样式组件生命周期跟随页面，仅
 接收内容 builder，不持有模型、查询或播放状态。系统材质负责外观与辅助功能适配；
-歌曲内容行不使用玻璃。`GlassSongListPageContent` 只接收 header／content builder，
-生命周期跟随 SongListPage，不持有模型、滚动 offset 或额外状态；它将固定 feature
-控件注册为系统 bar，并采用柔和的滚动边缘效果保证下穿内容时的可读性，不添加整块
-实色背景。大标题在滚动视口之外，搜索、header 与统计保持固定，只有歌曲行纵向滚动。
+歌曲内容行不使用玻璃。`GlassSongListPageContent` 继续为歌单详情组合固定搜索与内容，
+不持有模型、滚动 offset 或额外状态；歌曲集合的快捷胶囊则属于同一纵向滚动文档，
+视觉样式组件不决定其固定位置或导航策略。
 
-`GlassSongListContent` 负责 iOS／iPadOS 26 的统计栏摆放，通过底部 `safeAreaBar` 与柔和
-滚动边缘效果让歌曲从玻璃统计栏下方滚过，同时为列表末尾和居中空态预留内容空间。
+`GlassSongListContent` 负责 iOS／iPadOS 26 的统计栏摆放：系统导航集合使用底部 `safeAreaInset`，
+固定页面保留 `safeAreaBar`。柔和滚动边缘效果让歌曲从玻璃统计栏下方滚过，
+同时为列表末尾和居中空态预留内容空间。
 该布局只接收 content／summary builder，生命周期跟随 SongListView，不持有播放器状态、
 MiniPlayer 引用或滚动 offset。RootView／LibraryFooter 继续负责播放器占用的空间；
 内层统计栏使用继承的安全区，自然停在 MiniPlayer（如有）与底部系统导航栏上方。

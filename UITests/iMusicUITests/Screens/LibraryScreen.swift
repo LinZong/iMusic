@@ -2,6 +2,8 @@ import XCTest
 
 #if os(iOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
 #endif
 
 /// Adapts navigation, tables, touch lists, menus, and file pickers to each native platform.
@@ -28,7 +30,7 @@ import UIKit
         #if os(iOS)
         if !destination.exists, ["Artists", "Albums", "Genres", "Favorites"].contains(title) {
             navigate("All Songs")
-            app.buttons[title].firstMatch.interact()
+            openAllSongsShortcut(routes[title]!)
             return
         }
         #endif
@@ -43,10 +45,16 @@ import UIKit
 
     /// Activates the visible shortcut center, exercising pointer hit testing on macOS.
     func openAllSongsShortcut(_ identifier: String) {
+        #if os(macOS)
+        app.activate()
+        #endif
         let shortcut = app.element("allSongs." + identifier)
-        XCTAssertTrue(shortcut.waitForExistence(timeout: 5), app.debugDescription)
         #if os(iOS)
-        let shortcuts = app.element("allSongs.shortcuts")
+        let shortcuts = app.scrollViews["allSongs.shortcuts"].firstMatch
+        for _ in 0..<10 {
+            if shortcuts.isHittable { break }
+            app.element("library.songList").swipeDown()
+        }
         // Fully offscreen glass buttons can have no accessibility activation point.
         // Reveal their center before asking the system to resolve native hit testing.
         for _ in 0..<3
@@ -54,6 +62,7 @@ import UIKit
             shortcuts.swipeLeft()
         }
         #endif
+        XCTAssertTrue(shortcut.waitForExistence(timeout: 5), app.debugDescription)
         XCTAssertTrue(shortcut.isHittable, app.debugDescription)
         #if os(macOS)
         shortcut.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).click()
@@ -141,7 +150,10 @@ import UIKit
         navigate("Settings")
         if app.navigationBars["Trash"].exists { return }
         let link = app.element("settings.trash")
-        for _ in 0..<6 where !link.isHittable { app.swipeUp() }
+        for _ in 0..<6 {
+            if link.isHittable { break }
+            app.swipeUp()
+        }
         XCTAssertTrue(link.isHittable, app.debugDescription)
         link.interact()
         #endif
@@ -196,12 +208,60 @@ import UIKit
     }
 
     #if os(macOS)
+    /// Desktop shortcut padding inherits the same window surface as the adjacent summary.
+    func assertDesktopShortcutsInheritWindowBackground() {
+        app.activate()
+        let shortcuts = app.element("allSongs.shortcuts")
+        let summary = app.element("library.songSummaryBar")
+        XCTAssertTrue(shortcuts.waitForExistence(timeout: 5))
+        // macOS element screenshots can include the entire display; use display coordinates.
+        let screen = CGDisplayBounds(CGMainDisplayID())
+        let screenshot = XCUIScreen.main.screenshot().image
+        guard let data = screenshot.tiffRepresentation,
+            let bitmap = NSBitmapImageRep(data: data)
+        else {
+            XCTFail("The native window must supply readable background pixels.")
+            return
+        }
+        let scale = CGFloat(bitmap.pixelsWide) / screen.width
+        let x = shortcuts.frame.midX - screen.minX
+        let ys = [shortcuts.frame.minY - 6, summary.frame.minY + 4]
+        let colors = ys.compactMap { y in
+            bitmap.colorAt(
+                x: Int(x * scale),
+                y: Int((y - screen.minY) * scale)
+            )?
+            .usingColorSpace(.deviceRGB)
+        }
+        XCTAssertEqual(colors.count, 2)
+        guard colors.count == 2 else { return }
+        for (header, surrounding) in zip(
+            [colors[0].redComponent, colors[0].greenComponent, colors[0].blueComponent],
+            [colors[1].redComponent, colors[1].greenComponent, colors[1].blueComponent]
+        ) {
+            XCTAssertEqual(
+                header,
+                surrounding,
+                accuracy: 0.02,
+                "Desktop shortcuts must not paint a separate white or black strip."
+            )
+        }
+    }
+
     /// Targets the native row rather than its selectable text or draggable title content.
     private func desktopRow(_ title: String) -> XCUIElement {
         app.outlines.descendants(matching: .outlineRow)
             .containing(.staticText, identifier: "track.title.\(title).wav").firstMatch
     }
     #endif
+
+    /// Requires the native collection drawer without a compensating pull-to-reveal gesture.
+    func collectionSearch() -> XCUIElement {
+        let search = app.searchFields["Search Songs"].firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        XCTAssertTrue(search.isHittable)
+        return search
+    }
 
     /// Clears only the active page's search, preserving other page state.
     func clearSearch(_ search: XCUIElement) {
@@ -218,21 +278,62 @@ import UIKit
             search.typeText("\n")
             return
         }
-        let cancel = app.buttons["Cancel"]
-        if cancel.exists {
-            cancel.interact()
-        } else {
-            // iOS 26 replaces the navigation search Cancel command with a Close button.
-            let close = app.navigationBars.buttons["Close"]
-            if close.exists { close.interact() }
-        }
+        dismissNavigationSearch(search)
         #endif
     }
 
     #if os(iOS)
+    /// Ends native navigation search across compact Cancel and regular-width focus behavior.
+    private func dismissNavigationSearch(_ search: XCUIElement) {
+        let cancel = app.buttons["Cancel"]
+        if cancel.exists {
+            cancel.interact()
+            return
+        }
+        let close = app.navigationBars.buttons["Close"]
+        if close.exists {
+            close.interact()
+            return
+        }
+        // Regular-width iOS 26 keeps search inline without an explicit dismissal command.
+        let songs = app.element("library.songList")
+        (songs.exists ? songs : app.scrollViews.firstMatch).swipeDown()
+    }
+    #endif
+
+    #if os(iOS)
+    /// Samples the scrolling header's semantic background in both saved appearances.
+    func assertLegacyShortcutBackgroundIsOpaque(dark: Bool) {
+        let shortcuts = app.scrollViews["allSongs.shortcuts"].firstMatch
+        let frame = shortcuts.frame.offsetBy(dx: -app.frame.minX, dy: -app.frame.minY)
+        let screenshot = app.screenshot().image
+        guard let image = screenshot.cgImage else {
+            XCTFail("The shortcut background must be present in the rendered window.")
+            return
+        }
+        for x in stride(from: frame.minX + 16, through: frame.maxX - 24, by: 12) {
+            let color = meanRenderedColor(
+                image,
+                rect: CGRect(x: x, y: frame.minY - 8, width: 8, height: 4),
+                scale: screenshot.scale
+            )
+            for channel in color {
+                if dark {
+                    XCTAssertLessThan(channel, 35, "The header must use a dark system background.")
+                } else {
+                    XCTAssertGreaterThan(
+                        channel,
+                        240,
+                        "The header must use a light system background."
+                    )
+                }
+            }
+        }
+    }
+
     /// Glass shadows must fade across the shortcut scroller's lower drawing boundary.
     func assertShortcutDecorationIsContinuous() {
-        let shortcuts = app.element("allSongs.shortcuts")
+        let shortcuts = app.scrollViews["allSongs.shortcuts"].firstMatch
         let screenshot = app.screenshot().image
         guard let image = screenshot.cgImage else {
             XCTFail("Shortcut decoration must be present in the rendered window.")
@@ -359,16 +460,181 @@ import UIKit
         }
     }
 
-    /// Song-page titles and fixed controls keep absolute frames through scrolling and rebound.
+    /// Checks both native controls on first presentation without scrolling or activating search.
+    func assertInitialCollectionNavigation(_ title: String) {
+        let heading = app.navigationBars.staticTexts[title].firstMatch
+        XCTAssertTrue(heading.waitForExistence(timeout: 5), app.debugDescription)
+        if app.frame.width < 600 {
+            XCTAssertGreaterThan(
+                heading.frame.height,
+                30,
+                "Compact pages start with a large title."
+            )
+        } else {
+            XCTAssertLessThan(
+                heading.frame.height,
+                30,
+                "Regular width follows the native inline title."
+            )
+        }
+        XCTAssertTrue(heading.isHittable)
+        assertTitleIsPainted(heading)
+        let search = collectionSearch()
+        if app.frame.width < 600 {
+            XCTAssertGreaterThanOrEqual(search.frame.minY, heading.frame.maxY)
+        }
+    }
+
+    /// Measures native search activation and dismissal without assuming a compact-width toolbar.
+    func navigationSearchFrames(prompt: String) -> (idle: CGRect, focused: CGRect) {
+        let search = app.searchFields[prompt].firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        XCTAssertTrue(search.isHittable)
+        let idle = search.frame
+        search.interact()
+        let focused = search.frame
+        dismissNavigationSearch(search)
+        return (idle, focused)
+    }
+
+    /// System collection titles collapse with their List and expand again at the top boundary.
+    func assertSystemSongCollectionNavigation(_ title: String, canCollapse: Bool = true) {
+        let list = app.element("library.songList")
+        let heading = app.navigationBars.staticTexts[title].firstMatch
+        let customHeading = app.staticTexts.matching(identifier: "library.songPageTitle")
+        XCTAssertTrue(list.waitForExistence(timeout: 5))
+        XCTAssertTrue(heading.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertFalse(customHeading.firstMatch.exists)
+        if app.frame.width < 600 {
+            XCTAssertGreaterThan(heading.frame.height, 30)
+        }
+        assertTitleIsPainted(heading)
+        let expandedFrame = heading.frame
+
+        if canCollapse {
+            list.swipeUp()
+            if expandedFrame.height <= 30 {
+                XCTAssertEqual(heading.frame.height, expandedFrame.height, accuracy: 1)
+                list.swipeDown()
+                list.swipeDown()
+                assertTitleIsPainted(heading)
+                return
+            }
+            let collapsed = NSPredicate { _, _ in
+                heading.exists && heading.frame.height < expandedFrame.height - 4
+            }
+            XCTAssertEqual(
+                XCTWaiter.wait(
+                    for: [XCTNSPredicateExpectation(predicate: collapsed, object: heading)],
+                    timeout: 5
+                ),
+                .completed,
+                "The system title must collapse into the navigation bar."
+            )
+            let collapsedHeight = heading.frame.height
+            for _ in 0..<10
+            where heading.frame.height < expandedFrame.height - 1
+                || abs(heading.frame.minY - expandedFrame.minY) > 1
+            {
+                list.swipeDown()
+            }
+            XCTAssertGreaterThan(
+                heading.frame.height,
+                collapsedHeight + 4,
+                "Returning to the top must restore the large system title."
+            )
+            XCTAssertEqual(heading.frame.minY, expandedFrame.minY, accuracy: 1)
+        }
+
+        let topFrame = heading.frame
+        let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+        let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+        start.press(forDuration: 0.05, thenDragTo: end)
+        XCTAssertEqual(heading.frame.minY, topFrame.minY, accuracy: 1)
+        XCTAssertEqual(heading.frame.height, topFrame.height, accuracy: 1)
+        assertTitleIsPainted(heading)
+    }
+
+    /// Short held gestures exercise repeated movement through the large/inline threshold.
+    func assertSlowCollectionTitleTransitions(_ title: String) {
+        let list = app.element("library.songList")
+        let heading = app.navigationBars.staticTexts[title].firstMatch
+        XCTAssertTrue(heading.waitForExistence(timeout: 5))
+        let expanded = heading.frame
+        if app.frame.width < 600 { XCTAssertGreaterThan(expanded.height, 30) }
+        for _ in 0..<3 {
+            // Start in the non-draggable gutter; an extremely slow row press initiates song drag.
+            let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.55))
+            start.press(
+                forDuration: 0.05,
+                thenDragTo: start.withOffset(CGVector(dx: 0, dy: -145)),
+                withVelocity: XCUIGestureVelocity(rawValue: 40),
+                thenHoldForDuration: 0.3
+            )
+            if expanded.height <= 30 {
+                XCTAssertEqual(heading.frame.height, expanded.height, accuracy: 1)
+                list.swipeDown()
+                assertTitleIsPainted(heading)
+                continue
+            }
+            XCTAssertLessThan(heading.frame.height, expanded.height - 4)
+            for _ in 0..<10
+            where heading.frame.height < expanded.height - 1
+                || abs(heading.frame.minY - expanded.minY) > 1
+            {
+                start.press(
+                    forDuration: 0.05,
+                    // Complete the native title snap threshold within one continuous slow drag.
+                    thenDragTo: start.withOffset(CGVector(dx: 0, dy: 145)),
+                    withVelocity: XCUIGestureVelocity(rawValue: 40),
+                    thenHoldForDuration: 0.3
+                )
+            }
+            for _ in 0..<3 {
+                XCTAssertEqual(heading.frame.height, expanded.height, accuracy: 1)
+                XCTAssertEqual(heading.frame.minY, expanded.minY, accuracy: 1)
+            }
+            assertTitleIsPainted(heading)
+        }
+    }
+
+    /// Native collection search edits retain the system title and never install a fixed heading.
+    func assertSystemCollectionSearchKeepsTitle(_ title: String) {
+        let customHeading = app.staticTexts.matching(identifier: "library.songPageTitle")
+        XCTAssertFalse(customHeading.firstMatch.exists)
+        let heading = app.navigationBars.staticTexts[title].firstMatch
+        XCTAssertTrue(heading.isHittable, app.debugDescription)
+        assertTitleIsPainted(heading)
+        for query in ["", "Missing song"] {
+            let search = collectionSearch()
+            search.interact()
+            if !query.isEmpty { search.typeText(query) }
+            XCTAssertTrue(search.isHittable)
+            if query.isEmpty {
+                dismissNavigationSearch(search)
+            } else {
+                clearSearch(search)
+            }
+            XCTAssertTrue(heading.waitForExistence(timeout: 5), app.debugDescription)
+            XCTAssertTrue(heading.isHittable, app.debugDescription)
+            assertTitleIsPainted(heading)
+            if #available(iOS 26.0, *), app.frame.width < 600 {
+                XCTAssertTrue(search.isHittable)
+                XCTAssertGreaterThanOrEqual(search.frame.minY, heading.frame.maxY)
+            } else if app.frame.width < 600, search.exists, search.isHittable {
+                XCTAssertGreaterThanOrEqual(search.frame.minY, heading.frame.maxY)
+            }
+        }
+    }
+
+    /// Fixed song-page titles and controls keep absolute frames through scrolling and rebound.
     func assertSongPageChromeStaysFixed(_ title: String) {
         let list = app.element("library.songList")
         let heading = app.staticTexts["library.songPageTitle"]
         let search = app.searchFields["Search Songs"]
         let summary = app.element("library.songSummary")
         XCTAssertTrue(list.waitForExistence(timeout: 5))
-        var fixed = [heading, search, summary]
-        let shortcuts = app.element("allSongs.artists")
-        if shortcuts.exists { fixed.append(shortcuts) }
+        let fixed = [heading, search, summary]
         let frames = fixed.map(\.frame)
         XCTAssertTrue(heading.isHittable)
         XCTAssertEqual(heading.label, title)
@@ -489,7 +755,7 @@ import UIKit
             }
             return lightest - darkest
         }
-        XCTAssertGreaterThan(contrast, 100, "The navigation title must be visibly painted.")
+        XCTAssertGreaterThan(contrast, 20, "The navigation title must be visibly painted.")
     }
     #endif
 

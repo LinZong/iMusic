@@ -49,16 +49,14 @@ replacing production target identities. Running it repeatedly is safe.
 | Feature class | Regression coverage | Platforms |
 | --- | --- | --- |
 | `LibraryUITests` | Empty states/search ownership; song search; name validation and playlist relaunch persistence; player menus, paused seek and next track; Trash restore/permanent deletion; Link Folder picker cancellation | iPhone, iPad, macOS |
-| `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation; all four All Songs shortcuts and stack return; narrow desktop window; touch song-scope title/search recovery and long-list fixed headers | iPhone, iPad, macOS |
+| `LibraryWorkflowUITests` | Equal Home card dimensions; favorite filtering and persistence; Import Music picker cancellation; artist collection navigation; all four All Songs shortcuts and stack return; narrow desktop window and inherited background pixels; system collection title/search recovery, native scroll boundaries, scrolling shortcut/legacy statistics rows, and adaptive legacy backgrounds | iPhone, iPad, macOS |
 | `PlaylistUITests` | Cancelled drafts do not persist or leak; scoped playlist search; restore and permanent deletion; Trash category tabs with independent searches, summaries, and empty states; playlist-detail add/remove with library-song preservation; touch-only fixed search/summary scrolling boundaries, empty/search layout, independent summary actions, and occurrence reordering | iPhone, iPad, macOS |
 | `PlayerAppearanceUITests` | Saved light/dark appearance; background pixel checks across three mini-player expansions | iPhone, iPad |
 | `MiniPlayerUITests` | Adaptive compact/wide bars, rotation with paused playback and mode/favorite retention, nonoverlapping 44-point controls, previous/next and queue/full-player access | iPhone, iPad |
 | `MacPlaybackUITests` | Persistent volume, mute/unmute restoration; desktop previous/next, repeat, shuffle and favorite controls; Space shortcut; full-player and standalone-window synchronization | macOS |
 
-The shared suite has 16 scenarios; iOS/iPadOS adds 2 appearance scenarios, 1 adaptive mini-player
-scenario, 2 playlist-summary scenarios, and 2 song-title/search scenarios (23 total). Native macOS
-adds 3 playback scenarios, 1 narrow-window scenario, and 1 fixed-summary scenario (21 total).
-Each scenario imports
+Native-only scenarios complement the shared workflows; use the runner's actual result summary
+for the executed count, including version-dependent skips. Each scenario imports
 only generated fixtures through the production importer or starts empty. Screenshots are attached
 to the result bundle; failures also attach the accessibility hierarchy. Native AppKit tables expose
 Outline rows, and text may be reported in `value` rather than `label`. Mac file-picker queries must
@@ -307,50 +305,165 @@ empty; AppKit reports the same visible text in `value`. An empty UIKit text fiel
 placeholder as `value`, so blank-draft assertions accept that representation while still requiring
 Create to remain disabled.
 
-## Fixed song search and summary
+## System collection navigation and fixed song details
 
-Song pages on iPhone/iPad use a fixed `LibrarySearchInput`, extracted from Trash's native
-`UISearchTextField` adapter. They do not install a navigation UISearchController. macOS retains
-its upper-right system search. `SongListView` keeps count, duration, and playback controls outside
-the native Table/List rows on every platform; `TouchSongList` contains only actual song occurrences.
-On touch platforms, search, shortcuts, and summary are fixed top safe-area insets of the native
-List, which stays present with zero rows and a centered placeholder overlay when empty. This
-preserves a vertical primary scroll host before the horizontal shortcut scroller. All Songs
-supplies its single-row horizontally scrollable shortcuts through the collection header builder.
-Inset backgrounds use `ignoresSafeAreaEdges: []`: the default background extension can paint over
-the large title even while accessibility still reports its label as hittable.
+`SongCollectionView` covers All Songs, Favorites, and artist/album/genre song results. On
+iPhone/iPad these pages use adaptive system navigation titles and navigation-bar drawer search.
+Their native ScrollView with LazyVStack remains the only vertical scroll host; compact-width titles
+collapse while scrolling and expand at the top. Collections retain native bounce: clamping
+`contentOffset` conflicts with iOS 26's changing navigation insets, and disabling `bounces` prevents
+the large title from expanding again. Native navigation-host inference is used without UIKit
+host-registration adapters,
+offset observation, search-dismissal scrolling, or scroll-view identity resets. All touch versions
+share Playlists' `.always` drawer and default search presentation through `librarySearch`.
+The former `.automatic` workaround hid search on iOS 17, while `.avoidHidingContent` prevented
+search from moving into the title area on iOS 26. Neither option belongs to the current contract.
+Tests assert a large title at compact width, native inline title at regular width, and visible search
+immediately after first navigation. The title policy is not forced to `.large`; the direct Playlists
+comparison also checks title height on iPad. Assertions run before any drag or search action; there
+is no preparatory pull to conceal a missing control.
+Desktop toolbar search is unchanged.
+Playlist details, Trash, and the song picker retain their previous scroll behavior.
+All Songs places its single-row shortcut header inside the vertical scroll document. It scrolls away
+with songs and returns at the top. On iOS 17, statistics follow it and also scroll away;
+collections without shortcuts start with their statistics. iOS 26 retains the bottom glass summary
+using safeAreaInset; fixed-detail pages keep their existing safeAreaBar.
+These controls remain separate from the actual song ForEach and never change reorder indexes.
+macOS retains its header and statistics above the native Table.
 
-The earlier macOS shortcut fix moved top padding outside the horizontal ScrollView. On iOS 26,
-dismissing navigation search then hosted the large title in that scroll view's clipped viewport
-below the title. Controlled comparisons restored the title by restoring internal padding or making
-the vertical list the first scroll host; removing horizontal scrolling or moving `.searchable` to
-the outer page did not restore it. The shared content search removes that navigation-search
-lifecycle while retaining fixed controls. An additional iPad empty-state control showed the native
-large-title wrapper at zero height while the horizontal shortcut scroller was the only scroll
-candidate. Internal padding, disabled clipping, ignored top safe area, bounce settings, content
-margins, and native inset/status-scroll policies did not restore that initial title. Keeping the
-native vertical List and using fixed top insets restored it before and after search without
-removing horizontal scrolling. The previous playlist workaround put summary controls
-inside the List; it is superseded by the fixed search and song-only List layout.
+Playlist details continue to use the fixed `LibrarySearchInput` and fixed content-owned large
+heading. Trash and the song picker keep the same native input adapter, while macOS retains its
+upper-right system search. This split is intentional: collection navigation follows the system,
+whereas editing and recovery flows preserve their stable fixed controls.
 
-`testPlaylistSearchAndSummaryStayFixedWhileSongsScroll` uses 40 generated playlist occurrences,
-requires search/summary controls to stay anchored below the navigation bar during scrolling and
-pull-down, and checks blank/text search dismissal. Native large-title collapse may resize the
-navigation bar; fixed controls must retain their spacing and stay visible outside song cells.
-The `song-scroll` fixture adds 40 active and 40 deleted records sharing only generated silent test assets, so all collection scopes and Trash exercise
-long native lists. `testPlaylistSummaryActionsEmptyStatesAndReordering`
+The earlier iOS 26 regression placed the large title inside the clipped horizontal shortcut
+viewport after dismissing navigation search. Collection regressions therefore keep the vertical
+scroller present even for zero rows, verify title pixels after blank and no-match searches, and exercise
+All Songs with its horizontal shortcut bar. No collection header registers a top safe-area bar or
+inset. The header is non-song scrolling content, never an alternative vertical scroll host or
+a synthetic song record. Empty overlays exclude the measured height of these scrolling controls
+and preserve their hit regions; the measurement does not observe scrolling.
+
+`testPlaylistSearchAndSummaryStayFixedWhileSongsScroll` uses 40 generated playlist occurrences and
+keeps the fixed-detail contract. The `song-scroll` fixture adds 40 active and 40 deleted records
+sharing only generated silent test assets, so collection scopes and Trash exercise long native
+lists. `testSongCollectionsUseSystemNavigationAndSurviveSearchEditing` checks collection title
+collapse/expansion and native search across all five scopes, each in a fresh host session to avoid
+the iOS 17 injected snapshot logger's high-volume crash;
+`testSongCollectionTitlesExpandAtNativeScrollBoundary` covers empty and long boundary behavior,
+including the settled expanded title after native rebound.
+`testSongCollectionTitleReturnsAfterRepeatedSlowDrags` repeatedly crosses the large/inline threshold
+on All Songs and Favorites at 40 points/second, requiring bounded returns and a stable
+expanded title. Gestures begin in the non-draggable gutter: a very slow press on a song can start
+its supported drag-and-drop action rather than vertical scrolling. These assertions only check
+settled states, not continuity during a gesture.
+Also record continuous slow drags on the actual song page and inspect title/search/row trajectories;
+an endpoint pass must not be used to dismiss a visible jump. The iOS 26.3 minimal comparison showed
+a roughly 50-point startup jump with List plus bottom safeAreaBar. Keeping the same glass surface
+and soft edge effect but using safeAreaInset removed that jump. A ScrollView plus `.always` also
+showed both initial controls on iOS 17.4, unlike List; the old hidden-search compromise was not a
+general system limitation. Diagnostic views are not retained in production sources.
+`testSongCollectionsUseSystemNavigationAndSurviveSearchEditing` checks first-presentation native
+titles and visible search before interaction in all five collection scopes. `collectionSearch()`
+does not pull to reveal a hidden drawer. `testSongCollectionSearchMatchesPlaylists` compares initial
+and focused search frames against the actual playlist grid. The separate
+`testScrolledCollectionSearchDismissalKeepsTitles` checks dismissal while scrolled on both pages.
+Their `navigation-scroll` fixture adds long song and playlist collections using generated records
+only. `testTrashRetainsFixedNavigationAfterLeavingSongCollection` independently
+checks the unchanged Trash title/search/summary contract after entering from All Songs, instead of
+chaining the recovery-page regression onto the five-scope navigation test.
+`testAllSongsShortcutsScrollWithSongs` verifies scroll-view ancestry, shared vertical displacement with a
+song row, scrolling out of the viewport, returning to a shortcut, and searching after stack return.
+`testLegacyCollectionSummaryScrollsWithoutFeatureHeader` verifies scrolling Favorites statistics
+and empty-content separation. `testLegacyShortcutsHaveOpaqueAdaptiveBackground` samples the
+full-width legacy header padding in Light and Dark appearances, then scrolls away and returns to
+activate a shortcut. The background is a dynamic system style, not hard-coded white or black.
+`testPlaylistSummaryActionsEmptyStatesAndReordering`
 checks empty/unmatched layout, independent Play/Shuffle actions, and song-only reorder handles.
-`testSongCollectionTitlesSurviveSearchEditing` covers All Songs, artist/album/genre songs,
-Favorites, and Trash; `testEmptyAllSongsTitleSurvivesSearchEditing` covers the empty route.
+`testEmptyAllSongsTitleSurvivesSearchEditing` covers the empty collection route.
 `testDesktopPlaylistSummaryStaysFixedWithToolbarSearch` checks desktop table scrolling, fixed
-summary coordinates, filtering, and the search field's upper-right toolbar location.
-Search tests require a hittable navigation title above the fixed field after blank submission,
-no-match submission, and clearing. They also crop the title frame from the actual window screenshot
-and require foreground/background luminance contrast, detecting labels covered by a flat inset
-background even when accessibility reports them as visible. Shortcut regressions continue to exercise actual pointer clicks
-on macOS and native touch on iPhone/iPad, revealing offscreen touch shortcuts by horizontal scrolling.
+summary coordinates, filtering, and the search field's upper-right toolbar location. It locates the
+outline containing song titles, not the first outline (which can be the sidebar), and requires the
+first song row to move before asserting that summary coordinates stay fixed.
+Native collection search may replace the title while focused; tests require the native title to
+return after blank and no-match dismissal. Fixed-search regressions require the title to remain
+above their content field. Both crop the title frame from the actual window screenshot and require
+foreground/background luminance contrast, detecting labels covered by a flat inset background even
+when accessibility reports them as visible. Shortcut regressions continue to exercise actual
+pointer clicks on macOS and native touch on iPhone/iPad, revealing offscreen touch shortcuts by
+horizontal scrolling. The glass shortcut header keeps 12 points of top padding below navigation
+search and 28 points below the capsules for shadow clearance; its top spacing, native regular size,
+and lower shadow continuity are checked together. Desktop shortcut regressions compare pixels in
+the header padding against the neighboring native summary surface: the iOS-only opaque background
+must not paint a separate white strip on macOS. The regular-size/12-point-spacing follow-up passed
+the four-destination shortcut regression on both iPhone and iPad iOS 26.3.1 simulators.
 
-Final acceptance on 2026-11-01 passed 5 focused scenarios each on iPhone 17 Pro and iPad Pro
+Known native-search limitation, deferred separately with approval on 2026-11-08: on iPhone/iOS
+26.3.1, scrolling a long playlist grid or song collection, activating a blank search, then pressing
+Close leaves the large-title label offscreen. Actual screenshots confirm the missing title on both
+pages, not just inaccessible automation geometry. This is not fixed by the navigation alignment.
+The dedicated mid-scroll dismissal test retains a narrow `XCTExpectFailure` around title hit testing
+on compact iOS 26, for both pages; fixture setup, search interaction, and title existence still must
+pass normally. An unexpected pass fails the test so the expectation can be retired when fixed.
+The accepted alignment retains default search presentation instead of reintroducing
+`.avoidHidingContent` or moving the list after dismissal. Initial/top-of-list empty-query and
+no-match dismissal regressions remain ordinary assertions.
+
+The Playlists-alignment follow-up on 2026-11-08 validated the actual reference grid's initial title
+height and idle/focused search positions against All Songs on iPhone 15 Pro / iOS 17.4, iPhone
+17 Pro / iOS 26.3.1, and iPad Pro 11-inch (M5) / iPadOS 26.3.1. Focused iPhone runs also passed
+scrolling shortcuts, empty search, all five collection scopes, fixed playlist details, legacy
+summary/adaptive background/Trash behavior, and glass summary/MiniPlayer separation. The iOS 17
+five-scope test initially hit the injected snapshot logger crash described below; it passed after
+each scope received its own host session. iPad passed four focused scenarios: reference navigation,
+shortcut scrolling, empty search, and glass summary/MiniPlayer separation. These are focused runs,
+not an uninterrupted full-platform suite.
+The final iPhone 26 slow-drag rerun passed all three collapse/expand cycles on both All Songs and
+Favorites at 40 points/second; recorded frames showed continuous title/search/row movement without
+the earlier startup jump. Its separate mid-scroll search-dismissal case recorded two explicit
+expected title-visibility failures, one for each page, as documented above.
+Native macOS 15.7.4 passed shortcut/background/navigation, search/persistence, and fixed playlist
+summary/toolbar search. Log review exposed the older table test scrolling the sidebar instead;
+the strengthened test then passed a separate rerun with the song outline targeted and actual row
+movement required. No desktop presentation changes were needed for this alignment.
+SwiftPM executed 141 tests with 9 opt-in skips and zero failures; all 35 Python tests, Swift style,
+architecture, localization, and whitespace checks passed.
+
+Earlier validation on 2026-11-08 used macOS 15.7.4, iPhone 15 Pro / iOS 17.4, and iPhone 17 Pro plus
+iPad Pro 11-inch (M5) / iOS 26.3. The macOS full run executed 21 tests: 17 passed, and all four
+failed cases passed in a separate focused rerun after fixing screenshot-coordinate sampling and
+reactivating the test app before desktop shortcut clicks. This is not a single uninterrupted
+21/21 pass. Avoid running desktop pointer tests concurrently with simulator UI interactions.
+The background regression uses display coordinates with `XCUIScreen.main`, because macOS element
+screenshots can include the entire display; scaling such an image against the window frame samples
+unrelated pixels. SwiftPM executed 141 tests with 9 opt-in skips and zero failures; all 35 Python
+script tests, Swift formatting, architecture, localization, and whitespace checks passed.
+Focused touch regressions passed for scrolling shortcuts, empty/search layout, native title
+boundaries and repeated slow returns, legacy scrolling statistics and Light/Dark backgrounds,
+bottom summary/mini-player separation, fixed playlist details, and picker search. Final iPhone and
+iPad iOS 26 shortcut runs also passed the 44-point target, shadow-pixel continuity, all four actual
+shortcut activations, and stack-return checks after reserving shadow space inside the List row.
+
+The initial-title follow-up on 2026-11-08 removed all preparatory title-reveal pulls. The iOS 17.4
+long/empty initial-title boundary test passed, along with search scope/persistence, all shortcut
+activations, scrolling shortcuts, empty-search layout, legacy summary placement, adaptive
+backgrounds, repeated slow returns, all five collection scopes, and the independent fixed Trash
+contract. These eleven scenarios passed across focused runs, not in one uninterrupted suite.
+Earlier attempts crashed inside iOS 17's injected `XCTAutomationSupport` snapshot/logging code
+(`runtime_issue_os_log_fault_callback` after logging quarantine), including once after all five
+collections had passed and the combined test entered Settings/Trash. Failed runs remain recorded;
+bounded reveal helpers now stop querying as soon as the target is available, and the unchanged
+Trash assertions run in their own scenario. The scrolling-shortcut rerun and the final two
+collection/Trash tests passed. No application logging suppression or scroll-position workaround
+was added. iOS 26.3 iPhone passed five focused cases, including first-presentation titles across
+all scopes, all shortcut activations, shared scrolling, and slow/native boundary returns.
+iPadOS 26.3 passed the three follow-up cases for shared shortcut/song scrolling, empty collection
+search, and long/empty first-presentation titles plus native scroll boundaries.
+The final macOS run passed both shortcut/background/navigation and fixed playlist summary with
+native toolbar search. SwiftPM again executed 141 tests with 9 opt-in skips and zero failures;
+all 35 Python tests and the Swift style, architecture, localization, and whitespace checks passed.
+
+Earlier baseline acceptance on 2026-11-01 passed 5 focused scenarios each on iPhone 17 Pro and iPad Pro
 11-inch (M5), both running 26.3.1, including actual-window title pixels. Native macOS 15.7.4
 passed both shortcut-window scenarios and the fixed-summary/system-toolbar-search scenario.
 Formatting, architecture, localization, and whitespace checks passed. The Python script suite

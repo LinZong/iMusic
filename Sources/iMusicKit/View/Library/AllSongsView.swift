@@ -5,12 +5,12 @@ struct AllSongsView: View {
     /// Active library collection with its own search and selection.
     @State var model: SongCollectionViewModel
 
-    /// Places navigation shortcuts above the reusable active-song collection.
+    /// Supplies navigation shortcuts as content of the reusable active-song collection.
     var body: some View {
         SongCollectionView(model: model) { shortcuts }
     }
 
-    /// Single-row shortcuts stay fixed above the songs and scroll horizontally when needed.
+    /// Touch shortcuts scroll with songs and also scroll horizontally when space is limited.
     private var shortcuts: some View {
         AllSongsShortcuts { links }
     }

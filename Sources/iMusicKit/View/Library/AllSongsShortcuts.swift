@@ -18,6 +18,5 @@ struct AllSongsShortcuts<Links: View>: View {
             LegacyAllSongsShortcuts(links: links)
             #endif
         }
-        .accessibilityIdentifier("allSongs.shortcuts")
     }
 }

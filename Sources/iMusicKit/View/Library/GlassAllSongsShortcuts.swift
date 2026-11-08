@@ -1,7 +1,7 @@
 import SwiftUI
 
 #if os(iOS)
-/// Native Liquid Glass navigation capsules floating above the All Songs scroll viewport.
+/// Native Liquid Glass navigation capsules inside the All Songs scrolling header.
 @available(iOS 26.0, *)
 struct GlassAllSongsShortcuts<Links: View>: View {
     /// Feature-owned destinations; this layout supplies only their appearance and spacing.
@@ -16,10 +16,12 @@ struct GlassAllSongsShortcuts<Links: View>: View {
                     .buttonBorderShape(.capsule)
                     .controlSize(.regular)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.top, 12)
+                    .padding(.bottom, 28)
             }
         }
         .scrollClipDisabled()
+        .accessibilityIdentifier("allSongs.shortcuts")
     }
 }
 #endif

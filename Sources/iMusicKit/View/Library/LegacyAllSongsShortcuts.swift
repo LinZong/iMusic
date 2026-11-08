@@ -13,5 +13,10 @@ struct LegacyAllSongsShortcuts<Links: View>: View {
                 .padding(.horizontal)
         }
         .padding(.top, 12)
+        #if os(iOS)
+        // Only legacy touch lists need an opaque row surface; desktop inherits its window surface.
+        .background(.background, ignoresSafeAreaEdges: [])
+        #endif
+        .accessibilityIdentifier("allSongs.shortcuts")
     }
 }

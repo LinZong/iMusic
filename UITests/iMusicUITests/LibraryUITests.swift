@@ -8,7 +8,7 @@ import XCTest
         XCTAssertTrue(app.text(containing: "Start with your first song").exists)
         XCTAssertFalse(app.searchFields.firstMatch.exists)
         navigate("All Songs")
-        XCTAssertTrue(app.searchFields["Search Songs"].waitForExistence(timeout: 5))
+        _ = library.collectionSearch()
         XCTAssertTrue(app.text(containing: "No Music Here Yet").exists)
         navigate("Playlists")
         XCTAssertTrue(app.searchFields["Search Playlists"].waitForExistence(timeout: 5))
@@ -26,7 +26,7 @@ import XCTest
         let beta = library.track("UI Beta")
         XCTAssertTrue(alpha.waitForExistence(timeout: 5))
         XCTAssertTrue(beta.exists)
-        let search = app.searchFields["Search Songs"]
+        let search = library.collectionSearch()
         search.interact()
         search.typeText("Alpha")
         XCTAssertTrue(alpha.exists)

@@ -216,9 +216,13 @@ import XCTest
         XCTAssertLessThan(search.frame.maxY, summary.frame.minY)
         XCTAssertGreaterThan(search.frame.midX, app.windows.firstMatch.frame.midX)
         let y = summary.frame.minY
-        let table = app.outlines.firstMatch
+        let table = app.outlines
+            .containing(.staticText, identifier: "track.title.UI Alpha.wav").firstMatch
         XCTAssertTrue(table.exists)
+        let firstRow = table.descendants(matching: .outlineRow).firstMatch
+        let firstRowY = firstRow.frame.minY
         table.scroll(byDeltaX: 0, deltaY: -500)
+        XCTAssertLessThan(firstRow.frame.minY, firstRowY - 40)
         XCTAssertTrue(summary.isHittable)
         XCTAssertEqual(summary.frame.minY, y, accuracy: 1)
         search.interact()
