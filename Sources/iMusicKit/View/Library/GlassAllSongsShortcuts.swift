@@ -16,8 +16,8 @@ struct GlassAllSongsShortcuts<Links: View>: View {
                     .buttonBorderShape(.capsule)
                     .controlSize(.regular)
                     .padding(.horizontal, 16)
-                    .padding(.top, 12)
-                    .padding(.bottom, 28)
+                    .padding(.top, 0)
+                    .padding(.bottom, 8)
             }
         }
         .scrollClipDisabled()

@@ -391,8 +391,8 @@ above their content field. Both crop the title frame from the actual window scre
 foreground/background luminance contrast, detecting labels covered by a flat inset background even
 when accessibility reports them as visible. Shortcut regressions continue to exercise actual
 pointer clicks on macOS and native touch on iPhone/iPad, revealing offscreen touch shortcuts by
-horizontal scrolling. The glass shortcut header keeps 12 points of top padding below navigation
-search and 28 points below the capsules for shadow clearance; its top spacing, native regular size,
+horizontal scrolling. The glass shortcut header keeps 0 points of top padding below navigation
+search and 8 points below the capsules; both padding values, native regular size,
 and lower shadow continuity are checked together. Desktop shortcut regressions compare pixels in
 the header padding against the neighboring native summary surface: the iOS-only opaque background
 must not paint a separate white strip on macOS. The regular-size/12-point-spacing follow-up passed

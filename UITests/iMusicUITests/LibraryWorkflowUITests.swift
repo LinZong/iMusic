@@ -89,9 +89,15 @@ import XCTest
         library.assertSearchDecorationIsContinuous()
         if #available(iOS 26.0, *) {
             let shortcuts = app.scrollViews["allSongs.shortcuts"].firstMatch
+            let capsule = app.element("allSongs.artists")
             XCTAssertEqual(
-                app.element("allSongs.artists").frame.minY - shortcuts.frame.minY,
-                12,
+                capsule.frame.minY - shortcuts.frame.minY,
+                0,
+                accuracy: 2
+            )
+            XCTAssertEqual(
+                shortcuts.frame.maxY - capsule.frame.maxY,
+                8,
                 accuracy: 2
             )
             library.assertShortcutDecorationIsContinuous()
